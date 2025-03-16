@@ -137,7 +137,7 @@ export const updateNumOfLosses = async (
   numOfLosses: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/num-of-losses', { numOfLosses });
+    const response = await axiosInstance.put('/num_of_losses', { numOfLosses });
     return response.data;
   } catch (error) {
     console.error('Error updating number of losses:', error);
@@ -154,7 +154,7 @@ export const updateCountdownDate = async (
   countdownDate: string
 ): Promise<string | null> => {
   try {
-    const response = await axiosInstance.put('/countdown-date', {
+    const response = await axiosInstance.put('/countdown_date', {
       countdownDate,
     });
     return response.data;
@@ -173,7 +173,7 @@ export const updateMinWordCount = async (
   minWordCount: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/min-word-count', {
+    const response = await axiosInstance.put('/min_word_count', {
       minWordCount,
     });
     return response.data;
@@ -192,7 +192,7 @@ export const updateMaxWordCount = async (
   maxWordCount: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/max-word-count', {
+    const response = await axiosInstance.put('/max_word_count', {
       maxWordCount,
     });
     return response.data;
@@ -211,7 +211,7 @@ export const updateBetaHIVECount = async (
   betaHIVECount: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/beta-hive-count', {
+    const response = await axiosInstance.put('/beta_hive_count', {
       betaHIVECount,
     });
     return response.data;
@@ -230,7 +230,7 @@ export const updateBattleName = async (
   battleName: string
 ): Promise<string | null> => {
   try {
-    const response = await axiosInstance.put('/battle-name', {
+    const response = await axiosInstance.put('/battle_name', {
       battleName,
     });
     return response.data;
@@ -249,7 +249,7 @@ export const updateBetaHIVES = async (
   updatedBetaHIVES: betaHIVESchema[]
 ): Promise<betaHIVESchema[] | null> => {
   try {
-    const response = await axiosInstance.put('/beta-hives', updatedBetaHIVES);
+    const response = await axiosInstance.put('/beta_hives', updatedBetaHIVES);
     return response.data;
   } catch (error) {
     console.error('Error updating beta hives:', error);
@@ -266,7 +266,7 @@ export const updateMinPromptSelections = async (
   minPromptSelections: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/min-prompt-selections', {
+    const response = await axiosInstance.put('/min_prompt_selections', {
       minPromptSelections,
     });
     return response.data;
