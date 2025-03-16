@@ -21,7 +21,7 @@ export const axiosInstance = axios.create({
 // Function to get all game content to update the Redux store w/ wp_options table
 export const getAllGameContent = async (): Promise<boolean> => {
   try {
-    const response = await axiosInstance.get('/game-content');
+    const response = await axiosInstance.get('/game_content');
     return response.data;
   } catch (error) {
     console.error('Error getting all game content:', error);
@@ -51,7 +51,7 @@ export const getContentWarnings = async (): Promise<
   contentWarningsSchema[] | null
 > => {
   try {
-    const response = await axiosInstance.get('/content-warnings');
+    const response = await axiosInstance.get('/content_warnings');
     return response.data;
   } catch (error) {
     console.error('Error getting content warnings:', error);
@@ -67,7 +67,7 @@ export const getAllCalendarEvents = async (): Promise<
   calendarSchema[] | null
 > => {
   try {
-    const response = await axiosInstance.get('/calendar');
+    const response = await axiosInstance.get('/calendar_events');
     return response.data;
   } catch (error) {
     console.error('Error getting all calendar events:', error);
@@ -204,6 +204,44 @@ export const updateMaxWordCount = async (
   // Local API Testing to update max word count
   // const maxWordCount = 1000;
   // return maxWordCount; --> Cannot be done from APIs due to store reducer needed
+};
+
+// Function to update beta hives count
+export const updateBetaHIVECount = async (
+  betaHIVECount: number
+): Promise<number | null> => {
+  try {
+    const response = await axiosInstance.put('/beta-hive-count', {
+      betaHIVECount,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating beta hives count:', error);
+    return null;
+  }
+
+  // Local API Testing to update beta hives count
+  // const betaHIVECount = 4;
+  // return betaHIVECount; --> Cannot be done from APIs due to store reducer needed
+};
+
+// Function to update Battle Name
+export const updateBattleName = async (
+  battleName: string
+): Promise<string | null> => {
+  try {
+    const response = await axiosInstance.put('/battle-name', {
+      battleName,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating battle name:', error);
+    return null;
+  }
+
+  // Local API Testing to update battle name
+  // const battleName = 'Battle of the Hives';
+  // return battleName; --> Cannot be done from APIs due to store reducer needed
 };
 
 // Function to update beta hives

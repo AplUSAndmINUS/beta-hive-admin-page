@@ -523,6 +523,12 @@ function get_all_game_content() {
     $min_prompt_selections = get_min_prompt_selections();
     $num_of_losses = get_num_of_losses();
     $num_of_hives = get_num_of_hives();
+    $content_warnings_count = get_content_warning_count();
+    $battle_name = get_battle_name();
+    $beta_hive_count = get_beta_hive_count();
+    $calendar_event_count = get_calendar_event_count();
+    $prompts_count = get_prompts_count();
+
 
 
     $game_content = array(
@@ -534,7 +540,13 @@ function get_all_game_content() {
         'minWordCount' => $min_word_count,
         'maxWordCount' => $max_word_count,
         'minPromptSelections' => $min_prompt_selections,
-        'numOfLosses' => $num_of_losses
+        'numOfLosses' => $num_of_losses,
+        'numOfHives' => $num_of_hives,
+        'contentWarningsCount' => $content_warnings_count,
+        'battleName' => $battle_name,
+        'betaHIVECount' => $beta_hive_count,
+        'calendarEventCount' => $calendar_event_count,
+        'promptsCount' => $prompts_count,
     );
 
     return new WP_REST_Response($game_content, 200);
@@ -582,6 +594,30 @@ function get_max_word_count() {
     return $max_word_count;
 }
 
+// Function to get battle name
+function get_battle_name() {
+    $battle_name = get_option('battle_name', '');
+    return $battle_name;
+}
+
+// Function to get beta hive count
+function get_beta_hive_count() {
+    $beta_hive_count = get_option('beta_hive_count', '');
+    return $beta_hive_count;
+}
+
+// Function to get calendar event count
+function get_calendar_event_count() {
+    $calendar_event_count = get_option('calendar_event_count', '');
+    return $calendar_event_count;
+}
+
+// Function to get content warning count
+function get_content_warning_count() {
+    $content_warning_count = get_option('content_warning_count', '');
+    return $content_warning_count;
+}
+
 // Function to get min prompt selections
 function get_min_prompt_selections() {
     $min_prompt_selections = get_option('min_prompt_selections', '');
@@ -598,6 +634,12 @@ function get_num_of_losses() {
 function get_num_of_hives() {
     $num_of_hives = get_option('num_of_hives', '');
     return $num_of_hives;
+}
+
+// Function to get prompts count
+function get_prompts_count() {
+    $prompts_count = get_option('prompts_count', '');
+    return $prompts_count;
 }
 
 // Function to update content warnings
@@ -662,4 +704,223 @@ function update_hives($request) {
     }
     return new WP_REST_Response('HIVEs updated', 200);
 }
+
+// Function to update battle name
+function update_battle_name($request) {
+    $params = $request->get_json_params();
+    if (isset($params['battleName'])) {
+        update_option('battle_name', $params['battleName']);
+    }
+    return new WP_REST_Response('Battle name updated', 200);
+}
+
+// Function to update beta hive count
+function update_beta_hive_count($request) {
+    $params = $request->get_json_params();
+    if (isset($params['betaHIVECount'])) {
+        update_option('beta_hive_count', $params['betaHIVECount']);
+    }
+    return new WP_REST_Response('Beta hive count updated', 200);
+}
+
+// Function to update calendar event count
+function update_calendar_event_count($request) {
+    $params = $request->get_json_params();
+    if (isset($params['calendarEventCount'])) {
+        update_option('calendar_event_count', $params['calendarEventCount']);
+    }
+    return new WP_REST_Response('Calendar event count updated', 200);
+}
+
+// Function to update content warning count
+function update_content_warning_count($request) {
+    $params = $request->get_json_params();
+    if (isset($params['contentWarningCount'])) {
+        update_option('content_warning_count', $params['contentWarningCount']);
+    }
+    return new WP_REST_Response('Content warning count updated', 200);
+}
+
+// Function to update prompts count
+function update_prompts_count($request) {
+    $params = $request->get_json_params();
+    if (isset($params['promptsCount'])) {
+        update_option('prompts_count', $params['promptsCount']);
+    }
+    return new WP_REST_Response('Prompts count updated', 200);
+}
+
+// Function to update number of losses
+function update_num_of_losses($request) {
+    $params = $request->get_json_params();
+    if (isset($params['numOfLosses'])) {
+        update_option('num_of_losses', $params['numOfLosses']);
+    }
+    return new WP_REST_Response('Number of losses updated', 200);
+}
+
+// Register story submission WP REST API routes
+add_action('rest_api_init', function () {
+    register_rest_route('custom/v1', '/stories', array(
+        'methods' => 'GET',
+        'callback' => 'get_all_stories',
+        'permission_callback' => '__return_true',
+    ));
+
+    register_rest_route('custom/v1', '/stories', array(
+        'methods' => 'POST',
+        'callback' => 'add_story',
+        'permission_callback' => function () {
+            return current_user_can('edit_posts');
+        },
+    ));
+
+    register_rest_route('custom/v1', '/stories/(?P<id>\d+)', array(
+        'methods' => 'PUT',
+        'callback' => 'update_story',
+        'permission_callback' => function () {
+            return current_user_can('edit_posts');
+        },
+        'args' => array(
+            'id' => array(
+                'validate_callback' => function ($param, $request, $key) {
+                    return is_numeric($param);
+                }
+            ),
+            '_wpnonce' => array(
+                'validate_callback' => function ($param, $request, $key) {
+                    return wp_verify_nonce($param, 'wp_rest');
+                }
+            )
+        )
+    ));
+
+    register_rest_route('custom/v1', '/stories/(?P<id>\d+)', array(
+        'methods' => 'DELETE',
+        'callback' => 'delete_story',
+        'permission_callback' => function () {
+            return current_user_can('delete_posts');
+        },
+        'args' => array(
+            'id' => array(
+                'validate_callback' => function ($param, $request, $key) {
+                    return is_numeric($param);
+                }
+            ),
+            '_wpnonce' => array(
+                'validate_callback' => function ($param, $request, $key) {
+                    return wp_verify_nonce($param, 'wp_rest');
+                }
+            )
+        )
+    ));
+});
+
+// Register feedback submission WP REST API routes
+add_action('rest_api_init', function () {
+    register_rest_route('custom/v1', '/feedback', array(
+        'methods' => 'GET',
+        'callback' => 'get_all_feedback',
+        'permission_callback' => '__return_true',
+    ));
+
+    register_rest_route('custom/v1', '/feedback', array(
+        'methods' => 'POST',
+        'callback' => 'add_feedback',
+        'permission_callback' => function () {
+            return current_user_can('edit_posts');
+        },
+    ));
+
+    register_rest_route('custom/v1', '/feedback/(?P<id>\d+)', array(
+        'methods' => 'PUT',
+        'callback' => 'update_feedback',
+        'permission_callback' => function () {
+            return current_user_can('edit_posts');
+        },
+        'args' => array(
+            'id' => array(
+                'validate_callback' => function ($param, $request, $key) {
+                    return is_numeric($param);
+                }
+            ),
+            '_wpnonce' => array(
+                'validate_callback' => function ($param, $request, $key) {
+                    return wp_verify_nonce($param, 'wp_rest');
+                }
+            )
+        )
+    ));
+
+    register_rest_route('custom/v1', '/feedback/(?P<id>\d+)', array(
+        'methods' => 'DELETE',
+        'callback' => 'delete_feedback',
+        'permission_callback' => function () {
+            return current_user_can('delete_posts');
+        },
+        'args' => array(
+            'id' => array(
+                'validate_callback' => function ($param, $request, $key) {
+                    return is_numeric($param);
+                }
+            ),
+            '_wpnonce' => array(
+                'validate_callback' => function ($param, $request, $key) {
+                    return wp_verify_nonce($param, 'wp_rest');
+                }
+            )
+        )
+    ));
+});
+
+// Register admin functions WP REST API routes
+add_action('rest_api_init', function () {
+    register_rest_route('custom/v1', '/update_battle_name', array(
+        'methods' => 'POST',
+        'callback' => 'update_battle_name',
+        'permission_callback' => function () {
+            return current_user_can('manage_options');
+        },
+    ));
+    register_rest_route('custom/v1', '/update_beta_hive_count', array(
+        'methods' => 'POST',
+        'callback' => 'update_beta_hive_count',
+        'permission_callback' => function () {
+            return current_user_can('manage_options');
+        },
+    ));
+    register_rest_route('custom/v1', '/update_calendar_event_count', array(
+        'methods' => 'POST',
+        'callback' => 'update_calendar_event_count',
+        'permission_callback' => function () {
+            return current_user_can('manage_options');
+        },
+    ));
+    register_rest_route('custom/v1', '/update_content_warning_count', array(
+        'methods' => 'POST',
+        'callback' => 'update_content_warning_count',
+        'permission_callback' => function () {
+            return current_user_can('manage_options');
+        },
+    ));
+    register_rest_route('custom/v1', '/update_prompts_count', array(
+        'methods' => 'POST',
+        'callback' => 'update_prompts_count',
+        'permission_callback' => function () {
+            return current_user_can('manage_options');
+        },
+    ));
+    register_rest_route('custom/v1', '/update_num_of_losses', array(
+        'methods' => 'POST',
+        'callback' => 'update_num_of_losses',
+        'permission_callback' => function () {
+            return current_user_can('manage_options');
+        },
+    ));
+    register_rest_route('custom/v1', '/game_content', array(
+        'methods' => 'GET',
+        'callback' => 'get_all_game_content',
+        'permission_callback' => '__return_true',
+    ));
+});
 ?>
