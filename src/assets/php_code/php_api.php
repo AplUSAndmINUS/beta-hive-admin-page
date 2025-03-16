@@ -39,137 +39,6 @@ add_action('wp_enqueue_scripts', 'enqueue_react_app');
 add_action('wp_enqueue_scripts', 'pass_nonce_to_react_app');
 
 /**** START STORY APIs and Functions *****/
-
-// Function to create custom post type for stories
-function create_story_post_type() {
-    register_post_type('story',
-        array(
-            'labels' => array(
-                'name' => __('Stories'),
-                'singular_name' => __('Story')
-            ),
-            'public' => true,
-            'has_archive' => true,
-            'show_in_rest' => true,
-            'supports' => array('title', 'editor', 'author', 'custom-fields'),
-        )
-    );
-}
-add_action('init', 'create_story_post_type');
-
-// Function to register custom REST API routes
-function register_story_routes() {
-    register_rest_route('custom/v1', '/stories', array(
-        'methods' => 'GET',
-        'callback' => 'get_all_stories',
-        'permission_callback' => '__return_true',
-    ));
-
-    register_rest_route('custom/v1', '/stories', array(
-        'methods' => 'POST',
-        'callback' => 'add_story',
-        'permission_callback' => function () {
-            return current_user_can('edit_posts');
-        },
-    ));
-
-    register_rest_route('custom/v1', '/stories/(?P<id>\d+)', array(
-        'methods' => 'PUT',
-        'callback' => 'update_story',
-        'permission_callback' => function () {
-            return current_user_can('edit_posts');
-        },
-        'args' => array(
-            'id' => array(
-                'validate_callback' => function ($param, $request, $key) {
-                    return is_numeric($param);
-                }
-            ),
-            '_wpnonce' => array(
-                'validate_callback' => function ($param, $request, $key) {
-                    return wp_verify_nonce($param, 'wp_rest');
-                }
-            )
-        )
-    ));
-
-    register_rest_route('custom/v1', '/stories/(?P<id>\d+)', array(
-        'methods' => 'DELETE',
-        'callback' => 'delete_story',
-        'permission_callback' => function () {
-            return current_user_can('delete_posts');
-        },
-        'args' => array(
-            'id' => array(
-                'validate_callback' => function ($param, $request, $key) {
-                    return is_numeric($param);
-                }
-            ),
-            '_wpnonce' => array(
-                'validate_callback' => function ($param, $request, $key) {
-                    return wp_verify_nonce($param, 'wp_rest');
-                }
-            )
-        )
-    ));
-
-    // Register feedback routes
-    register_rest_route('custom/v1', '/feedback', array(
-        'methods' => 'GET',
-        'callback' => 'get_all_feedback',
-        'permission_callback' => '__return_true',
-    ));
-
-    register_rest_route('custom/v1', '/feedback', array(
-        'methods' => 'POST',
-        'callback' => 'add_feedback',
-        'permission_callback' => function () {
-            return current_user_can('edit_posts');
-        },
-    ));
-
-    register_rest_route('custom/v1', '/feedback/(?P<id>\d+)', array(
-        'methods' => 'PUT',
-        'callback' => 'update_feedback',
-        'permission_callback' => function () {
-            return current_user_can('edit_posts');
-        },
-        'args' => array(
-            'id' => array(
-                'validate_callback' => function ($param, $request, $key) {
-                    return is_numeric($param);
-                }
-            ),
-            '_wpnonce' => array(
-                'validate_callback' => function ($param, $request, $key) {
-                    return wp_verify_nonce($param, 'wp_rest');
-                }
-            )
-        )
-    ));
-
-    register_rest_route('custom/v1', '/feedback/(?P<id>\d+)', array(
-        'methods' => 'DELETE',
-        'callback' => 'delete_feedback',
-        'permission_callback' => function () {
-            return current_user_can('delete_posts');
-        },
-        'args' => array(
-            'id' => array(
-                'validate_callback' => function ($param, $request, $key) {
-                    return is_numeric($param);
-                }
-            ),
-            '_wpnonce' => array(
-                'validate_callback' => function ($param, $request, $key) {
-                    return wp_verify_nonce($param, 'wp_rest');
-                }
-            )
-        )
-    ));
-}
-add_action('rest_api_init', 'register_story_routes');
-
 // Callback function to get all stories
 function get_all_stories($request) {
     $args = array(
@@ -537,16 +406,16 @@ function get_all_game_content() {
         'hives' => $hives,
         'calendarEvents' => $calendar_events,
         'countdownDate' => $countdown_date,
-        'minWordCount' => $min_word_count,
-        'maxWordCount' => $max_word_count,
-        'minPromptSelections' => $min_prompt_selections,
-        'numOfLosses' => $num_of_losses,
-        'numOfHives' => $num_of_hives,
-        'contentWarningsCount' => $content_warnings_count,
+        'minWordCount' => (int) $min_word_count,
+        'maxWordCount' => (int) $max_word_count,
+        'minPromptSelections' => (int) $min_prompt_selections,
+        'numOfLosses' => (int) $num_of_losses,
+        'numOfHives' => (int) $num_of_hives,
+        'contentWarningsCount' => (int) $content_warnings_count,
         'battleName' => $battle_name,
-        'betaHIVECount' => $beta_hive_count,
-        'calendarEventCount' => $calendar_event_count,
-        'promptsCount' => $prompts_count,
+        'betaHIVECount' => (int) $beta_hive_count,
+        'calendarEventCount' => (int) $calendar_event_count,
+        'promptsCount' => (int) $prompts_count,
     );
 
     return new WP_REST_Response($game_content, 200);
