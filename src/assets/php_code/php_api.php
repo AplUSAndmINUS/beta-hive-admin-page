@@ -709,54 +709,84 @@ function update_hives($request) {
 function update_battle_name($request) {
     $params = $request->get_json_params();
     if (isset($params['battleName'])) {
-        update_option('battle_name', $params['battleName']);
+        if (get_option('battle_name') !== false) {
+            update_option('battle_name', $params['battleName']);
+            return new WP_REST_Response('Battle name updated', 200);
+        } else {
+            return new WP_Error('option_not_found', __('Option not found'), array('status' => 404));
+        }
     }
-    return new WP_REST_Response('Battle name updated', 200);
+    return new WP_Error('invalid_request', __('Invalid request'), array('status' => 400));
 }
 
 // Function to update beta hive count
 function update_beta_hive_count($request) {
     $params = $request->get_json_params();
     if (isset($params['betaHIVECount'])) {
-        update_option('beta_hive_count', $params['betaHIVECount']);
+        if (get_option('beta_hive_count') !== false) {
+            update_option('beta_hive_count', $params['betaHIVECount']);
+            return new WP_REST_Response('Beta hive count updated', 200);
+        } else {
+            return new WP_Error('option_not_found', __('Option not found'), array('status' => 404));
+        }
     }
-    return new WP_REST_Response('Beta hive count updated', 200);
+    return new WP_Error('invalid_request', __('Invalid request'), array('status' => 400));
 }
 
 // Function to update calendar event count
 function update_calendar_event_count($request) {
     $params = $request->get_json_params();
     if (isset($params['calendarEventCount'])) {
-        update_option('calendar_event_count', $params['calendarEventCount']);
+        if (get_option('calendar_event_count') !== false) {
+            update_option('calendar_event_count', $params['calendarEventCount']);
+            return new WP_REST_Response('Calendar event count updated', 200);
+        } else {
+            return new WP_Error('option_not_found', __('Option not found'), array('status' => 404));
+        }
     }
-    return new WP_REST_Response('Calendar event count updated', 200);
+    return new WP_Error('invalid_request', __('Invalid request'), array('status' => 400));
 }
 
 // Function to update content warning count
 function update_content_warning_count($request) {
     $params = $request->get_json_params();
     if (isset($params['contentWarningCount'])) {
-        update_option('content_warning_count', $params['contentWarningCount']);
+        if (get_option('content_warning_count') !== false) {
+            update_option('content_warning_count', $params['contentWarningCount']);
+            return new WP_REST_Response('Content warning count updated', 200);
+        } else {
+            return new WP_Error('option_not_found', __('Option not found'), array('status' => 404));
+        }
     }
-    return new WP_REST_Response('Content warning count updated', 200);
+    return new WP_Error('invalid_request', __('Invalid request'), array('status' => 400));
 }
 
 // Function to update prompts count
 function update_prompts_count($request) {
     $params = $request->get_json_params();
     if (isset($params['promptsCount'])) {
-        update_option('prompts_count', $params['promptsCount']);
+        if (get_option('prompts_count') !== false) {
+            update_option('prompts_count', $params['promptsCount']);
+            return new WP_REST_Response('Prompts count updated', 200);
+        } else {
+            return new WP_Error('option_not_found', __('Option not found'), array('status' => 404));
+        }
     }
-    return new WP_REST_Response('Prompts count updated', 200);
+    return new WP_Error('invalid_request', __('Invalid request'), array('status' => 400));
 }
 
 // Function to update number of losses
 function update_num_of_losses($request) {
     $params = $request->get_json_params();
     if (isset($params['numOfLosses'])) {
-        update_option('num_of_losses', $params['numOfLosses']);
+        if (get_option('num_of_losses') !== false) {
+            update_option('num_of_losses', $params['numOfLosses']);
+            return new WP_REST_Response('Number of losses updated', 200);
+        } else {
+            return new WP_Error('option_not_found', __('Option not found'), array('status' => 404));
+        }
     }
-    return new WP_REST_Response('Number of losses updated', 200);
+    return new WP_Error('invalid_request', __('Invalid request'), array('status' => 400));
 }
 
 // Register story submission WP REST API routes
