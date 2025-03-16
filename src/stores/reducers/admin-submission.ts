@@ -30,14 +30,14 @@ interface AdminSubmissionState {
 }
 
 const initialState: AdminSubmissionState = {
-  battleName: 'Battle of the Hives',
-  betaHIVECount: 8,
+  battleName: 'Battle of the HIVEs',
+  betaHIVECount: 3,
   betaHIVEs: [...BETAHIVE_SELECTIONS],
   calendarEventCount: 4,
   calendarEvents: [...CALENDAR_EVENTS],
   contentWarningCount: 4,
   contentWarnings: [...CONTENT_WARNINGS],
-  countdownDate: moment('2025-04-11').format('MM-DD-YYYY'),
+  countdownDate: moment('2025-04-14').format('MM-DD-YYYY'),
   minPromptSelections: 2,
   numOfLosses: 3,
   promptsCount: 10,

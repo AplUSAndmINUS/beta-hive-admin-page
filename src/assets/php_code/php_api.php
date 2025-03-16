@@ -472,6 +472,21 @@ function initialize_beta_hive_options() {
     if (get_option('prompts') === false) {
         update_option('prompts', array());
     }
+    if (get_option('battle_name') === false) {
+        update_option('battle_name', 'Battle of the HIVEs');
+    }
+    if (get_option('beta_hive_count') === false) {
+        update_option('beta_hive_count', 3);
+    }
+    if (get_option('calendar_event_count') === false) {
+        update_option('calendar_event_count', 4);
+    }
+    if (get_option('content_warning_count') === false) {
+        update_option('content_warning_count', 4);
+    }
+    if (get_option('prompts_count') === false) {
+        update_option('prompts_count', 10);
+    }
     if (get_option('hives') === false) {
         update_option('hives', array());
     }
@@ -479,10 +494,10 @@ function initialize_beta_hive_options() {
         update_option('calendar_events', array());
     }
     if (get_option('countdown_date') === false) {
-        update_option('countdown_date', '2025-04-20T00:00:00');
+        update_option('countdown_date', '2025-04-14T00:00:00');
     }
     if (get_option('min_word_count') === false) {
-        update_option('min_word_count', 500);
+        update_option('min_word_count', 250);
     }
     if (get_option('max_word_count') === false) {
         update_option('max_word_count', 1000);
@@ -507,6 +522,8 @@ function get_all_game_content() {
     $max_word_count = get_max_word_count();
     $min_prompt_selections = get_min_prompt_selections();
     $num_of_losses = get_num_of_losses();
+    $num_of_hives = get_num_of_hives();
+
 
     $game_content = array(
         'contentWarnings' => $content_warnings,
@@ -565,6 +582,42 @@ function get_max_word_count() {
     return $max_word_count;
 }
 
+// Function to get min prompt selections
+function get_min_prompt_selections() {
+    $min_prompt_selections = get_option('min_prompt_selections', '');
+    return $min_prompt_selections;
+}
+
+// Function to get number of losses
+function get_num_of_losses() {
+    $num_of_losses = get_option('num_of_losses', '');
+    return $num_of_losses;
+}
+
+// Function to get number of HIVEs
+function get_num_of_hives() {
+    $num_of_hives = get_option('num_of_hives', '');
+    return $num_of_hives;
+}
+
+// Function to update content warnings
+function update_content_warnings($request) {
+    $params = $request->get_json_params();
+    if (isset($params['contentWarnings'])) {
+        update_option('content_warnings', $params['contentWarnings']);
+    }
+    return new WP_REST_Response('Content warnings updated', 200);
+}
+
+// Function to update prompts
+function update_prompts($request) {
+    $params = $request->get_json_params();
+    if (isset($params['prompts'])) {
+        update_option('prompts', $params['prompts']);
+    }
+    return new WP_REST_Response('Prompts updated', 200);
+}
+
 // Function to update max word count
 function update_max_word_count($request) {
     $params = $request->get_json_params();
@@ -608,14 +661,5 @@ function update_hives($request) {
         update_option('hives', $params['hives']);
     }
     return new WP_REST_Response('HIVEs updated', 200);
-}
-
-// Function to update all prompts
-function update_prompts($request) {
-    $params = $request->get_json_params();
-    if (isset($params['prompts'])) {
-        update_option('prompts', $params['prompts']);
-    }
-    return new WP_REST_Response('Prompts updated', 200);
 }
 ?>

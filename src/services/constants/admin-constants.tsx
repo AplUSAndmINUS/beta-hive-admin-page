@@ -7,23 +7,24 @@ import { promptsSchema, settingSchema } from '../models/prompt-selection.types';
 export const CALENDAR_EVENTS: calendarSchema[] = [
   {
     name: 'BetaHIVE Selection',
-    date: '2025-03-01',
-    description: 'Choose your BetaHIVE genre!',
+    date: '2025-03-31',
+    description:
+      'Choose your HIVE! This is where you will compete with other hives for the title.',
   },
   {
     name: 'Prompt Selection',
-    date: '2025-03-08',
-    description: 'Select your character and setting!',
-  },
-  {
-    name: 'Content Warnings',
-    date: '2025-03-15',
-    description: 'Choose your content warnings!',
+    date: '2025-04-04',
+    description: "Select prompts you'll use to write your story.",
   },
   {
     name: 'Story Submission',
-    date: '2025-04-22',
-    description: 'Submit your story for review!',
+    date: '2025-04-12',
+    description: "This is the final day where you cannot edit your story. Ensure it's done by this date!",
+  },
+  {
+    name: 'The battleHIVE!',
+    date: '2025-04-14',
+    description: 'Let the battleHIVE begin!',
   },
 ];
 
