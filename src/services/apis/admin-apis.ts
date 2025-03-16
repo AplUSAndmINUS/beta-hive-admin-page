@@ -1,10 +1,22 @@
-import { axiosInstance } from './story-apis';
+import axios from 'axios';
 
 // import { CALENDAR_EVENTS, CONTENT_WARNINGS, PROMPT_SELECTIONS } from '../constants/admin-constants';
-import { betaHIVESchema } from 'shared/services/models/betaHIVE-selection.types';
-import { promptsSchema } from 'shared/services/models/prompt-selection.types';
-import { contentWarningsSchema } from 'shared/services/models/content-warnings.types';
-import { calendarSchema } from 'shared/services/models/calendar.types';
+import { betaHIVESchema } from 'src/services/models/betaHIVE-selection.types';
+import { promptsSchema } from 'src/services/models/prompt-selection.types';
+import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
+import { calendarSchema } from 'src/services/models/calendar.types';
+
+// define nonce wpApiSettings globally
+declare const wpApiSettings: { nonce: string };
+
+// Creaate an axios instance with the nonce token for WP backend access
+export const axiosInstance = axios.create({
+  baseURL: '/wp-json/custom/v1',
+  headers: {
+    'X-WP-Nonce': wpApiSettings.nonce,
+    'Content-Type': 'application/json',
+  },
+});
 
 // Function to get all game content to update the Redux store w/ wp_options table
 export const getAllGameContent = async (): Promise<boolean> => {
