@@ -13,10 +13,10 @@ $large-desktop: 1600px;
 // start styles
 #root {
   background-color: transparent; // made transparent to allow WP backgrounds to come through
+  max-width: 1200px;
 }
 
 .App-Main {
-  max-width: $desktop;
   padding-top: 4rem;
   margin: 0 auto;
 
@@ -26,14 +26,6 @@ $large-desktop: 1600px;
 
   @media screen and (min-width: $mobile) and (max-width: $tablet) {
     padding: 2rem;
-  }
-
-  @media screen and (min-width: $tablet) and (max-width: $desktop) {
-    padding: 5rem;
-  }
-
-  @media screen and (min-width: $desktop) {
-    padding: 4rem;
   }
 }
 
