@@ -4,13 +4,18 @@ import NotFound from 'src/pages/404/404';
 
 export const adminRoutes: Routes[] = [
   {
+    path: '/',
+    name: 'Admin',
+    element: <AdminPage />,
+  },
+  {
     path: '/admin-page',
-    // name: 'Admin',
+    name: 'Admin',
     element: <AdminPage />,
   },
   {
     path: '*',
-    // name: 'Not Found',
+    name: 'Not Found',
     element: <NotFound />,
   },
 ];
