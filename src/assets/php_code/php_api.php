@@ -28,7 +28,7 @@ function enqueue_react_app() {
 
 // Function to generate and pass nonce to the front-end
 function pass_nonce_to_react_app() {
-    // Generate a nonce and pass it to the front-end
+    // Generate a nonce and pass it to the front-end-- change line 32 to match the appropriate project name
     wp_localize_script('beta-hive-story-submission', 'wpApiSettings', array(
         'nonce' => wp_create_nonce('wp_rest')
     ));
@@ -38,7 +38,7 @@ function pass_nonce_to_react_app() {
 add_action('wp_enqueue_scripts', 'enqueue_react_app');
 add_action('wp_enqueue_scripts', 'pass_nonce_to_react_app');
 
-/**** START STORY APIs and Fnctions *****/
+/**** START STORY APIs and Functions *****/
 
 // Function to create custom post type for stories
 function create_story_post_type() {
@@ -370,8 +370,8 @@ function get_all_feedback($request) {
     return new WP_REST_Response($feedback, 200);
 }
 
-/**** END STORY APIs and Fnctions *****/
-/**** START FEEDBACK APIs and Fnctions *****/
+/**** END STORY APIs and Functions *****/
+/**** START FEEDBACK APIs and Functions *****/
 
 // Callback function to add feedback
 function add_feedback($request) {
@@ -457,7 +457,7 @@ function delete_feedback($request) {
     return new WP_REST_Response('Feedback deleted', 200);
 }
 
-/**** SNED FEEDBACK APIs and Fnctions *****/
+/**** SNED FEEDBACK APIs and Functions *****/
 /**** START ADMIN APIs and Fnctions *****/
 
 // Function to ensure the wp_options table has the correct fields first
