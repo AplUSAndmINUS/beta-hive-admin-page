@@ -68,7 +68,10 @@ export const InputSelectionCard: React.FC<InputSelectionCardProps> = ({
             <h5 className='card-title'>
               <label
                 className='d-flex align-items-center'
-                style={{ cursor: !isDisabled ? 'pointer' : 'auto', textTransform: 'none' }}
+                style={{
+                  cursor: !isDisabled ? 'pointer' : 'auto',
+                  textTransform: 'none',
+                }}
                 onClick={($e) => $e.stopPropagation()}
               >
                 <input
