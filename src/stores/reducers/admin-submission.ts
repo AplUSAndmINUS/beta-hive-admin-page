@@ -1,19 +1,18 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import moment from 'moment';
 
-import { BETAHIVE_SELECTIONS } from '../../services/constants/betaHIVE-constants';
+import { BETAHIVE_SELECTIONS } from 'src/services/constants/betaHIVE-constants';
 import {
   CALENDAR_EVENTS,
   CONTENT_WARNINGS,
   PROMPT_SELECTIONS,
-} from '../../services/constants/admin-constants';
-import { betaHIVESchema } from '../../services/models/betaHIVE-selection.types';
-import { calendarSchema } from '../../services/models/calendar.types';
-import { contentWarningsSchema } from '../../services/models/content-warnings.types';
-import { promptsSchema } from '../../services/models/prompt-selection.types';
+} from 'src/services/constants/admin-constants';
+import { betaHIVESchema } from 'src/services/models/betaHIVE-selection.types';
+import { calendarSchema } from 'src/services/models/calendar.types';
+import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
+import { promptsSchema } from 'src/services/models/prompt-selection.types';
 
 interface AdminSubmissionState {
-  battleHIVEName: string;
   betaHIVECount: number;
   betaHIVEs: betaHIVESchema[];
   calendarEventCount: number;
@@ -30,7 +29,6 @@ interface AdminSubmissionState {
 }
 
 const initialState: AdminSubmissionState = {
-  battleHIVEName: 'battleHIVE',
   betaHIVECount: 8,
   betaHIVEs: [...BETAHIVE_SELECTIONS],
   calendarEventCount: 4,

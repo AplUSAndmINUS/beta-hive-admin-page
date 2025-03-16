@@ -7,7 +7,7 @@ import { adminRoutes } from 'src/routes/admin-routes';
 import Menu from 'src/components/menu/menu';
 
 import 'bootstrap/dist/js/bootstrap.bundle.min';
-import 'shared/styles/_app.scss';
+import 'src/styles/_app.scss';
 
 const App: React.FC = () => {
   return (

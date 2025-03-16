@@ -1,6 +1,6 @@
 import React from 'react';
 
-import NavigateButtons from 'shared/components/navigate-buttons/navigate-buttons';
+import NavigateButtons from 'src/components/navigate-buttons/navigate-buttons';
 
 export const NotFound: React.FC = () => {
   return (

@@ -1,8 +1,8 @@
 import { AdminPage } from '../pages/admin/admin';
-import { Routes } from 'shared/services/models/routes.types';
-import NotFound from 'shared/pages/404/404';
+import { Routes } from 'src/services/models/routes.types';
+import NotFound from 'src/pages/404/404';
 
-export const adminRoutes: any[] = [
+export const adminRoutes: Routes[] = [
   {
     path: '/admin-page',
     // name: 'Admin',

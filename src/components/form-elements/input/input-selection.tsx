@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from '../../../../../../src/stores/store';
+import { useAppSelector } from 'src/stores/store';
 
 interface InputSelectionCardProps {
   handleSelection: (selection: string, isChecked?: boolean) => void;

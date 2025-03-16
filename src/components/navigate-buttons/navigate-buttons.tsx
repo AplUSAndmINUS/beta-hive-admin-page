@@ -1,6 +1,6 @@
 import React from 'react';
 
-import useNavigation from '../../../../../src/utils/hooks/useNavigation';
+import useNavigation from 'src/utils/hooks/useNavigation';
 
 interface NavigateButtonsProps {
   backNavigation?: string;

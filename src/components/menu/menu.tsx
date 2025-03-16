@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation as location } from 'react-router-dom';
-import { useIsMobile } from 'shared/utils/hooks/useIsMobile';
+import { useIsMobile } from 'src/utils/hooks/useIsMobile';
 
 export interface MenuProps {
   routes: any;
