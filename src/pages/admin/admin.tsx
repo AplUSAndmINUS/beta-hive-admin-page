@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 
-import { useAppDispatch, useAppSelector } from '../../../../shared/stores/store';
+import { useAppDispatch, useAppSelector } from '../../stores/store';
 import {
   setBetaHIVECount,
   setBetaHIVEs,
@@ -16,12 +16,17 @@ import {
   setPrompts,
   setMinWordCount,
   setMaxWordCount,
-} from '../../../../shared/stores/reducers/admin-submission';
-import Accordion from '../../../../shared/components/accordion/accordion';
-import ButtonsRow from '../../../../shared/components/form-elements/buttons/buttons-row';
-import InputType from '../../../../shared/components/form-elements/input/input-type';
-import Modal from '../../../../shared/components/modal/modal';
-import SaveSpinner from '../../../../shared/components/draft-save-spinner/draft-save-spinner';
+} from '../../stores/reducers/admin-submission';
+import Accordion from '../../components/accordion/accordion';
+import ButtonsRow from '../../components/form-elements/buttons/buttons-row';
+import InputType from '../../components/form-elements/input/input-type';
+import Modal from '../../components/modal/modal';
+import SaveSpinner from '../../components/draft-save-spinner/draft-save-spinner';
+
+import { betaHIVESchema } from 'src/services/models/betaHIVE-selection.types';
+import { calendarSchema } from 'src/services/models/calendar.types';
+import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
+import { promptsSchema } from 'src/services/models/prompt-selection.types';
 
 export const AdminPage: React.FC = () => {
   const {
@@ -38,7 +43,7 @@ export const AdminPage: React.FC = () => {
     prompts,
     minWordCount,
     maxWordCount,
-  } = useAppSelector((state) => state.adminSubmission);
+  } = useAppSelector((state: any) => state.adminSubmission);
   const dispatch = useAppDispatch();
   const [alertMessage, setAlertMessage] = React.useState<string>('');
   const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -172,7 +177,7 @@ export const AdminPage: React.FC = () => {
       case 'betaHiveOptions':
         dispatch(
           setBetaHIVEs(
-            betaHIVEs.map((item, i) =>
+            betaHIVEs.map((item: betaHIVESchema, i: number) =>
               i === index ? { ...item, name: value } : item
             )
           )
@@ -181,7 +186,7 @@ export const AdminPage: React.FC = () => {
       case 'calendarEvents':
         dispatch(
           setCalendarEvents(
-            calendarEvents.map((item, i) =>
+            calendarEvents.map((item: calendarSchema, i: number) =>
               i === index ? { ...item, name: value } : item
             )
           )
@@ -190,7 +195,7 @@ export const AdminPage: React.FC = () => {
       case 'contentWarnings':
         dispatch(
           setContentWarnings(
-            contentWarnings.map((item, i) =>
+            contentWarnings.map((item: contentWarningsSchema, i: number) =>
               i === index ? { ...item, name: value } : item
             )
           )
@@ -199,7 +204,7 @@ export const AdminPage: React.FC = () => {
       case 'prompts':
         dispatch(
           setPrompts(
-            prompts.map((item, i) =>
+            prompts.map((item: promptsSchema, i: number) =>
               i === index ? { ...item, name: value } : item
             )
           )
