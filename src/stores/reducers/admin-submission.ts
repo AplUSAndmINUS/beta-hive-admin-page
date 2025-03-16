@@ -13,6 +13,7 @@ import { contentWarningsSchema } from 'src/services/models/content-warnings.type
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
 
 interface AdminSubmissionState {
+  battleName: string;
   betaHIVECount: number;
   betaHIVEs: betaHIVESchema[];
   calendarEventCount: number;
@@ -29,18 +30,19 @@ interface AdminSubmissionState {
 }
 
 const initialState: AdminSubmissionState = {
+  battleName: 'Battle of the Hives',
   betaHIVECount: 8,
   betaHIVEs: [...BETAHIVE_SELECTIONS],
   calendarEventCount: 4,
   calendarEvents: [...CALENDAR_EVENTS],
   contentWarningCount: 4,
   contentWarnings: [...CONTENT_WARNINGS],
-  countdownDate: moment('2025-03-21').format('YYYY-MM-DD'),
+  countdownDate: moment('2025-04-11').format('MM-DD-YYYY'),
   minPromptSelections: 2,
   numOfLosses: 3,
   promptsCount: 10,
   prompts: [...PROMPT_SELECTIONS],
-  minWordCount: 500,
+  minWordCount: 250,
   maxWordCount: 1000,
 };
 
@@ -48,6 +50,9 @@ const adminSubmissionSlice = createSlice({
   name: 'adminSubmissionReducer',
   initialState,
   reducers: {
+    setBattleName(state, action: PayloadAction<string>) {
+      state.battleName = action.payload;
+    },
     setBetaHIVECount(state, action: PayloadAction<number>) {
       state.betaHIVECount = action.payload;
     },

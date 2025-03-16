@@ -48,9 +48,9 @@ export const AdminPage: React.FC = () => {
   const [alertMessage, setAlertMessage] = React.useState<string>('');
   const [showModal, setShowModal] = React.useState<boolean>(false);
 
-  const [isBetaHiveLoading, setIsBetaHiveLoading] =
-    React.useState<boolean>(false);
-  const [isBetaHiveSaved, setIsBetaHiveSaved] = React.useState<boolean>(false);
+  // const [isBetaHiveLoading, setIsBetaHiveLoading] =
+  React.useState<boolean>(false);
+  // const [isBetaHiveSaved, setIsBetaHiveSaved] = React.useState<boolean>(false);
   const [isCalendarEventsLoading, setIsCalendarEventsLoading] =
     React.useState<boolean>(false);
   const [isCalendarEventsSaved, setIsCalendarEventsSaved] =
@@ -72,15 +72,16 @@ export const AdminPage: React.FC = () => {
       value = 1;
     }
 
+    // case 'betaHiveOptions': -- No Beta HIVE options for now
+    //   dispatch(setBetaHIVECount(value));
+    //   setIsBetaHiveLoading(true);
+    //   setTimeout(() => {
+    //     setIsBetaHiveLoading(false);
+    //     setIsBetaHiveSaved(true);
+    //   }, 2500); // Simulate saving delay
+    //   break;
+
     switch (inputType) {
-      case 'betaHiveOptions':
-        dispatch(setBetaHIVECount(value));
-        setIsBetaHiveLoading(true);
-        setTimeout(() => {
-          setIsBetaHiveLoading(false);
-          setIsBetaHiveSaved(true);
-        }, 2500); // Simulate saving delay
-        break;
       case 'calendarEvents':
         dispatch(setCalendarEventCount(value));
         setIsCalendarEventsLoading(true);
@@ -232,7 +233,7 @@ export const AdminPage: React.FC = () => {
 
     if (validateSubmission()) {
       // Proceed with submission
-      console.log('HIVE options:', betaHIVEs);
+      // console.log('HIVE options:', betaHIVEs);
       console.log('Prompts:', prompts);
       console.log('Content warnings:', contentWarnings);
       console.log('Min word count:', minWordCount);
@@ -354,10 +355,10 @@ export const AdminPage: React.FC = () => {
   return (
     <div className='container-fluid'>
       <div className='row'>
-        <h1 className='bd-title pb-2 mt-4 mb-4'>Admin</h1>
+        <h1 className='bd-title pb-2 mt-4 mb-4'>HIVE Admin</h1>
         <p>
-          Fill out all the fields marked with a red asterisk in each of the
-          sections. <br />
+          Fill out all the required fields marked with a red asterisk in each of
+          the sections. <br />
           You may close each accordion once completed to help you as you fill
           out the form.
         </p>
@@ -495,7 +496,7 @@ export const AdminPage: React.FC = () => {
           calendarEvents,
           handleChange
         )}
-        {generateAccordion(
+        {/*{generateAccordion(
           'HIVE options',
           'collapseFive',
           betaHIVECount,
@@ -507,7 +508,7 @@ export const AdminPage: React.FC = () => {
           isBetaHiveSaved,
           betaHIVEs,
           handleChange
-        )}
+        )} No Beta hive options for now */}
         {generateAccordion(
           'Prompts',
           'collapseSix',

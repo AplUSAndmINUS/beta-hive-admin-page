@@ -490,7 +490,7 @@ function initialize_beta_hive_options() {
     if (get_option('min_prompt_selections') === false) {
         update_option('min_prompt_selections', 2);
     }
-    if (get_option)'num_of_losses') === false) {
+    if (get_option('num_of_losses') === false) {
         update_option('num_of_losses', 3);
     }
 }
