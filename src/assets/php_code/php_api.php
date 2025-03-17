@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  * HIVE-functions
  */
@@ -81,22 +82,6 @@ function pass_nonce_to_react_app() {
             'nonce' => wp_create_nonce('wp_rest')
         ));
     }
-}
-
-// Hook the functions to the wp_enqueue_scripts action
-add_action('wp_enqueue_scripts', 'enqueue_react_app');
-add_action('wp_enqueue_scripts', 'pass_nonce_to_react_app');
-
-// Function to generate and pass nonce to the front-end
-function pass_nonce_to_react_app() {
-    // Generate a nonce and pass it to the front-end-- change line 32 to match the appropriate project name
-    wp_localize_script('beta-hive-story-submission', 'wpApiSettings', array(
-        'nonce' => wp_create_nonce('wp_rest')
-    ));
-	
-	wp_localize_script('beta-hive-admin-page', 'wpApiSettings', array(
-        'nonce' => wp_create_nonce('wp_rest')
-    ));
 }
 
 // Hook the functions to the wp_enqueue_scripts action
@@ -392,7 +377,7 @@ function delete_feedback($request) {
 }
 
 /**** SNED FEEDBACK APIs and Functions *****/
-/**** START ADMIN APIs and Fnctions *****/
+/**** START ADMIN APIs and Functions *****/
 
 // Function to ensure the wp_options table has the correct fields first
 // Register custom REST API route to get game parameters
@@ -887,3 +872,4 @@ add_action('rest_api_init', function () {
         'permission_callback' => '__return_true',
     ));
 });
+?>
