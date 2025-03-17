@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * HIVE-functions
  */
@@ -441,7 +440,6 @@ function get_all_game_content() {
     $max_word_count = get_max_word_count();
     $min_prompt_selections = get_min_prompt_selections();
     $num_of_losses = get_num_of_losses();
-    $num_of_hives = get_num_of_hives();
     $content_warnings_count = get_content_warning_count();
     $battle_name = get_battle_name();
     $beta_hive_count = get_beta_hive_count();
@@ -460,7 +458,6 @@ function get_all_game_content() {
         'maxWordCount' => (int) $max_word_count,
         'minPromptSelections' => (int) $min_prompt_selections,
         'numOfLosses' => (int) $num_of_losses,
-        'numOfHives' => (int) $num_of_hives,
         'contentWarningsCount' => (int) $content_warnings_count,
         'battleName' => $battle_name,
         'betaHIVECount' => (int) $beta_hive_count,
@@ -549,12 +546,6 @@ function get_num_of_losses() {
     return $num_of_losses;
 }
 
-// Function to get number of HIVEs
-function get_num_of_hives() {
-    $num_of_hives = get_option('num_of_hives', '');
-    return $num_of_hives;
-}
-
 // Function to get prompts count
 function get_prompts_count() {
     $prompts_count = get_option('prompts_count', '');
@@ -577,6 +568,15 @@ function update_prompts($request) {
         update_option('prompts', $params['prompts']);
     }
     return new WP_REST_Response('Prompts updated', 200);
+}
+
+// Function to update min word count
+function update_min_word_count($request) {
+    $params = $request->get_json_params();
+    if (isset($params['min'])) {
+        update_option('min_word_count', $params['min']);
+    }
+    return new WP_REST_Response('Min word count updated', 200);
 }
 
 // Function to update max word count
@@ -866,10 +866,67 @@ add_action('rest_api_init', function () {
             return current_user_can('manage_options');
         },
     ));
+	register_rest_route('custom/v1', '/update_prompts', array(
+		'methods' => 'POST',
+		'callback' => 'update_prompts',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
+	));
+	register_rest_route('custom/v1', '/update_content_warnings', array(
+		'methods' => 'POST',
+		'callback' => 'update_content_warnings',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
+	));
+	register_rest_route('custom/v1', '/update_min_word_count', array(
+		'methods' => 'POST',
+		'callback' => 'update_min_word_count',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
+	));
+	register_rest_route('custom/v1', '/update_max_word_count', array(
+		'methods' => 'POST',
+		'callback' => 'update_max_word_count',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
+	));
+	register_rest_route('custom/v1', '/update_min_prompt_selections', array(
+		'methods' => 'POST',
+		'callback' => 'update_min_prompt_selections',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
+	));
+	register_rest_route('custom/v1', '/update_countdown_date', array(
+		'methods' => 'POST',
+		'callback' => 'update_countdown_date',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
+	));
+	register_rest_route('custom/v1', '/update_calendar_events', array(
+		'methods' => 'POST',
+		'callback' => 'update_calendar_events',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
+	));
+	register_rest_route('custom/v1', '/update_hives', array(
+		'methods' => 'POST',
+		'callback' => 'update_hives',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
+	));
     register_rest_route('custom/v1', '/game_content', array(
         'methods' => 'GET',
         'callback' => 'get_all_game_content',
         'permission_callback' => '__return_true',
     ));
 });
+
 ?>
