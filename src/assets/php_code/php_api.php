@@ -1,10 +1,9 @@
 <?php
-    // filepath where this goes: /path/to/the/theme/functions.php
-    // Generated with assistance from GitHub Copilot, 2025 TerenceWaters.com
+// Generated with assistance from GitHub Copilot, 2025 TerenceWaters.com
 
 // Function to enqueue React app scripts and styles
 function enqueue_react_app() {
-    // Check if the script is already enqueued
+    // Enqueue story-submission app
     if (!wp_script_is('beta-hive-story-submission', 'enqueued')) {
         wp_enqueue_script(
             'beta-hive-story-submission',
@@ -13,13 +12,43 @@ function enqueue_react_app() {
             null,
             true
         );
-    }
-
-    // Check if the style is already enqueued
-    if (!wp_style_is('beta-hive-story-submission', 'enqueued')) {
         wp_enqueue_style(
             'beta-hive-story-submission',
             get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-story-submission/build/static/css/main.f2ed6db1.css',
+            array(),
+            null
+        );
+    }
+
+    // Enqueue admin-page app
+    if (!wp_script_is('beta-hive-admin-page', 'enqueued')) {
+        wp_enqueue_script(
+            'beta-hive-admin-page',
+            get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-admin-page/build/static/js/main.fd6ebc7a.js',
+            array(),
+            null,
+            true
+        );
+        wp_enqueue_style(
+            'beta-hive-admin-page',
+            get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-admin-page/build/static/css/main.f2ed6db1.css',
+            array(),
+            null
+        );
+    }
+
+    // Enqueue enter-the-arena app
+    if (!wp_script_is('beta-hive-enter-the-arena', 'enqueued')) {
+        wp_enqueue_script(
+            'beta-hive-enter-the-arena',
+            get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-enter-the-arena/build/static/js/main.abcdef12.js',
+            array(),
+            null,
+            true
+        );
+        wp_enqueue_style(
+            'beta-hive-enter-the-arena',
+            get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-enter-the-arena/build/static/css/main.abcdef12.css',
             array(),
             null
         );
@@ -28,8 +57,40 @@ function enqueue_react_app() {
 
 // Function to generate and pass nonce to the front-end
 function pass_nonce_to_react_app() {
+    // Generate a nonce and pass it to the front-end for story-submission
+    if (wp_script_is('beta-hive-story-submission', 'enqueued')) {
+        wp_localize_script('beta-hive-story-submission', 'wpApiSettings', array(
+            'nonce' => wp_create_nonce('wp_rest')
+        ));
+    }
+
+    // Generate a nonce and pass it to the front-end for admin-page
+    if (wp_script_is('beta-hive-admin-page', 'enqueued')) {
+        wp_localize_script('beta-hive-admin-page', 'wpApiSettings', array(
+            'nonce' => wp_create_nonce('wp_rest')
+        ));
+    }
+
+    // Generate a nonce and pass it to the front-end for enter-the-arena
+    if (wp_script_is('beta-hive-enter-the-arena', 'enqueued')) {
+        wp_localize_script('beta-hive-enter-the-arena', 'wpApiSettings', array(
+            'nonce' => wp_create_nonce('wp_rest')
+        ));
+    }
+}
+
+// Hook the functions to the wp_enqueue_scripts action
+add_action('wp_enqueue_scripts', 'enqueue_react_app');
+add_action('wp_enqueue_scripts', 'pass_nonce_to_react_app');
+
+// Function to generate and pass nonce to the front-end
+function pass_nonce_to_react_app() {
     // Generate a nonce and pass it to the front-end-- change line 32 to match the appropriate project name
     wp_localize_script('beta-hive-story-submission', 'wpApiSettings', array(
+        'nonce' => wp_create_nonce('wp_rest')
+    ));
+	
+	wp_localize_script('beta-hive-admin-page', 'wpApiSettings', array(
         'nonce' => wp_create_nonce('wp_rest')
     ));
 }
