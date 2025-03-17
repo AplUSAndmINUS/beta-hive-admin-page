@@ -87,7 +87,7 @@ export const InputSelectionCard: React.FC<InputSelectionCardProps> = ({
                     height: '1.5rem',
                   }}
                 />
-                {label}
+                <span style={{ textTransform: 'none' }}>{label}</span>
               </label>
             </h5>
           </div>

@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * HIVE-functions
+ */
 // Generated with assistance from GitHub Copilot, 2025 TerenceWaters.com
 
 // Function to enqueue React app scripts and styles
@@ -883,4 +887,3 @@ add_action('rest_api_init', function () {
         'permission_callback' => '__return_true',
     ));
 });
-?>
