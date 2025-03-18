@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // import { CALENDAR_EVENTS, CONTENT_WARNINGS, PROMPT_SELECTIONS } from '../constants/admin-constants';
-import { betaHIVESchema } from 'src/services/models/betaHIVE-selection.types';
+import { betaHIVESchema, gameSettingsSchema } from 'src/services/models/betaHIVE-selection.types';
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
 import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
 import { calendarSchema } from 'src/services/models/calendar.types';
@@ -19,63 +19,104 @@ export const axiosInstance = axios.create({
 });
 
 // Function to get all game content to update the Redux store w/ wp_options table
-export const getAllGameContent = async (): Promise<boolean> => {
+export const getAllGameContent = async (): Promise<gameSettingsSchema | null> => {
   try {
-    const response = await axiosInstance.get('/game_content');
+    const response = await axiosInstance.get('/get_all_game_content');
     return response.data;
   } catch (error) {
-    console.error('Error getting all game content:', error);
-    return false;
+    console.error('Error fetching game content:', error);
+    return null;
   }
+};
 
-  // Local API Testing to get all game content
-  // return true;
+// Function to get min word count
+export const getMinWordCount = async (): Promise<number | null> => {
+  const data = await getAllGameContent();
+  return data ? data.minWordCount : null;
+};
+
+// Function to get max word count
+export const getMaxWordCount = async (): Promise<number | null> => {
+  const data = await getAllGameContent();
+  return data ? data.maxWordCount : null;
+};
+
+// Function to get beta hives count
+export const getBetaHIVECount = async (): Promise<number | null> => {
+  const data = await getAllGameContent();
+  return data ? data.betaHIVECount : null;
+};
+
+// Function to get battle name
+export const getBattleName = async (): Promise<string | null> => {
+  const data = await getAllGameContent();
+  return data ? data.battleName : null;
+};
+
+// Function to get minimum prompt selections
+export const getMinPromptSelections = async (): Promise<number | null> => {
+  const data = await getAllGameContent();
+  return data ? data.minPromptSelections : null;
+};
+
+// Function to get number of losses
+export const getNumOfLosses = async (): Promise<number | null> => {
+  const data = await getAllGameContent();
+  return data ? data.numOfLosses : null;
+};
+
+// Function to get content warnings count
+export const getContentWarningsCount = async (): Promise<number | null> => {
+  const data = await getAllGameContent();
+  return data ? data.contentWarningsCount : null;
+};
+
+// Function to get calendar event count
+export const getCalendarEventCount = async (): Promise<number | null> => {
+  const data = await getAllGameContent();
+  return data ? data.calendarEventCount : null;
+};
+
+// Function to get prompts count
+export const getPromptsCount = async (): Promise<number | null> => {
+  const data = await getAllGameContent();
+  return data ? data.promptCount : null;
+};
+
+// Function to get countdown date
+export const getCountdownDate = async (): Promise<string | null> => {
+  const data = await getAllGameContent();
+  return data ? data.countDownDate : null;
+};
+
+// Function to get all hives count
+export const getAllHivesCount = async (): Promise<number | null> => {
+  const data = await getAllGameContent();
+  return data ? data.hives.length : null;
+};
+
+// Function to get all hives
+export const getAllHives = async (): Promise<betaHIVESchema[] | null> => {
+  const data = await getAllGameContent();
+  return data ? data.hives : null;
 };
 
 // Function to get all prompts
 export const getAllPrompts = async (): Promise<promptsSchema[] | null> => {
-  try {
-    const response = await axiosInstance.get('/prompts');
-    return response.data;
-  } catch (error) {
-    console.error('Error getting all prompts:', error);
-    return [];
-  }
-
-  // Local API Testing to get all prompts
-  // return PROMPT_SELECTIONS;
+  const data = await getAllGameContent();
+  return data ? data.prompts : null;
 };
 
 // Function to get content warnings
-export const getContentWarnings = async (): Promise<
-  contentWarningsSchema[] | null
-> => {
-  try {
-    const response = await axiosInstance.get('/content_warnings');
-    return response.data;
-  } catch (error) {
-    console.error('Error getting content warnings:', error);
-    return [];
-  }
-
-  // Local API Testing to get content warnings
-  // return CONTENT_WARNINGS;
+export const getContentWarnings = async (): Promise<contentWarningsSchema[] | null> => {
+  const data = await getAllGameContent();
+  return data ? data.contentWarnings : null;
 };
 
 // Function to get all calendar events
-export const getAllCalendarEvents = async (): Promise<
-  calendarSchema[] | null
-> => {
-  try {
-    const response = await axiosInstance.get('/calendar_events');
-    return response.data;
-  } catch (error) {
-    console.error('Error getting all calendar events:', error);
-    return [];
-  }
-
-  // Local API Testing to get all calendar events
-  // return CALENDAR_EVENTS;
+export const getAllCalendarEvents = async (): Promise<calendarSchema[] | null> => {
+  const data = await getAllGameContent();
+  return data ? data.calendarEvents : null;
 };
 
 // Function to update all calendar events
@@ -83,7 +124,10 @@ export const updateCalendarEvents = async (
   updatedEvents: calendarSchema[]
 ): Promise<calendarSchema[] | null> => {
   try {
-    const response = await axiosInstance.put('/calendar', updatedEvents);
+    const response = await axiosInstance.put(
+      '/update_calendar_events',
+      updatedEvents
+    );
     return response.data;
   } catch (error) {
     console.error('Error updating calendar events:', error);
@@ -93,6 +137,25 @@ export const updateCalendarEvents = async (
   // Local API Testing to update all calendar events
   // CALENDAR_EVENTS = updatedEvents;
   // return CALENDAR_EVENTS;
+};
+
+// Function to update calendar event count
+export const updateCalendarEventCount = async (
+  eventCount: number
+): Promise<number | null> => {
+  try {
+    const response = await axiosInstance.put('/update_calendar_event_count', {
+      eventCount,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating calendar event count:', error);
+    return null;
+  }
+
+  // Local API Testing to update calendar event count
+  // const eventCount = 4;
+  // return eventCount; --> Cannot be done from APIs due to store reducer needed
 };
 
 // Function to update all prompts
@@ -112,13 +175,32 @@ export const updatePrompts = async (
   // return PROMPT_SELECTIONS;
 };
 
+// Function to update prompts count
+export const updatePromptsCount = async (
+  promptsCount: number
+): Promise<number | null> => {
+  try {
+    const response = await axiosInstance.put('/update_prompts_count', {
+      promptsCount,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating prompts count:', error);
+    return null;
+  }
+
+  // Local API Testing to update prompts count
+  // const promptsCount = 4;
+  // return promptsCount; --> Cannot be done from APIs due to store reducer needed
+};
+
 // Function to update content warnings
 export const updateContentWarnings = async (
   updatedWarnings: contentWarningsSchema[]
 ): Promise<contentWarningsSchema[] | null> => {
   try {
     const response = await axiosInstance.put(
-      '/content-warnings',
+      '/update_content_warnings',
       updatedWarnings
     );
     return response.data;
@@ -132,12 +214,33 @@ export const updateContentWarnings = async (
   // return CONTENT_WARNINGS;
 };
 
+// Function to update number of content warnings
+export const updateNumOfContentWarnings = async (
+  numOfContentWarnings: number
+): Promise<number | null> => {
+  try {
+    const response = await axiosInstance.put('/update_content_warning_count', {
+      numOfContentWarnings,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating number of content warnings:', error);
+    return null;
+  }
+
+  // Local API Testing to update number of content warnings
+  // const numOfContentWarnings = 4;
+  // return numOfContentWarnings; --> Cannot be done from APIs due to store reducer needed
+};
+
 // Function to update number of losses
 export const updateNumOfLosses = async (
   numOfLosses: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/num_of_losses', { numOfLosses });
+    const response = await axiosInstance.put('/update_num_of_losses', {
+      numOfLosses,
+    });
     return response.data;
   } catch (error) {
     console.error('Error updating number of losses:', error);
@@ -154,7 +257,7 @@ export const updateCountdownDate = async (
   countdownDate: string
 ): Promise<string | null> => {
   try {
-    const response = await axiosInstance.put('/countdown_date', {
+    const response = await axiosInstance.put('/update_countdown_date', {
       countdownDate,
     });
     return response.data;
@@ -173,7 +276,7 @@ export const updateMinWordCount = async (
   minWordCount: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/min_word_count', {
+    const response = await axiosInstance.put('/update_min_word_count', {
       minWordCount,
     });
     return response.data;
@@ -192,7 +295,7 @@ export const updateMaxWordCount = async (
   maxWordCount: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/max_word_count', {
+    const response = await axiosInstance.put('/update_max_word_count', {
       maxWordCount,
     });
     return response.data;
@@ -211,7 +314,7 @@ export const updateBetaHIVECount = async (
   betaHIVECount: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/beta_hive_count', {
+    const response = await axiosInstance.put('/update_beta_hive_count', {
       betaHIVECount,
     });
     return response.data;
@@ -230,7 +333,7 @@ export const updateBattleName = async (
   battleName: string
 ): Promise<string | null> => {
   try {
-    const response = await axiosInstance.put('/battle_name', {
+    const response = await axiosInstance.put('/update_battle_name', {
       battleName,
     });
     return response.data;
@@ -249,7 +352,7 @@ export const updateBetaHIVES = async (
   updatedBetaHIVES: betaHIVESchema[]
 ): Promise<betaHIVESchema[] | null> => {
   try {
-    const response = await axiosInstance.put('/beta_hives', updatedBetaHIVES);
+    const response = await axiosInstance.put('/update_hives', updatedBetaHIVES);
     return response.data;
   } catch (error) {
     console.error('Error updating beta hives:', error);
@@ -266,7 +369,7 @@ export const updateMinPromptSelections = async (
   minPromptSelections: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/min_prompt_selections', {
+    const response = await axiosInstance.put('/update_min_prompt_selections', {
       minPromptSelections,
     });
     return response.data;
