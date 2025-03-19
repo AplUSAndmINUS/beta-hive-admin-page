@@ -27,6 +27,7 @@ import { betaHIVESchema } from 'src/services/models/betaHIVE-selection.types';
 import { calendarSchema } from 'src/services/models/calendar.types';
 import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
+import { getAllGameContent } from 'src/services/apis/admin-apis';
 
 export const AdminPage: React.FC = () => {
   const {
@@ -49,7 +50,7 @@ export const AdminPage: React.FC = () => {
   const [showModal, setShowModal] = React.useState<boolean>(false);
 
   // const [isBetaHiveLoading, setIsBetaHiveLoading] =
-  React.useState<boolean>(false);
+  // React.useState<boolean>(false);
   // const [isBetaHiveSaved, setIsBetaHiveSaved] = React.useState<boolean>(false);
   const [isCalendarEventsLoading, setIsCalendarEventsLoading] =
     React.useState<boolean>(false);
@@ -62,6 +63,35 @@ export const AdminPage: React.FC = () => {
   const [isPromptsLoading, setIsPromptsLoading] =
     React.useState<boolean>(false);
   const [isPromptsSaved, setIsPromptsSaved] = React.useState<boolean>(false);
+  const [adminData, setAdminData] = React.useState<any>(null);
+  const [isAdminDataLoading, setIsAdminDataLoading] =
+    React.useState<boolean>(true);
+  
+  React.useEffect(() => {
+    const fetchAdminData = async () => {
+      setIsAdminDataLoading(true);
+      console.log('Fetching admin data...');
+
+      try {
+        const response = await getAllGameContent(); 
+        if (response) {
+          const data = response;
+          setAdminData(data);
+          console.log('Admin data received 200:', data); // Log the fetched data
+        } else {
+          const data = null;
+          setAdminData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching admin data from fetchAdminData():', error);
+        setAdminData(null);
+      } finally {
+        setIsAdminDataLoading(false);
+      }
+    };
+
+    fetchAdminData();
+  }, []);
 
   const handleCountOptions = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -72,16 +102,16 @@ export const AdminPage: React.FC = () => {
       value = 1;
     }
 
-    // case 'betaHiveOptions': -- No Beta HIVE options for now
-    //   dispatch(setBetaHIVECount(value));
-    //   setIsBetaHiveLoading(true);
-    //   setTimeout(() => {
-    //     setIsBetaHiveLoading(false);
-    //     setIsBetaHiveSaved(true);
-    //   }, 2500); // Simulate saving delay
-    //   break;
-
+    
     switch (inputType) {
+      // case 'betaHiveOptions': 
+      //   dispatch(setBetaHIVECount(value));
+      //   setIsBetaHiveLoading(true);
+      //   setTimeout(() => {
+      //     setIsBetaHiveLoading(false);
+      //     setIsBetaHiveSaved(true);
+      //   }, 2500); // Simulate saving delay
+      //   break;
       case 'calendarEvents':
         dispatch(setCalendarEventCount(value));
         setIsCalendarEventsLoading(true);
@@ -122,13 +152,13 @@ export const AdminPage: React.FC = () => {
       return false;
     }
 
-    if (betaHIVECount !== betaHIVEs.length) {
-      setAlertMessage(
-        'The number of HIVE options does not match the expected length.'
-      );
-      setShowModal(true);
-      return false;
-    }
+    // if (betaHIVECount !== betaHIVEs.length) {
+    //   setAlertMessage(
+    //     'The number of HIVE options does not match the expected length.'
+    //   );
+    //   setShowModal(true);
+    //   return false;
+    // }
 
     if (promptsCount !== prompts.length) {
       setAlertMessage(
@@ -175,15 +205,15 @@ export const AdminPage: React.FC = () => {
   ) => {
     const { value } = e.target;
     switch (inputType) {
-      case 'betaHiveOptions':
-        dispatch(
-          setBetaHIVEs(
-            betaHIVEs.map((item: betaHIVESchema, i: number) =>
-              i === index ? { ...item, name: value } : item
-            )
-          )
-        );
-        break;
+      // case 'betaHiveOptions':
+      //   dispatch(
+      //     setBetaHIVEs(
+      //       betaHIVEs.map((item: betaHIVESchema, i: number) =>
+      //         i === index ? { ...item, name: value } : item
+      //       )
+      //     )
+      //   );
+      //   break;
       case 'calendarEvents':
         dispatch(
           setCalendarEvents(
@@ -218,7 +248,7 @@ export const AdminPage: React.FC = () => {
 
   const handleClear = () => {
     dispatch(
-      setBetaHIVECount(4),
+      // setBetaHIVECount(4),
       setContentWarningCount(4),
       setNumOfLosses(3),
       setPromptCount(10),
@@ -352,151 +382,155 @@ export const AdminPage: React.FC = () => {
     ));
   };
 
-  return (
-    <div className='container-fluid'>
-      <div className='row'>
-        <h1 className='bd-title pb-2 mt-4 mb-4'>HIVE Admin</h1>
-        <p>
-          Fill out all the required fields marked with a red asterisk in each of
-          the sections. <br />
-          You may close each accordion once completed to help you as you fill
-          out the form.
-        </p>
-      </div>
-      <form onSubmit={handleSubmit}>
+  return isAdminDataLoading ? (
+    <>
+      <SaveSpinner isPageLoading={isAdminDataLoading} isLoading={false} isSaved={false} />
+    </>
+  ) : (
+      <div className='container-fluid'>
         <div className='row'>
-          <Accordion
-            accordionTerms='Countdown date'
-            collapseNumber='collapseOne'
-          >
-            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
-              <InputType
-                name='countdownDate'
-                value={moment(countdownDate).format('YYYY-MM-DD')}
-                isDisabled={false}
-                label='Countdown date'
-                isRequired
-                onChange={(e) => dispatch(setCountdownDate(e.target.value))}
-                type='date'
-              />
-            </div>
-            <SaveSpinner
-              isLoading={false}
-              isSaved={false}
-              savedText='Changes saved!'
-            />
-          </Accordion>
+          <h1 className='bd-title pb-2 mt-4 mb-4'>HIVE Admin</h1>
+          <p>
+            Fill out all the required fields marked with a red asterisk in each of
+            the sections. <br />
+            You may close each accordion once completed to help you as you fill
+            out the form.
+          </p>
         </div>
-        <div className='row'>
-          <Accordion
-            accordionTerms='Min / Max word counts'
-            collapseNumber='collapseTwo'
-          >
-            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
-              <InputType
-                name='minWordCount'
-                value={minWordCount}
-                isDisabled={false}
-                label='What is the minimum word count for stories?'
-                isRequired
-                onChange={(e) =>
-                  dispatch(
-                    parseInt(e.target.value) <= 9
-                      ? setMinWordCount(10)
-                      : setMinWordCount(parseInt(e.target.value))
-                  )
-                }
-                type='number'
+        <form onSubmit={handleSubmit}>
+          <div className='row'>
+            <Accordion
+              accordionTerms='Countdown date'
+              collapseNumber='collapseOne'
+            >
+              <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                <InputType
+                  name='countdownDate'
+                  value={moment(countdownDate).format('YYYY-MM-DD')}
+                  isDisabled={false}
+                  label='Countdown date'
+                  isRequired
+                  onChange={(e) => dispatch(setCountdownDate(e.target.value))}
+                  type='date'
+                />
+              </div>
+              <SaveSpinner
+                isLoading={false}
+                isSaved={false}
+                savedText='Changes saved!'
               />
-            </div>
-            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
-              <InputType
-                name='maxWordCount'
-                value={maxWordCount}
-                isDisabled={false}
-                label='What is the maximum word count for stories?'
-                isRequired
-                onChange={(e) =>
-                  dispatch(
-                    parseInt(e.target.value) > 10000
-                      ? setMaxWordCount(1000)
-                      : setMaxWordCount(parseInt(e.target.value))
-                  )
-                }
-                type='number'
+            </Accordion>
+          </div>
+          <div className='row'>
+            <Accordion
+              accordionTerms='Min / Max word counts'
+              collapseNumber='collapseTwo'
+            >
+              <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                <InputType
+                  name='minWordCount'
+                  value={minWordCount}
+                  isDisabled={false}
+                  label='What is the minimum word count for stories?'
+                  isRequired
+                  onChange={(e) =>
+                    dispatch(
+                      parseInt(e.target.value) <= 9
+                        ? setMinWordCount(250)
+                        : setMinWordCount(parseInt(e.target.value))
+                    )
+                  }
+                  type='number'
+                />
+              </div>
+              <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                <InputType
+                  name='maxWordCount'
+                  value={maxWordCount}
+                  isDisabled={false}
+                  label='What is the maximum word count for stories?'
+                  isRequired
+                  onChange={(e) =>
+                    dispatch(
+                      parseInt(e.target.value) > 10000
+                        ? setMaxWordCount(1000)
+                        : setMaxWordCount(parseInt(e.target.value))
+                    )
+                  }
+                  type='number'
+                />
+              </div>
+              <SaveSpinner
+                isLoading={false}
+                isSaved={false}
+                savedText='Changes saved!'
               />
-            </div>
-            <SaveSpinner
-              isLoading={false}
-              isSaved={false}
-              savedText='Changes saved!'
-            />
-          </Accordion>
-        </div>
-        <div className='row'>
-          <Accordion
-            accordionTerms='Minimum prompt selections'
-            collapseNumber='collapseThree'
-          >
-            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
-              <InputType
-                name='minPromptSelections'
-                value={minPromptSelections}
-                isDisabled={false}
-                label='How many prompts at minimum must be selected?'
-                isRequired
-                onChange={(e) =>
-                  dispatch(setMinPromptSelections(parseInt(e.target.value)))
-                }
-                type='number'
+            </Accordion>
+          </div>
+          <div className='row'>
+            <Accordion
+              accordionTerms='Minimum prompt selections'
+              collapseNumber='collapseThree'
+            >
+              <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                <InputType
+                  name='minPromptSelections'
+                  value={minPromptSelections}
+                  isDisabled={false}
+                  label='How many prompts at minimum must be selected?'
+                  isRequired
+                  onChange={(e) =>
+                    dispatch(setMinPromptSelections(parseInt(e.target.value)))
+                  }
+                  type='number'
+                />
+              </div>
+              <SaveSpinner
+                isLoading={false}
+                isSaved={false}
+                savedText='Changes saved!'
               />
-            </div>
-            <SaveSpinner
-              isLoading={false}
-              isSaved={false}
-              savedText='Changes saved!'
-            />
-          </Accordion>
-        </div>
-        <div className='row'>
-          <Accordion
-            accordionTerms='Story losses count'
-            collapseNumber='collapseThree'
-          >
-            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
-              <InputType
-                name='numOfLosses'
-                value={numOfLosses}
-                isDisabled={false}
-                label='How many losses until the story is taken out of the battle?'
-                isRequired
-                onChange={(e) =>
-                  dispatch(setNumOfLosses(parseInt(e.target.value)))
-                }
-                type='number'
+            </Accordion>
+          </div>
+          <div className='row'>
+            <Accordion
+              accordionTerms='Story losses count'
+              collapseNumber='collapseThree'
+            >
+              <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                <InputType
+                  name='numOfLosses'
+                  value={numOfLosses}
+                  isDisabled={false}
+                  label='How many losses until the story is taken out of the battle?'
+                  isRequired
+                  onChange={(e) =>
+                    dispatch(setNumOfLosses(parseInt(e.target.value)))
+                  }
+                  type='number'
+                />
+              </div>
+              <SaveSpinner
+                isLoading={false}
+                isSaved={false}
+                savedText='Changes saved!'
               />
-            </div>
-            <SaveSpinner
-              isLoading={false}
-              isSaved={false}
-              savedText='Changes saved!'
-            />
-          </Accordion>
-        </div>
-        {generateAccordion(
-          'Calendar events',
-          'collapseFour',
-          calendarEventCount,
-          handleCountOptions,
-          'calendarEvents',
-          'Event',
-          '4',
-          isCalendarEventsLoading,
-          isCalendarEventsSaved,
-          calendarEvents,
-          handleChange
-        )}
-        {/*{generateAccordion(
+            </Accordion>
+          </div>
+          {generateAccordion(
+            'Calendar events',
+            'collapseFour',
+            calendarEventCount,
+            handleCountOptions,
+            'calendarEvents',
+            'Event',
+            '4',
+            isCalendarEventsLoading,
+            isCalendarEventsSaved,
+            calendarEvents,
+            handleChange
+          )}
+          {/* {generateAccordion(
           'HIVE options',
           'collapseFive',
           betaHIVECount,
@@ -509,45 +543,46 @@ export const AdminPage: React.FC = () => {
           betaHIVEs,
           handleChange
         )} No Beta hive options for now */}
-        {generateAccordion(
-          'Prompts',
-          'collapseSix',
-          promptsCount,
-          handleCountOptions,
-          'prompts',
-          'Prompt',
-          '255',
-          isPromptsLoading,
-          isPromptsSaved,
-          prompts,
-          handleChange
-        )}
-        {generateAccordion(
-          'Content warnings',
-          'collapseSeven',
-          contentWarningCount,
-          handleCountOptions,
-          'contentWarnings',
-          'CW',
-          '255',
-          isContentWarningsLoading,
-          isContentWarningsSaved,
-          contentWarnings,
-          handleChange
-        )}
-        <div className='row'>
-          <ButtonsRow handleClear={handleClear} handleSubmit={handleSubmit} />
-        </div>
-      </form>
+          {generateAccordion(
+            'Prompts',
+            'collapseSix',
+            promptsCount,
+            handleCountOptions,
+            'prompts',
+            'Prompt',
+            '255',
+            isPromptsLoading,
+            isPromptsSaved,
+            prompts,
+            handleChange
+          )}
+          {generateAccordion(
+            'Content warnings',
+            'collapseSeven',
+            contentWarningCount,
+            handleCountOptions,
+            'contentWarnings',
+            'CW',
+            '255',
+            isContentWarningsLoading,
+            isContentWarningsSaved,
+            contentWarnings,
+            handleChange
+          )}
+          <div className='row'>
+            <ButtonsRow handleClear={handleClear} handleSubmit={handleSubmit} />
+          </div>
+        </form>
 
-      {showModal && (
-        <Modal
-          alertMessage={alertMessage}
-          onDismiss={() => setShowModal(false)}
-        />
-      )}
-    </div>
-  );
+        {showModal && (
+          <Modal
+            alertMessage={alertMessage}
+            onDismiss={() => setShowModal(false)}
+          />
+        )}
+      </div>
+    );
+  }
 };
 
 export default AdminPage;
