@@ -23,7 +23,7 @@ import InputType from '../../components/form-elements/input/input-type';
 import Modal from '../../components/modal/modal';
 import SaveSpinner from '../../components/draft-save-spinner/draft-save-spinner';
 
-import { betaHIVESchema } from 'src/services/models/betaHIVE-selection.types';
+import { betaHIVESchema, gameSettingsSchema } from 'src/services/models/betaHIVE-selection.types';
 import { calendarSchema } from 'src/services/models/calendar.types';
 import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
@@ -63,7 +63,7 @@ export const AdminPage: React.FC = () => {
   const [isPromptsLoading, setIsPromptsLoading] =
     React.useState<boolean>(false);
   const [isPromptsSaved, setIsPromptsSaved] = React.useState<boolean>(false);
-  const [adminData, setAdminData] = React.useState<any>(null);
+  const [adminData, setAdminData] = React.useState<gameSettingsSchema | null>(null);
   const [isAdminDataLoading, setIsAdminDataLoading] =
     React.useState<boolean>(true);
   
@@ -92,6 +92,39 @@ export const AdminPage: React.FC = () => {
 
     fetchAdminData();
   }, []);
+
+  const handleCalendarEventsReset = () => {
+    dispatch(setCalendarEventCount(4));
+    dispatch(setCalendarEvents(adminData?.calendarEvents || []));
+    setIsCalendarEventsSaved(false);
+  };
+
+  const handleContentWarningsReset = () => {
+    dispatch(setContentWarningCount(4));
+    dispatch(setContentWarnings(adminData?.contentWarnings || []));
+    setIsContentWarningsSaved(false);
+  };
+
+  const handlePromptsReset = () => {
+    dispatch(setPromptCount(10));
+    dispatch(setPrompts(adminData?.prompts || []));
+    setIsPromptsSaved(false);
+  };
+
+  const handleCalendarEventsSubmit = (submitData: calendarSchema[]) => {
+    dispatch(setCalendarEvents(submitData));
+    setIsCalendarEventsSaved(true);
+  };
+
+  const handleContentWarningsSubmit = (submitData: contentWarningsSchema[]) => {
+    dispatch(setContentWarnings(submitData));
+    setIsContentWarningsSaved(true);
+  };
+
+  const handlePromptsSubmit = (submitData: promptsSchema[]) => {
+    dispatch(setPrompts(submitData));
+    setIsPromptsSaved(true);
+  };
 
   const handleCountOptions = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -293,7 +326,9 @@ export const AdminPage: React.FC = () => {
       e: React.ChangeEvent<HTMLInputElement>,
       index: number,
       inputType: string
-    ) => void
+    ) => void,
+    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void,
+    handleReset: () => void
   ) => {
     return (
       <div className='row'>
@@ -324,6 +359,7 @@ export const AdminPage: React.FC = () => {
             isSaved={isSaved}
             savedText='Changes saved!'
           />
+          <ButtonsRow handleClear={handleReset} handleSubmit={handleSubmit} />
         </Accordion>
       </div>
     );
@@ -528,7 +564,12 @@ export const AdminPage: React.FC = () => {
             isCalendarEventsLoading,
             isCalendarEventsSaved,
             calendarEvents,
-            handleChange
+            handleChange,
+            (e) => {
+              e.preventDefault();
+              handleCalendarEventsSubmit(calendarEvents);
+            },
+            handleCalendarEventsReset
           )}
           {/* {generateAccordion(
           'HIVE options',
@@ -554,7 +595,12 @@ export const AdminPage: React.FC = () => {
             isPromptsLoading,
             isPromptsSaved,
             prompts,
-            handleChange
+            handleChange,
+            (e) => {
+              e.preventDefault();
+              handlePromptsSubmit(prompts);
+            },
+            handlePromptsReset
           )}
           {generateAccordion(
             'Content warnings',
@@ -567,11 +613,13 @@ export const AdminPage: React.FC = () => {
             isContentWarningsLoading,
             isContentWarningsSaved,
             contentWarnings,
-            handleChange
+            handleChange,
+            (e) => {
+              e.preventDefault();
+              handleContentWarningsSubmit(contentWarnings);
+            },
+            handleContentWarningsReset
           )}
-          <div className='row'>
-            <ButtonsRow handleClear={handleClear} handleSubmit={handleSubmit} />
-          </div>
         </form>
 
         {showModal && (
