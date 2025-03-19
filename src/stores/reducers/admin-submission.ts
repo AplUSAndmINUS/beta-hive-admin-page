@@ -11,6 +11,23 @@ import { betaHIVESchema } from 'src/services/models/betaHIVE-selection.types';
 import { calendarSchema } from 'src/services/models/calendar.types';
 import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
+import { gameSettingsSchema } from 'src/services/models/betaHIVE-selection.types';
+import {
+  fetchAdminData,
+  submitBattleName,
+  submitCalendarEventCount,
+  submitCalendarEvents,
+  submitContentWarnings,
+  submitCountdownDate,
+  submitMaxWordCount,
+  submitMinPromptSelections,
+  submitMinWordCount,
+  submitNumOfCalendarEvents,
+  submitNumOfContentWarnings,
+  submitNumOfLosses,
+  submitPrompts,
+  submitPromptsCount,
+} from 'src/stores/middleware/admin-thunks';
 
 interface AdminSubmissionState {
   battleName: string;
@@ -27,6 +44,27 @@ interface AdminSubmissionState {
   prompts: promptsSchema[];
   minWordCount: number;
   maxWordCount: number;
+  isCalendarEventCountLoading: boolean;
+  isContentWarningCountLoading: boolean;
+  isBetaHIVECountLoading: boolean;
+  isBattleNameLoading: boolean;
+  isCalendarEventsLoading: boolean;
+  isCountdownDateLoading: boolean;
+  isMinPromptSelectionsLoading: boolean;
+  isNumOfLossesLoading: boolean;
+  isPromptsCountLoading: boolean;
+  isPromptsLoading: boolean;
+  isMinWordCountLoading: boolean;
+  isMaxWordCountLoading: boolean;
+  error: string | null;
+  isLoading: boolean;
+  isSuccess: boolean;
+  isError: boolean;
+  isAdminDataLoading: boolean;
+  isAdminDataSuccess: boolean;
+  isAdminDataError: boolean;
+  adminData: gameSettingsSchema | null;
+  isAdminDataFetched: boolean;
 }
 
 const initialState: AdminSubmissionState = {
@@ -44,6 +82,27 @@ const initialState: AdminSubmissionState = {
   prompts: [...PROMPT_SELECTIONS],
   minWordCount: 250,
   maxWordCount: 1000,
+  isBattleNameLoading: false,
+  isBetaHIVECountLoading: false,
+  isCalendarEventsLoading: false,
+  isCalendarEventCountLoading: false,
+  isCountdownDateLoading: false,
+  isContentWarningCountLoading: false,
+  isMaxWordCountLoading: false,
+  isMinPromptSelectionsLoading: false,
+  isMinWordCountLoading: false,
+  isNumOfLossesLoading: false,
+  isPromptsCountLoading: false,
+  isPromptsLoading: false,
+  error: null,
+  isLoading: false,
+  isSuccess: false,
+  isError: false,
+  isAdminDataLoading: false,
+  isAdminDataSuccess: false,
+  isAdminDataError: false,
+  adminData: null,
+  isAdminDataFetched: false,
 };
 
 const adminSubmissionSlice = createSlice({
@@ -93,6 +152,263 @@ const adminSubmissionSlice = createSlice({
       state.maxWordCount = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchAdminData.pending, (state) => {
+        state.isAdminDataLoading = true;
+        state.isAdminDataSuccess = false;
+        state.isAdminDataError = false;
+      })
+      .addCase(fetchAdminData.fulfilled, (state, action) => {
+        state.isAdminDataLoading = false;
+        state.isAdminDataSuccess = true;
+        state.isAdminDataError = false;
+        state.adminData = action.payload;
+        state.isAdminDataFetched = true;
+      })
+      .addCase(fetchAdminData.rejected, (state) => {
+        state.isAdminDataLoading = false;
+        state.isAdminDataSuccess = false;
+        state.isAdminDataError = true;
+      })
+      .addCase(submitBattleName.pending, (state) => {
+        state.isBattleNameLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitBattleName.fulfilled, (state) => {
+        state.isBattleNameLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitBattleName.rejected, (state, action) => {
+        state.isBattleNameLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitCalendarEvents.pending, (state) => {
+        state.isCalendarEventsLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitCalendarEvents.fulfilled, (state) => {
+        state.isCalendarEventsLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitCalendarEvents.rejected, (state, action) => {
+        state.isCalendarEventsLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitCalendarEventCount.pending, (state) => {
+        state.isCalendarEventCountLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitCalendarEventCount.fulfilled, (state) => {
+        state.isCalendarEventCountLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitCalendarEventCount.rejected, (state, action) => {
+        state.isCalendarEventCountLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitContentWarnings.pending, (state) => {
+        state.isContentWarningCountLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitCountdownDate.pending, (state) => {
+        state.isCountdownDateLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitCountdownDate.fulfilled, (state) => {
+        state.isCountdownDateLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitCountdownDate.rejected, (state, action) => {
+        state.isCountdownDateLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitContentWarnings.fulfilled, (state) => {
+        state.isContentWarningCountLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitContentWarnings.rejected, (state, action) => {
+        state.isContentWarningCountLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitMaxWordCount.pending, (state) => {
+        state.isMaxWordCountLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitMaxWordCount.fulfilled, (state) => {
+        state.isMaxWordCountLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitMaxWordCount.rejected, (state, action) => {
+        state.isMaxWordCountLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitMinPromptSelections.pending, (state) => {
+        state.isMinPromptSelectionsLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitMinPromptSelections.fulfilled, (state) => {
+        state.isMinPromptSelectionsLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitMinPromptSelections.rejected, (state, action) => {
+        state.isMinPromptSelectionsLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitMinWordCount.pending, (state) => {
+        state.isMinWordCountLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitMinWordCount.fulfilled, (state) => {
+        state.isMinWordCountLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitMinWordCount.rejected, (state, action) => {
+        state.isMinWordCountLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitNumOfCalendarEvents.pending, (state) => {
+        state.isCalendarEventCountLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitNumOfCalendarEvents.fulfilled, (state) => {
+        state.isCalendarEventCountLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitNumOfCalendarEvents.rejected, (state, action) => {
+        state.isCalendarEventCountLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitNumOfContentWarnings.pending, (state) => {
+        state.isContentWarningCountLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitNumOfContentWarnings.fulfilled, (state) => {
+        state.isContentWarningCountLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitNumOfContentWarnings.rejected, (state, action) => {
+        state.isContentWarningCountLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitNumOfLosses.pending, (state) => {
+        state.isNumOfLossesLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitNumOfLosses.fulfilled, (state) => {
+        state.isNumOfLossesLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitNumOfLosses.rejected, (state, action) => {
+        state.isNumOfLossesLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitPrompts.pending, (state) => {
+        state.isPromptsLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitPrompts.fulfilled, (state) => {
+        state.isPromptsLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitPrompts.rejected, (state, action) => {
+        state.isPromptsLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addCase(submitPromptsCount.pending, (state) => {
+        state.isPromptsCountLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitPromptsCount.fulfilled, (state) => {
+        state.isPromptsCountLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitPromptsCount.rejected, (state, action) => {
+        state.isPromptsCountLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.payload as string;
+      })
+      .addDefaultCase((state) => {
+        state.isLoading = false;
+      });
+  }
 });
 
 export const {

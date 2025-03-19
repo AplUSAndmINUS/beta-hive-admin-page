@@ -48,6 +48,18 @@ export const submitCalendarEvents = createAsyncThunk(
   }
 );
 
+export const submitCalendarEventCount = createAsyncThunk(
+  'admin/submitCalendarEventCount',
+  async (calendarEventCount: number, { rejectWithValue }) => {
+    try {
+      const response = await updateCalendarEventCount(calendarEventCount);
+      return response;
+    } catch (error) {
+      return rejectWithValue((error as Error).message);
+    }
+  }
+);
+
 export const submitBattleName = createAsyncThunk(
   'admin/submitBattleName',
   async (battleName: string, { rejectWithValue }) => {
@@ -168,8 +180,8 @@ export const submitNumOfContentWarnings = createAsyncThunk(
   }
 );
 
-export const submitCalendarEventCount = createAsyncThunk(
-  'admin/submitCalendarEventCount',
+export const submitNumOfCalendarEvents = createAsyncThunk(
+  'admin/submitNumOfCalendarEvents',
   async (calendarEventCount: number, { rejectWithValue }) => {
     try {
       const response = await updateCalendarEventCount(calendarEventCount);

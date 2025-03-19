@@ -27,7 +27,6 @@ import { betaHIVESchema, gameSettingsSchema } from 'src/services/models/betaHIVE
 import { calendarSchema } from 'src/services/models/calendar.types';
 import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
-import { getAllGameContent } from 'src/services/apis/admin-apis';
 
 export const AdminPage: React.FC = () => {
   const {
@@ -44,36 +43,32 @@ export const AdminPage: React.FC = () => {
     prompts,
     minWordCount,
     maxWordCount,
+    isCalendarEventsLoading,
+    isCalendarEventCountLoading,
+    isContentWarningCountLoading,
+    isCountdownDateLoading,
+    isMinWordCountLoading,
+    isMaxWordCountLoading,
+    isPromptsCountLoading,
+    isBetaHIVECountLoading,
+    isNumOfLossesLoading,    
+    error,
+    isLoading,
+    isSuccess,
+    isError,
+    fetchAdminData,
   } = useAppSelector((state: any) => state.adminSubmission);
   const dispatch = useAppDispatch();
   const [alertMessage, setAlertMessage] = React.useState<string>('');
   const [showModal, setShowModal] = React.useState<boolean>(false);
-
-  // const [isBetaHiveLoading, setIsBetaHiveLoading] =
-  // React.useState<boolean>(false);
-  // const [isBetaHiveSaved, setIsBetaHiveSaved] = React.useState<boolean>(false);
-  const [isCalendarEventsLoading, setIsCalendarEventsLoading] =
-    React.useState<boolean>(false);
-  const [isCalendarEventsSaved, setIsCalendarEventsSaved] =
-    React.useState<boolean>(false);
-  const [isContentWarningsLoading, setIsContentWarningsLoading] =
-    React.useState<boolean>(false);
-  const [isContentWarningsSaved, setIsContentWarningsSaved] =
-    React.useState<boolean>(false);
-  const [isPromptsLoading, setIsPromptsLoading] =
-    React.useState<boolean>(false);
-  const [isPromptsSaved, setIsPromptsSaved] = React.useState<boolean>(false);
   const [adminData, setAdminData] = React.useState<gameSettingsSchema | null>(null);
-  const [isAdminDataLoading, setIsAdminDataLoading] =
-    React.useState<boolean>(true);
   
   React.useEffect(() => {
-    const fetchAdminData = async () => {
-      setIsAdminDataLoading(true);
+    const getData = async () => {
       console.log('Fetching admin data...');
 
       try {
-        const response = await getAllGameContent(); 
+        const response = await fetchAdminData(); 
         if (response) {
           const data = response;
           setAdminData(data);
@@ -85,45 +80,37 @@ export const AdminPage: React.FC = () => {
       } catch (error) {
         console.error('Error fetching admin data from fetchAdminData():', error);
         setAdminData(null);
-      } finally {
-        setIsAdminDataLoading(false);
       }
     };
 
-    fetchAdminData();
+    getData();
   }, []);
 
   const handleCalendarEventsReset = () => {
     dispatch(setCalendarEventCount(4));
     dispatch(setCalendarEvents(adminData?.calendarEvents || []));
-    setIsCalendarEventsSaved(false);
   };
 
   const handleContentWarningsReset = () => {
     dispatch(setContentWarningCount(4));
     dispatch(setContentWarnings(adminData?.contentWarnings || []));
-    setIsContentWarningsSaved(false);
   };
 
   const handlePromptsReset = () => {
     dispatch(setPromptCount(10));
     dispatch(setPrompts(adminData?.prompts || []));
-    setIsPromptsSaved(false);
   };
 
   const handleCalendarEventsSubmit = (submitData: calendarSchema[]) => {
     dispatch(setCalendarEvents(submitData));
-    setIsCalendarEventsSaved(true);
   };
 
   const handleContentWarningsSubmit = (submitData: contentWarningsSchema[]) => {
     dispatch(setContentWarnings(submitData));
-    setIsContentWarningsSaved(true);
   };
 
   const handlePromptsSubmit = (submitData: promptsSchema[]) => {
     dispatch(setPrompts(submitData));
-    setIsPromptsSaved(true);
   };
 
   const handleCountOptions = (
@@ -143,15 +130,268 @@ export const AdminPage: React.FC = () => {
       //   setTimeout(() => {
       //     setIsBetaHiveLoading(false);
       //     setIsBetaHiveSaved(true);
-      //   }, 2500); // Simulate saving delay
+      //   }, 2500); // Si      import React from 'react';
+      import { useAppDispatch, useAppSelector } from '../../stores/store';
+      import {
+        fetchAdminData,
+        submitCalendarEvents,
+        submitContentWarnings,
+        submitPrompts,
+        submitCalendarEventCount,
+      } from '../../stores/middleware/admin-thunks';
+      import {
+        setCalendarEventCount,
+        setCalendarEvents,
+        setContentWarningCount,
+        setContentWarnings,
+        setPromptCount,
+        setPrompts,
+      } from '../../stores/reducers/admin-submission';
+      import SaveSpinner from '../../components/draft-save-spinner/draft-save-spinner';
+      import ButtonsRow from '../../components/form-elements/buttons/buttons-row';
+      import Accordion from '../../components/accordion/accordion';
+      import InputType from '../../components/form-elements/input/input-type';
+      import Modal from '../../components/modal/modal';
+      
+      export const AdminPage: React.FC = () => {
+        const dispatch = useAppDispatch();
+        const {
+          calendarEventCount,
+          calendarEvents,
+          contentWarningCount,
+          contentWarnings,
+          promptsCount,
+          prompts,
+          minWordCount,
+          maxWordCount,
+          isAdminDataLoading,
+          isCalendarEventCountLoading,
+          isCalendarEventsLoading,
+          isContentWarningCountLoading,
+          isPromptsLoading,
+          isPromptsCountLoading,
+          error,
+          isSuccess,
+          isError,
+          adminData,
+        } = useAppSelector((state: any) => state.adminSubmission);
+      
+        React.useEffect(() => {
+          dispatch(fetchAdminData());
+        }, [dispatch]);
+      
+        const handleCalendarEventsSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          dispatch(submitCalendarEvents(calendarEvents));
+        };
+      
+        const handleContentWarningsSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          dispatch(submitContentWarnings(contentWarnings));
+        };
+      
+        const handlePromptsSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          dispatch(submitPrompts(prompts));
+        };
+      
+        const handleCalendarEventCountSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          dispatch(submitCalendarEventCount(calendarEventCount));
+        };
+      
+        const handleCalendarEventsReset = () => {
+          dispatch(setCalendarEventCount(4));
+          dispatch(setCalendarEvents([]));
+        };
+      
+        const handleContentWarningsReset = () => {
+          dispatch(setContentWarningCount(4));
+          dispatch(setContentWarnings([]));
+        };
+      
+        const handlePromptsReset = () => {
+          dispatch(setPromptCount(10));
+          dispatch(setPrompts([]));
+        };
+      
+        return isAdminDataLoading ? (
+          <SaveSpinner isPageLoading={isAdminDataLoading} isLoading={false} isSaved={false} />
+        ) : (
+          <div className='container-fluid'>
+            <div className='row'>
+              <h1 className='bd-title pb-2 mt-4 mb-4'>HIVE Admin</h1>
+              <p>
+                Fill out all the required fields marked with a red asterisk in each of
+                the sections. <br />
+                You may close each accordion once completed to help you as you fill
+                out the form.
+              </p>
+            </div>
+            <form>
+              <div className='row'>
+                <Accordion accordionTerms='Countdown date' collapseNumber='collapseOne'>
+                  <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                    <InputType
+                      name='countdownDate'
+                      value={moment(adminData?.countdownDate).format('YYYY-MM-DD')}
+                      isDisabled={false}
+                      label='Countdown date'
+                      isRequired
+                      onChange={(e) => dispatch(setCountdownDate(e.target.value))}
+                      type='date'
+                    />
+                  </div>
+                  <SaveSpinner isLoading={false} isSaved={false} savedText='Changes saved!' />
+                </Accordion>
+              </div>
+              <div className='row'>
+                <Accordion accordionTerms='Min / Max word counts' collapseNumber='collapseTwo'>
+                  <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                    <InputType
+                      name='minWordCount'
+                      value={minWordCount}
+                      isDisabled={false}
+                      label='What is the minimum word count for stories?'
+                      isRequired
+                      onChange={(e) =>
+                        dispatch(
+                          parseInt(e.target.value) <= 9
+                            ? setMinWordCount(250)
+                            : setMinWordCount(parseInt(e.target.value))
+                        )
+                      }
+                      type='number'
+                    />
+                  </div>
+                  <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                    <InputType
+                      name='maxWordCount'
+                      value={maxWordCount}
+                      isDisabled={false}
+                      label='What is the maximum word count for stories?'
+                      isRequired
+                      onChange={(e) =>
+                        dispatch(
+                          parseInt(e.target.value) > 10000
+                            ? setMaxWordCount(1000)
+                            : setMaxWordCount(parseInt(e.target.value))
+                        )
+                      }
+                      type='number'
+                    />
+                  </div>
+                  <SaveSpinner isLoading={false} isSaved={false} savedText='Changes saved!' />
+                </Accordion>
+              </div>
+              <div className='row'>
+                <Accordion accordionTerms='Minimum prompt selections' collapseNumber='collapseThree'>
+                  <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                    <InputType
+                      name='minPromptSelections'
+                      value={minPromptSelections}
+                      isDisabled={false}
+                      label='How many prompts at minimum must be selected?'
+                      isRequired
+                      onChange={(e) => dispatch(setMinPromptSelections(parseInt(e.target.value)))}
+                      type='number'
+                    />
+                  </div>
+                  <SaveSpinner isLoading={false} isSaved={false} savedText='Changes saved!' />
+                </Accordion>
+              </div>
+              <div className='row'>
+                <Accordion accordionTerms='Story losses count' collapseNumber='collapseThree'>
+                  <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                    <InputType
+                      name='numOfLosses'
+                      value={numOfLosses}
+                      isDisabled={false}
+                      label='How many losses until the story is taken out of the battle?'
+                      isRequired
+                      onChange={(e) => dispatch(setNumOfLosses(parseInt(e.target.value)))}
+                      type='number'
+                    />
+                  </div>
+                  <SaveSpinner isLoading={false} isSaved={false} savedText='Changes saved!' />
+                </Accordion>
+              </div>
+              <div className='row'>
+                <Accordion accordionTerms='Calendar events' collapseNumber='collapseFour'>
+                  <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                    <InputType
+                      name='calendarEventCount'
+                      value={calendarEventCount}
+                      isDisabled={false}
+                      label='Number of Calendar Events'
+                      isRequired
+                      onChange={(e) => dispatch(setCalendarEventCount(parseInt(e.target.value)))}
+                      type='number'
+                    />
+                  </div>
+                  <SaveSpinner
+                    isLoading={isCalendarEventCountLoading}
+                    isSaved={!isCalendarEventCountLoading && !error}
+                    savedText='Calendar Event Count Saved!'
+                  />
+                  <ButtonsRow handleClear={handleCalendarEventsReset} handleSubmit={handleCalendarEventCountSubmit} />
+                </Accordion>
+              </div>
+              <div className='row'>
+                <Accordion accordionTerms='Prompts' collapseNumber='collapseSix'>
+                  <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                    <InputType
+                      name='promptsCount'
+                      value={promptsCount}
+                      isDisabled={false}
+                      label='Number of Prompts'
+                      isRequired
+                      onChange={(e) => dispatch(setPromptCount(parseInt(e.target.value)))}
+                      type='number'
+                    />
+                  </div>
+                  <SaveSpinner
+                    isLoading={isPromptsCountLoading}
+                    isSaved={!isPromptsCountLoading && !error}
+                    savedText='Prompts Count Saved!'
+                  />
+                  <ButtonsRow handleClear={handlePromptsReset} handleSubmit={handlePromptsSubmit} />
+                </Accordion>
+              </div>
+              <div className='row'>
+                <Accordion accordionTerms='Content warnings' collapseNumber='collapseSeven'>
+                  <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                    <InputType
+                      name='contentWarningCount'
+                      value={contentWarningCount}
+                      isDisabled={false}
+                      label='Number of Content Warnings'
+                      isRequired
+                      onChange={(e) => dispatch(setContentWarningCount(parseInt(e.target.value)))}
+                      type='number'
+                    />
+                  </div>
+                  <SaveSpinner
+                    isLoading={isContentWarningCountLoading}
+                    isSaved={!isContentWarningCountLoading && !error}
+                    savedText='Content Warnings Count Saved!'
+                  />
+                  <ButtonsRow handleClear={handleContentWarningsReset} handleSubmit={handleContentWarningsSubmit} />
+                </Accordion>
+              </div>
+            </form>
+      
+            {showModal && (
+              <Modal alertMessage={alertMessage} onDismiss={() => setShowModal(false)} />
+            )}
+          </div>
+        );
+      };
+      
+      export default AdminPage;mulate saving delay
       //   break;
       case 'calendarEvents':
         dispatch(setCalendarEventCount(value));
-        setIsCalendarEventsLoading(true);
-        setTimeout(() => {
-          setIsCalendarEventsLoading(false);
-          setIsCalendarEventsSaved(true);
-        }, 2500); // Simulate saving delay
         break;
       case 'contentWarnings':
         dispatch(setContentWarningCount(value));
@@ -389,9 +629,9 @@ export const AdminPage: React.FC = () => {
     ));
   };
 
-  return isAdminDataLoading ? (
+  return isLoading ? (
     <>
-      <SaveSpinner isPageLoading={isAdminDataLoading} isLoading={false} isSaved={false} />
+      <SaveSpinner isPageLoading={isLoading} isLoading={false} isSaved={false} />
     </>
   ) : (
       <div className='container-fluid'>
@@ -404,7 +644,6 @@ export const AdminPage: React.FC = () => {
             out the form.
           </p>
         </div>
-        <form onSubmit={handleSubmit}>
           <div className='row'>
             <Accordion
               accordionTerms='Countdown date'
@@ -591,7 +830,6 @@ export const AdminPage: React.FC = () => {
             },
             handleContentWarningsReset
           )}
-        </form>
 
         {showModal && (
           <Modal
