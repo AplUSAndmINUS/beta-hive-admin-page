@@ -279,35 +279,6 @@ export const AdminPage: React.FC = () => {
     }
   };
 
-  const handleClear = () => {
-    dispatch(
-      // setBetaHIVECount(4),
-      setContentWarningCount(4),
-      setNumOfLosses(3),
-      setPromptCount(10),
-      setCountdownDate(moment().format('YYYY-MM-DD')),
-      setMinWordCount(500),
-      setMaxWordCount(1000)
-    );
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (validateSubmission()) {
-      // Proceed with submission
-      // console.log('HIVE options:', betaHIVEs);
-      console.log('Prompts:', prompts);
-      console.log('Content warnings:', contentWarnings);
-      console.log('Min word count:', minWordCount);
-      console.log('Max word count:', maxWordCount);
-      console.log('Countdown date:', countdownDate);
-      console.log('Form submitted');
-    } else {
-      console.log('Submission is invalid. Please fill out all fields.');
-    }
-  };
-
   const generateAccordion = (
     title: string,
     collapseNumber: string,
