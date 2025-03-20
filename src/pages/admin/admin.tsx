@@ -215,19 +215,17 @@ export const AdminPage: React.FC = () => {
     e.preventDefault();
     switch (inputType) {
       case 'calendarEvents':
-        handleCalendarEventCountSubmit(e);
+        handleCalendarEventCountSubmit(calendarEventCount);
         break;
       case 'contentWarnings':
-        handleContentWarningsSubmit(e);
+        handleContentWarningsSubmit(contentWarnings);
         break;
       case 'prompts':
-        handlePromptsSubmit(e);
+        handlePromptsSubmit(prompts);
         break;
       case 'minWordCount':
-        handleMinWordCountSubmit(e);
-        break;
       case 'maxWordCount':
-        handleMaxWordCountSubmit(e);
+        handleMinandMaxWordCountSubmit(e);
         break;
       case 'betaHIVECount':
         handleBetaHIVECountSubmit(e);
