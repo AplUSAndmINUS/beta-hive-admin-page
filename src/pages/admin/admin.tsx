@@ -30,6 +30,7 @@ import {
 import { calendarSchema } from 'src/services/models/calendar.types';
 import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
+import { submitCalendarEventCount } from 'src/stores/middleware/admin-thunks';
 
 export const AdminPage: React.FC = () => {
   const {
@@ -108,6 +109,27 @@ export const AdminPage: React.FC = () => {
     dispatch(setPrompts(adminData?.prompts || []));
   };
 
+  const handleMinWordCountReset = () => {
+    dispatch(setMinWordCount(adminData?.minWordCount || 250));
+  };
+
+  const handleMaxWordCountReset = () => {
+    dispatch(setMaxWordCount(adminData?.maxWordCount || 1000));
+  };
+
+  const handleBetaHIVECountReset = () => {
+    dispatch(setBetaHIVECount(4));
+    dispatch(setBetaHIVEs(adminData?.hives || []));
+  };
+
+  const handleMinPromptSelectionsReset = () => {
+    dispatch(setMinPromptSelections(adminData?.minPromptSelections || 2));
+  };
+
+  const handleNumOfLossesReset = () => {
+    dispatch(setNumOfLosses(adminData?.numOfLosses || 3));
+  };
+
   const handleCalendarEventsSubmit = (submitData: calendarSchema[]) => {
     dispatch(setCalendarEvents(submitData));
   };
@@ -118,6 +140,44 @@ export const AdminPage: React.FC = () => {
 
   const handlePromptsSubmit = (submitData: promptsSchema[]) => {
     dispatch(setPrompts(submitData));
+  };
+
+  const handleCalendarEventCountSubmit = (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
+    dispatch(submitCalendarEventCount(calendarEventCount));
+  };
+
+  const handleMinWordCountSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    dispatch(setMinWordCount(minWordCount));
+  };
+
+  const handleMaxWordCountSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    dispatch(setMaxWordCount(maxWordCount));
+  };
+
+  const handleBetaHIVECountSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    dispatch(setBetaHIVECount(betaHIVECount));
+  };
+
+  const handleBetaHIVESubmit = (submitData: betaHIVESchema[]) => {
+    dispatch(setBetaHIVEs(submitData));
+  };
+
+  const handleMinPromptSelectionsSubmit = (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
+    dispatch(setMinPromptSelections(minPromptSelections));
+  };
+
+  const handleNumOfLossesSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    dispatch(setNumOfLosses(numOfLosses));
   };
 
   const handleCountOptions = (
@@ -138,6 +198,59 @@ export const AdminPage: React.FC = () => {
         break;
       case 'prompts':
         dispatch(setPromptCount(value));
+        break;
+      case 'minWordCount':
+        dispatch(setMinWordCount(value));
+        break;
+      case 'maxWordCount':
+        dispatch(setMaxWordCount(value));
+        break;
+      case 'betaHIVECount':
+        dispatch(setBetaHIVECount(value));
+        break;
+      case 'minPromptSelections':
+        dispatch(setMinPromptSelections(value));
+        break;
+      case 'numOfLosses':
+        dispatch(setNumOfLosses(value));
+        break;
+      case 'countdownDate':
+        dispatch(setCountdownDate(e.target.value));
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleCountOptionsSubmit = (
+    e: React.FormEvent<HTMLFormElement>,
+    inputType: string
+  ) => {
+    e.preventDefault();
+    switch (inputType) {
+      case 'calendarEvents':
+        handleCalendarEventCountSubmit(e);
+        break;
+      case 'contentWarnings':
+        handleContentWarningsSubmit(e);
+        break;
+      case 'prompts':
+        handlePromptsSubmit(e);
+        break;
+      case 'minWordCount':
+        handleMinWordCountSubmit(e);
+        break;
+      case 'maxWordCount':
+        handleMaxWordCountSubmit(e);
+        break;
+      case 'betaHIVECount':
+        handleBetaHIVECountSubmit(e);
+        break;
+      case 'minPromptSelections':
+        handleMinPromptSelectionsSubmit(e);
+        break;
+      case 'numOfLosses':
+        handleNumOfLossesSubmit(e);
         break;
       default:
         break;
@@ -383,6 +496,10 @@ export const AdminPage: React.FC = () => {
               isSaved={false}
               savedText='Changes saved!'
             />
+            <ButtonsRow
+              handleClear={() => dispatch(setCountdownDate(moment().format()))}
+              handleSubmit={(e) => handleCountOptionsSubmit(e, 'countdownDate')}
+            />
           </Accordion>
         </div>
         <div className='row'>
@@ -429,6 +546,10 @@ export const AdminPage: React.FC = () => {
               isSaved={false}
               savedText='Changes saved!'
             />
+            <ButtonsRow
+              handleClear={handleMinWordCountReset}
+              handleSubmit={handleMinWordCountSubmit}
+            />
           </Accordion>
         </div>
         <div className='row'>
@@ -454,6 +575,10 @@ export const AdminPage: React.FC = () => {
               isSaved={false}
               savedText='Changes saved!'
             />
+            <ButtonsRow
+              handleClear={handleMinPromptSelectionsReset}
+              handleSubmit={handleMinPromptSelectionsSubmit}
+            />
           </Accordion>
         </div>
         <div className='row'>
@@ -478,6 +603,10 @@ export const AdminPage: React.FC = () => {
               isLoading={false}
               isSaved={false}
               savedText='Changes saved!'
+            />
+            <ButtonsRow
+              handleClear={handleNumOfLossesReset}
+              handleSubmit={handleNumOfLossesSubmit}
             />
           </Accordion>
         </div>
