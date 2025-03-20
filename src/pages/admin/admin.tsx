@@ -47,16 +47,9 @@ export const AdminPage: React.FC = () => {
     prompts,
     minWordCount,
     maxWordCount,
-    isBetaHIVECountLoading,
     isCalendarEventsLoading,
-    isCalendarEventCountLoading,
     isContentWarningCountLoading,
-    isCountdownDateLoading,
-    isMinWordCountLoading,
-    isMaxWordCountLoading,
-    isPromptsCountLoading,
     isPromptsLoading,
-    isNumOfLossesLoading,
     error,
     isLoading,
     fetchAdminData,
@@ -109,11 +102,8 @@ export const AdminPage: React.FC = () => {
     dispatch(setPrompts(adminData?.prompts || []));
   };
 
-  const handleMinWordCountReset = () => {
+  const handleMinandMaxWordCountReset = () => {
     dispatch(setMinWordCount(adminData?.minWordCount || 250));
-  };
-
-  const handleMaxWordCountReset = () => {
     dispatch(setMaxWordCount(adminData?.maxWordCount || 1000));
   };
 
@@ -149,13 +139,9 @@ export const AdminPage: React.FC = () => {
     dispatch(submitCalendarEventCount(calendarEventCount));
   };
 
-  const handleMinWordCountSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleMinandMaxWordCountSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatch(setMinWordCount(minWordCount));
-  };
-
-  const handleMaxWordCountSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
     dispatch(setMaxWordCount(maxWordCount));
   };
 
@@ -547,8 +533,8 @@ export const AdminPage: React.FC = () => {
               savedText='Changes saved!'
             />
             <ButtonsRow
-              handleClear={handleMinWordCountReset}
-              handleSubmit={handleMinWordCountSubmit}
+              handleClear={handleMinandMaxWordCountReset}
+              handleSubmit={handleMinandMaxWordCountSubmit}
             />
           </Accordion>
         </div>
