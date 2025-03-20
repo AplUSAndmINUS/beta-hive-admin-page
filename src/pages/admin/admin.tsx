@@ -46,6 +46,7 @@ export const AdminPage: React.FC = () => {
     prompts,
     minWordCount,
     maxWordCount,
+    isBetaHIVECountLoading,
     isCalendarEventsLoading,
     isCalendarEventCountLoading,
     isContentWarningCountLoading,
@@ -53,12 +54,10 @@ export const AdminPage: React.FC = () => {
     isMinWordCountLoading,
     isMaxWordCountLoading,
     isPromptsCountLoading,
-    isBetaHIVECountLoading,
+    isPromptsLoading,
     isNumOfLossesLoading,
     error,
     isLoading,
-    isSuccess,
-    isError,
     fetchAdminData,
   } = useAppSelector((state: any) => state.adminSubmission);
   const dispatch = useAppDispatch();
@@ -92,7 +91,7 @@ export const AdminPage: React.FC = () => {
     };
 
     getData();
-  }, []);
+  }, [fetchAdminData]);
 
   const handleCalendarEventsReset = () => {
     dispatch(setCalendarEventCount(4));

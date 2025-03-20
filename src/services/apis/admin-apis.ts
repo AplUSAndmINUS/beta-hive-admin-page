@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 // import { CALENDAR_EVENTS, CONTENT_WARNINGS, PROMPT_SELECTIONS } from '../constants/admin-constants';
-import { betaHIVESchema, gameSettingsSchema } from 'src/services/models/betaHIVE-selection.types';
+import {
+  betaHIVESchema,
+  gameSettingsSchema,
+} from 'src/services/models/betaHIVE-selection.types';
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
 import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
 import { calendarSchema } from 'src/services/models/calendar.types';
@@ -9,25 +12,31 @@ import { calendarSchema } from 'src/services/models/calendar.types';
 // define nonce wpApiSettings globally
 declare const wpApiSettings: { nonce: string };
 
-// Creaate an axios instance with the nonce token for WP backend access
+// Axios instance that is used for local development ONLY (not for production)
+let wpiApiSettingsLocal = '26478b8e02';
+
+// Create an axios instance with the nonce token for WP backend access
+// Comment out either the local or production instance depending on the environment
 export const axiosInstance = axios.create({
   baseURL: '/wp-json/custom/v1',
   headers: {
-    'X-WP-Nonce': wpApiSettings.nonce,
+    'X-WP-Nonce': wpiApiSettingsLocal,
+    // 'X-WP-Nonce': wpApiSettings.nonce,
     'Content-Type': 'application/json',
   },
 });
 
 // Function to get all game content to update the Redux store w/ wp_options table
-export const getAllGameContent = async (): Promise<gameSettingsSchema | null> => {
-  try {
-    const response = await axiosInstance.get('/get_all_game_content');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching game content:', error);
-    return null;
-  }
-};
+export const getAllGameContent =
+  async (): Promise<gameSettingsSchema | null> => {
+    try {
+      const response = await axiosInstance.get('/get_all_game_content');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching game content:', error);
+      return null;
+    }
+  };
 
 // Function to get min word count
 export const getMinWordCount = async (): Promise<number | null> => {
@@ -108,13 +117,17 @@ export const getAllPrompts = async (): Promise<promptsSchema[] | null> => {
 };
 
 // Function to get content warnings
-export const getContentWarnings = async (): Promise<contentWarningsSchema[] | null> => {
+export const getContentWarnings = async (): Promise<
+  contentWarningsSchema[] | null
+> => {
   const data = await getAllGameContent();
   return data ? data.contentWarnings : null;
 };
 
 // Function to get all calendar events
-export const getAllCalendarEvents = async (): Promise<calendarSchema[] | null> => {
+export const getAllCalendarEvents = async (): Promise<
+  calendarSchema[] | null
+> => {
   const data = await getAllGameContent();
   return data ? data.calendarEvents : null;
 };
