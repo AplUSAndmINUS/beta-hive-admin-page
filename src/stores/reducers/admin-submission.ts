@@ -60,11 +60,11 @@ interface AdminSubmissionState {
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
+  isAdminDataFetched: boolean;
   isAdminDataLoading: boolean;
   isAdminDataSuccess: boolean;
   isAdminDataError: boolean;
   adminData: gameSettingsSchema | null;
-  isAdminDataFetched: boolean;
 }
 
 const initialState: AdminSubmissionState = {
@@ -98,11 +98,11 @@ const initialState: AdminSubmissionState = {
   isLoading: false,
   isSuccess: false,
   isError: false,
+  isAdminDataFetched: false,
   isAdminDataLoading: false,
   isAdminDataSuccess: false,
   isAdminDataError: false,
   adminData: null,
-  isAdminDataFetched: false,
 };
 
 const adminSubmissionSlice = createSlice({

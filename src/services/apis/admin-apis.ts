@@ -13,15 +13,18 @@ import { calendarSchema } from 'src/services/models/calendar.types';
 declare const wpApiSettings: { nonce: string };
 
 // Axios instance that is used for local development ONLY (not for production)
-let wpiApiSettingsLocal = '26478b8e02';
+let wpiApiSettingsLocal = '48e6d11d60'; // change when wpApiSettings is different
 
 // Create an axios instance with the nonce token for WP backend access
 // Comment out either the local or production instance depending on the environment
 export const axiosInstance = axios.create({
   baseURL: '/wp-json/custom/v1',
   headers: {
-    'X-WP-Nonce': wpiApiSettingsLocal,
-    // 'X-WP-Nonce': wpApiSettings.nonce,
+    // 'X-WP-Nonce': wpiApiSettingsLocal,
+    'X-WP-Nonce':
+      typeof wpApiSettings !== 'undefined'
+        ? wpApiSettings.nonce
+        : wpiApiSettingsLocal,
     'Content-Type': 'application/json',
   },
 });

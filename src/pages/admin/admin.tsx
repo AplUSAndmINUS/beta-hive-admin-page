@@ -27,6 +27,7 @@ import {
   betaHIVESchema,
   gameSettingsSchema,
 } from 'src/services/models/betaHIVE-selection.types';
+import { fetchAdminData } from 'src/stores/middleware/admin-thunks';
 import { calendarSchema } from 'src/services/models/calendar.types';
 import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
@@ -52,40 +53,15 @@ export const AdminPage: React.FC = () => {
     isPromptsLoading,
     error,
     isLoading,
-    fetchAdminData,
+    adminData,
   } = useAppSelector((state: any) => state.adminSubmission);
   const dispatch = useAppDispatch();
   const [alertMessage, setAlertMessage] = React.useState<string>('');
   const [showModal, setShowModal] = React.useState<boolean>(false);
-  const [adminData, setAdminData] = React.useState<gameSettingsSchema | null>(
-    null
-  );
 
   React.useEffect(() => {
-    const getData = async () => {
-      console.log('Fetching admin data...');
-
-      try {
-        const response = await fetchAdminData();
-        if (response) {
-          const data = response;
-          setAdminData(data);
-          console.log('Admin data received 200:', data); // Log the fetched data
-        } else {
-          const data = null;
-          setAdminData(data);
-        }
-      } catch (error) {
-        console.error(
-          'Error fetching admin data from fetchAdminData():',
-          error
-        );
-        setAdminData(null);
-      }
-    };
-
-    getData();
-  }, [fetchAdminData]);
+    dispatch(fetchAdminData());
+  }, [dispatch]);
 
   const handleCalendarEventsReset = () => {
     dispatch(setCalendarEventCount(4));
@@ -139,7 +115,9 @@ export const AdminPage: React.FC = () => {
     dispatch(submitCalendarEventCount(calendarEventCount));
   };
 
-  const handleMinandMaxWordCountSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleMinandMaxWordCountSubmit = (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
     dispatch(setMinWordCount(minWordCount));
     dispatch(setMaxWordCount(maxWordCount));
