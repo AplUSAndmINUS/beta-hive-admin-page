@@ -27,11 +27,25 @@ import {
   betaHIVESchema,
   gameSettingsSchema,
 } from 'src/services/models/betaHIVE-selection.types';
-import { fetchAdminData } from 'src/stores/middleware/admin-thunks';
+import {
+  fetchAdminData,
+  submitBattleName,
+  submitCalendarEvents,
+  submitCalendarEventCount,
+  submitContentWarnings,
+  submitCountdownDate,
+  submitMaxWordCount,
+  submitMinPromptSelections,
+  submitMinWordCount,
+  submitNumOfCalendarEvents,
+  submitNumOfContentWarnings,
+  submitNumOfLosses,
+  submitPrompts,
+  submitPromptsCount,
+} from 'src/stores/middleware/admin-thunks';
 import { calendarSchema } from 'src/services/models/calendar.types';
 import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
-import { submitCalendarEventCount } from 'src/stores/middleware/admin-thunks';
 
 export const AdminPage: React.FC = () => {
   const {
@@ -63,85 +77,66 @@ export const AdminPage: React.FC = () => {
     dispatch(fetchAdminData());
   }, [dispatch]);
 
-  const handleCalendarEventsReset = () => {
-    dispatch(setCalendarEventCount(4));
-    dispatch(setCalendarEvents(adminData?.calendarEvents || []));
+  const handleReset = (type: string) => {
+    switch (type) {
+      case 'calendarEvents':
+        dispatch(setCalendarEventCount(4));
+        dispatch(setCalendarEvents(adminData?.calendarEvents || []));
+        break;
+      case 'contentWarnings':
+        dispatch(setContentWarningCount(adminData?.contentWarningCount || 4));
+        dispatch(setContentWarnings(adminData?.contentWarnings || []));
+        break;
+      case 'prompts':
+        dispatch(setPromptCount(10));
+        dispatch(setPrompts(adminData?.prompts || []));
+        break;
+      case 'minWordCount':
+      case 'maxWordCount':
+        dispatch(setMinWordCount(adminData?.minWordCount || 250));
+        dispatch(setMaxWordCount(adminData?.maxWordCount || 1000));
+        break;
+      case 'minPromptSelections':
+        dispatch(setMinPromptSelections(adminData?.minPromptSelections || 2));
+        break;
+      case 'numOfLosses':
+        dispatch(setNumOfLosses(adminData?.numOfLosses || 3));
+        break;
+      case 'countdownDate':
+        dispatch(setCountdownDate(adminData?.countdownDate));
+        break;
+      default:
+        break;
+    }
   };
 
-  const handleContentWarningsReset = () => {
-    dispatch(setContentWarningCount(4));
-    dispatch(setContentWarnings(adminData?.contentWarnings || []));
-  };
-
-  const handlePromptsReset = () => {
-    dispatch(setPromptCount(10));
-    dispatch(setPrompts(adminData?.prompts || []));
-  };
-
-  const handleMinandMaxWordCountReset = () => {
-    dispatch(setMinWordCount(adminData?.minWordCount || 250));
-    dispatch(setMaxWordCount(adminData?.maxWordCount || 1000));
-  };
-
-  const handleBetaHIVECountReset = () => {
-    dispatch(setBetaHIVECount(4));
-    dispatch(setBetaHIVEs(adminData?.hives || []));
-  };
-
-  const handleMinPromptSelectionsReset = () => {
-    dispatch(setMinPromptSelections(adminData?.minPromptSelections || 2));
-  };
-
-  const handleNumOfLossesReset = () => {
-    dispatch(setNumOfLosses(adminData?.numOfLosses || 3));
-  };
-
-  const handleCalendarEventsSubmit = (submitData: calendarSchema[]) => {
-    dispatch(setCalendarEvents(submitData));
-  };
-
-  const handleContentWarningsSubmit = (submitData: contentWarningsSchema[]) => {
-    dispatch(setContentWarnings(submitData));
-  };
-
-  const handlePromptsSubmit = (submitData: promptsSchema[]) => {
-    dispatch(setPrompts(submitData));
-  };
-
-  const handleCalendarEventCountSubmit = (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
-    dispatch(submitCalendarEventCount(calendarEventCount));
-  };
-
-  const handleMinandMaxWordCountSubmit = (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
-    dispatch(setMinWordCount(minWordCount));
-    dispatch(setMaxWordCount(maxWordCount));
-  };
-
-  const handleBetaHIVECountSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    dispatch(setBetaHIVECount(betaHIVECount));
-  };
-
-  const handleBetaHIVESubmit = (submitData: betaHIVESchema[]) => {
-    dispatch(setBetaHIVEs(submitData));
-  };
-
-  const handleMinPromptSelectionsSubmit = (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
-    dispatch(setMinPromptSelections(minPromptSelections));
-  };
-
-  const handleNumOfLossesSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    dispatch(setNumOfLosses(numOfLosses));
+  const handleSubmit = (type: string) => {
+    switch (type) {
+      case 'calendarEvents':
+        dispatch(submitCalendarEvents(calendarEvents));
+        dispatch(submitCalendarEventCount(calendarEventCount));
+        break;
+      case 'countdownDate':
+        dispatch(submitCountdownDate(countdownDate.toString()));
+        break;
+      case 'prompts':
+        dispatch(submitPrompts(prompts));
+        break;
+      case 'minWordCount':
+        dispatch(submitMinWordCount(minWordCount));
+        break;
+      case 'maxWordCount':
+        dispatch(submitMaxWordCount(maxWordCount));
+        break;
+      case 'minPromptSelections':
+        dispatch(submitMinPromptSelections(minPromptSelections));
+        break;
+      case 'numOfLosses':
+        dispatch(submitNumOfLosses(numOfLosses));
+        break;
+      default:
+        break;
+    }
   };
 
   const handleCountOptions = (
@@ -180,39 +175,6 @@ export const AdminPage: React.FC = () => {
         break;
       case 'countdownDate':
         dispatch(setCountdownDate(e.target.value));
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleCountOptionsSubmit = (
-    e: React.FormEvent<HTMLFormElement>,
-    inputType: string
-  ) => {
-    e.preventDefault();
-    switch (inputType) {
-      case 'calendarEvents':
-        handleCalendarEventCountSubmit(calendarEventCount);
-        break;
-      case 'contentWarnings':
-        handleContentWarningsSubmit(contentWarnings);
-        break;
-      case 'prompts':
-        handlePromptsSubmit(prompts);
-        break;
-      case 'minWordCount':
-      case 'maxWordCount':
-        handleMinandMaxWordCountSubmit(e);
-        break;
-      case 'betaHIVECount':
-        handleBetaHIVECountSubmit(e);
-        break;
-      case 'minPromptSelections':
-        handleMinPromptSelectionsSubmit(e);
-        break;
-      case 'numOfLosses':
-        handleNumOfLossesSubmit(e);
         break;
       default:
         break;
@@ -326,7 +288,6 @@ export const AdminPage: React.FC = () => {
       index: number,
       inputType: string
     ) => void,
-    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void,
     handleReset: () => void
   ) => {
     return (
@@ -358,7 +319,10 @@ export const AdminPage: React.FC = () => {
             isSaved={isSaved}
             savedText='Changes saved!'
           />
-          <ButtonsRow handleClear={handleReset} handleSubmit={handleSubmit} />
+          <ButtonsRow
+            handleClear={handleReset}
+            handleSubmit={() => handleSubmit(inputType)}
+          />
         </Accordion>
       </div>
     );
@@ -459,8 +423,8 @@ export const AdminPage: React.FC = () => {
               savedText='Changes saved!'
             />
             <ButtonsRow
-              handleClear={() => dispatch(setCountdownDate(moment().format()))}
-              handleSubmit={(e) => handleCountOptionsSubmit(e, 'countdownDate')}
+              handleClear={() => handleReset('countdownDate')}
+              handleSubmit={() => handleSubmit('countdownDate')}
             />
           </Accordion>
         </div>
@@ -509,8 +473,12 @@ export const AdminPage: React.FC = () => {
               savedText='Changes saved!'
             />
             <ButtonsRow
-              handleClear={handleMinandMaxWordCountReset}
-              handleSubmit={handleMinandMaxWordCountSubmit}
+              handleClear={() => handleReset('minWordCount')}
+              handleSubmit={() => handleSubmit('minWordCount')}
+            />
+            <ButtonsRow
+              handleClear={() => handleReset('maxWordCount')}
+              handleSubmit={() => handleSubmit('maxWordCount')}
             />
           </Accordion>
         </div>
@@ -538,8 +506,8 @@ export const AdminPage: React.FC = () => {
               savedText='Changes saved!'
             />
             <ButtonsRow
-              handleClear={handleMinPromptSelectionsReset}
-              handleSubmit={handleMinPromptSelectionsSubmit}
+              handleClear={() => handleReset('minPromptSelections')}
+              handleSubmit={() => handleSubmit('minPromptSelections')}
             />
           </Accordion>
         </div>
@@ -567,8 +535,8 @@ export const AdminPage: React.FC = () => {
               savedText='Changes saved!'
             />
             <ButtonsRow
-              handleClear={handleNumOfLossesReset}
-              handleSubmit={handleNumOfLossesSubmit}
+              handleClear={() => handleReset('numOfLosses')}
+              handleSubmit={() => handleSubmit('numOfLosses')}
             />
           </Accordion>
         </div>
@@ -584,11 +552,7 @@ export const AdminPage: React.FC = () => {
           !isCalendarEventsLoading && !error,
           calendarEvents,
           handleChange,
-          (e) => {
-            e.preventDefault();
-            handleCalendarEventsSubmit(calendarEvents);
-          },
-          handleCalendarEventsReset
+          () => handleReset('calendarEvents')
         )}
         {generateAccordion(
           'Prompts',
@@ -602,11 +566,7 @@ export const AdminPage: React.FC = () => {
           !isPromptsLoading && !error,
           prompts,
           handleChange,
-          (e) => {
-            e.preventDefault();
-            handlePromptsSubmit(prompts);
-          },
-          handlePromptsReset
+          () => handleReset('prompts')
         )}
         {generateAccordion(
           'Content warnings',
@@ -620,11 +580,7 @@ export const AdminPage: React.FC = () => {
           !isContentWarningCountLoading && !error,
           contentWarnings,
           handleChange,
-          (e) => {
-            e.preventDefault();
-            handleContentWarningsSubmit(contentWarnings);
-          },
-          handleContentWarningsReset
+          () => handleReset('contentWarnings')
         )}
 
         {showModal && (
