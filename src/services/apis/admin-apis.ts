@@ -13,18 +13,21 @@ import { calendarSchema } from 'src/services/models/calendar.types';
 declare const wpApiSettings: { nonce: string };
 
 // Fallback nonce for local development
-const localNonce = process.env.REACT_APP_LOCAL_NONCE || '48e6d11d60';
+// const localNonce = process.env.REACT_APP_LOCAL_NONCE || '48e6d11d60';
 
 // Base URL for the API
-const baseURL = process.env.REACT_APP_STAGING_API_URL || '/wp-json/custom/v1';
+// const baseURL = process.env.REACT_APP_STAGING_API_URL || '/wp-json/custom/v1';
+const baseURL = '/wp-json/custom/v1';
 
 // Create an axios instance with the nonce token for WP backend access
 // Comment out either the local or production instance depending on the environment
 export const axiosInstance = axios.create({
   baseURL: baseURL,
   headers: {
+    // 'X-WP-Nonce':
+    //   typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : localNonce,
     'X-WP-Nonce':
-      typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : localNonce,
+      typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : 'c9a78bd1fa',
     'Content-Type': 'application/json',
   },
 });

@@ -17,7 +17,6 @@ $large-desktop: 1600px;
 }
 
 .App-Main {
-  padding-top: 4rem;
   margin: 0 auto;
 
   @media screen and (max-width: $mobile) {
@@ -27,6 +26,11 @@ $large-desktop: 1600px;
   @media screen and (min-width: $mobile) and (max-width: $tablet) {
     padding: 2rem;
   }
+}
+
+// remove the title from the top of the page
+main.wp-block-group.islayout-flow > div.wp-block-group.has-global-padding {
+  display: none !important;
 }
 
 // start components styling
@@ -39,7 +43,9 @@ $large-desktop: 1600px;
 // card- prompt-card.tsx & content-warning.tsx
 div.w-100 > .card:hover,
 .card-selected {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 0 0 2px rgb(13, 110, 253);
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 2px rgb(13, 110, 253);
   transform: translate(3px, -3px);
   transition: all 0.2s ease-in-out;
   cursor: pointer;
@@ -67,7 +73,9 @@ div.w-100 > .card:hover,
 }
 
 .genre-image {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .genre-square:hover .genre-image {
