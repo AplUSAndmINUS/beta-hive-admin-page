@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../stores/store';
 import {
   setBetaHIVECount,
   setBetaHIVEs,
+  setBattleName,
   setCalendarEventCount,
   setCalendarEvents,
   setContentWarningCount,
@@ -37,7 +38,6 @@ import {
   submitMaxWordCount,
   submitMinPromptSelections,
   submitMinWordCount,
-  submitNumOfCalendarEvents,
   submitNumOfContentWarnings,
   submitNumOfLosses,
   submitPrompts,
@@ -49,6 +49,7 @@ import { promptsSchema } from 'src/services/models/prompt-selection.types';
 
 export const AdminPage: React.FC = () => {
   const {
+    battleName,
     betaHIVECount,
     betaHIVEs,
     calendarEventCount,
@@ -77,10 +78,113 @@ export const AdminPage: React.FC = () => {
     dispatch(fetchAdminData());
   }, [dispatch]);
 
-  const handleReset = (type: string) => {
+  const validateSubmission = (type: string): boolean => {
+    
     switch (type) {
       case 'calendarEvents':
-        dispatch(setCalendarEventCount(4));
+        if (calendarEvents.length < 1) {
+          setAlertMessage('Please add at least one calendar event.');
+          setShowModal(true);
+          return false;
+        }
+
+        if (calendarEventCount !== calendarEvents.length) {
+          dispatch(setCalendarEventCount(calendarEvents.length));
+        }
+        
+        return true;
+      case 'contentWarnings':
+        if (contentWarnings.length < 1) {
+          setAlertMessage('Please add at least one content warning.');
+          setShowModal(true);
+          return false;
+        }
+
+        if (contentWarningCount !== contentWarnings.length) {
+          dispatch(setContentWarningCount(contentWarnings.length));
+        }
+        
+        return true;
+      case 'prompts':
+        if (prompts.length < 1) {
+          setAlertMessage('Please add at least one prompt.');
+          setShowModal(true);
+          return false;
+        }
+
+        if (promptsCount !== prompts.length) {
+          dispatch(setPromptCount(prompts.length));
+        }
+        
+        return true;
+      case 'wordCounts':
+        if (!minWordCount || !maxWordCount) {
+          setAlertMessage('Please add a min and max word count.');
+          setShowModal(true);
+          return false;
+        }
+
+        if (minWordCount >= maxWordCount) {
+          setAlertMessage(
+            'Minimum word count must be less than maximum word count.'
+          );
+          setShowModal(true);
+          return false;
+        }
+        
+        return true;
+      case 'battleName':
+        if (battleName.length < 5 || battleName === '') {
+          setAlertMessage('Please add a battle name with at least 5 characters.');
+          setShowModal(true);
+          return false;
+        }
+        
+        return true;
+      case 'minPromptSelections':
+        if (minPromptSelections < 1) {
+          setAlertMessage('Please add a minimum prompt selection.');
+          setShowModal(true);
+          return false;
+        }
+        
+        return true;
+      case 'numOfLosses':
+        if (numOfLosses < 1) {
+          setAlertMessage('Please add a number of losses.');
+          setShowModal(true);
+          return false;
+        }
+        
+        return true;
+      case 'countdownDate':
+        if (moment(countdownDate) <= moment()) {
+          setAlertMessage('Countdown date must be in the future.');
+          setShowModal(true);
+          return false;
+        }
+
+        if (!countdownDate) {
+          setAlertMessage('Please add a countdown date.');
+          setShowModal(true);
+          return false;
+        }
+        
+        return true;
+      default:
+        break;
+    }
+
+    return false;
+  };
+
+  const handleReset = (type: string) => {
+    switch (type) {
+      case 'battleName':
+        dispatch(setBattleName(adminData?.battleName));
+        break;
+      case 'calendarEvents':
+        dispatch(setCalendarEventCount(adminData?.calendarEventCount || 4));
         dispatch(setCalendarEvents(adminData?.calendarEvents || []));
         break;
       case 'contentWarnings':
@@ -88,11 +192,10 @@ export const AdminPage: React.FC = () => {
         dispatch(setContentWarnings(adminData?.contentWarnings || []));
         break;
       case 'prompts':
-        dispatch(setPromptCount(10));
+        dispatch(setPromptCount(adminData?.promptCount || 10));
         dispatch(setPrompts(adminData?.prompts || []));
         break;
-      case 'minWordCount':
-      case 'maxWordCount':
+      case 'wordCounts':
         dispatch(setMinWordCount(adminData?.minWordCount || 250));
         dispatch(setMaxWordCount(adminData?.maxWordCount || 1000));
         break;
@@ -103,7 +206,9 @@ export const AdminPage: React.FC = () => {
         dispatch(setNumOfLosses(adminData?.numOfLosses || 3));
         break;
       case 'countdownDate':
-        dispatch(setCountdownDate(adminData?.countdownDate));
+        dispatch(
+          setCountdownDate(adminData?.countdownDate || '2025-04-14T00:00:00')
+        );
         break;
       default:
         break;
@@ -111,21 +216,29 @@ export const AdminPage: React.FC = () => {
   };
 
   const handleSubmit = (type: string) => {
+    if (!validateSubmission(type)) return;
+
     switch (type) {
       case 'calendarEvents':
         dispatch(submitCalendarEvents(calendarEvents));
         dispatch(submitCalendarEventCount(calendarEventCount));
         break;
+      case 'contentWarnings':
+        dispatch(submitContentWarnings(contentWarnings));
+        dispatch(submitNumOfContentWarnings(contentWarningCount));
+        break;
+      case 'battleName':
+        dispatch(submitBattleName(betaHIVEs));
+        break;
       case 'countdownDate':
         dispatch(submitCountdownDate(countdownDate.toString()));
         break;
       case 'prompts':
+        dispatch(submitPromptsCount(promptsCount));
         dispatch(submitPrompts(prompts));
         break;
-      case 'minWordCount':
+      case 'wordCounts':
         dispatch(submitMinWordCount(minWordCount));
-        break;
-      case 'maxWordCount':
         dispatch(submitMaxWordCount(maxWordCount));
         break;
       case 'minPromptSelections':
@@ -137,6 +250,8 @@ export const AdminPage: React.FC = () => {
       default:
         break;
     }
+
+    return false;
   };
 
   const handleCountOptions = (
@@ -179,55 +294,6 @@ export const AdminPage: React.FC = () => {
       default:
         break;
     }
-  };
-
-  const validateSubmission = (): boolean => {
-    if (
-      betaHIVEs.length === 0 ||
-      prompts.length === 0 ||
-      contentWarnings.length === 0
-    ) {
-      setAlertMessage('All fields must be filled out.');
-      setShowModal(true);
-      return false;
-    }
-
-    if (promptsCount !== prompts.length) {
-      setAlertMessage(
-        'The number of prompts does not match the expected length.'
-      );
-      setShowModal(true);
-      return false;
-    }
-
-    if (calendarEventCount !== calendarEvents.length) {
-      setAlertMessage(
-        'The number of calendar events does not match the expected length.'
-      );
-      setShowModal(true);
-      return false;
-    }
-
-    if (moment(countdownDate) <= moment()) {
-      setAlertMessage('Countdown date must be in the future.');
-      setShowModal(true);
-      return false;
-    }
-
-    if (contentWarningCount !== contentWarnings.length) {
-      setAlertMessage(
-        'The number of content warnings does not match the expected length.'
-      );
-      setShowModal(true);
-      return false;
-    }
-
-    if (minWordCount <= 9) {
-      setAlertMessage('Min word count must be at least 10.');
-      setShowModal(true);
-      return false;
-    }
-    return true;
   };
 
   const handleChange = (
@@ -449,8 +515,6 @@ export const AdminPage: React.FC = () => {
                 }
                 type='number'
               />
-            </div>
-            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
               <InputType
                 name='maxWordCount'
                 value={maxWordCount}
@@ -473,12 +537,8 @@ export const AdminPage: React.FC = () => {
               savedText='Changes saved!'
             />
             <ButtonsRow
-              handleClear={() => handleReset('minWordCount')}
-              handleSubmit={() => handleSubmit('minWordCount')}
-            />
-            <ButtonsRow
-              handleClear={() => handleReset('maxWordCount')}
-              handleSubmit={() => handleSubmit('maxWordCount')}
+              handleClear={() => handleReset('wordCounts')}
+              handleSubmit={() => handleSubmit('wordCounts')}
             />
           </Accordion>
         </div>

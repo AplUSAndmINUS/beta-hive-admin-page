@@ -412,6 +412,7 @@ const adminSubmissionSlice = createSlice({
 });
 
 export const {
+  setBattleName,
   setBetaHIVEs,
   setBetaHIVECount,
   setCalendarEventCount,
