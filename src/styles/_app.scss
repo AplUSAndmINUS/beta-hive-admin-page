@@ -29,7 +29,7 @@ $large-desktop: 1600px;
 }
 
 // remove the title from the top of the page
-main.wp-block-group.islayout-flow > div.wp-block-group.has-global-padding {
+#wp--skip-link--target > div {
   display: none !important;
 }
 
