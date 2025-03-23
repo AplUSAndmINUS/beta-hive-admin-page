@@ -56,6 +56,11 @@ div.w-100 > .card:hover,
   }
 }
 
+// remove capitalization on card titles
+div.card-body > h5.card-title > label > span {
+  text-transform: none !important;
+}
+
 // generic styles
 .cursor-pointer-hover {
   :hover {
