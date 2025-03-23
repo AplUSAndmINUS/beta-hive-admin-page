@@ -1,24 +1,39 @@
-<?php
 
+<?php
 /**
  * HIVE-functions
  */
 // Generated with assistance from GitHub Copilot, 2025 TerenceWaters.com
 
 // Function to enqueue React app scripts and styles
+/*** COMMENT OUT LINES 9-11 when working with STAGING and PROD vs. local! ***/
+// if (!defined('WP_ENV')) {
+//     define('WP_ENV', 'local');
+// };
+
+// Enable CORS here when working with the local server
+function add_cors_http_header(){
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS, DELETE, PUT");
+    header("Access-Control-Allow-Headers: X-WP-Nonce, Content-Type");
+}
+add_action('init','add_cors_http_header');
+
 function enqueue_react_app() {
+	$is_local = defined('WP_ENV') && WP_ENV == 'local';
+
     // Enqueue story-submission app
     if (!wp_script_is('beta-hive-story-submission', 'enqueued')) {
         wp_enqueue_script(
             'beta-hive-story-submission',
-            get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-story-submission/build/static/js/main.3f655f80.js',
+            $is_local ? 'http://localhost:3000/static/js/bundle.js' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-story-submission/build/static/js/main.3f655f80.js',
             array(),
             null,
             true
         );
         wp_enqueue_style(
-            'beta-hive-story-submission',
-            get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-story-submission/build/static/css/main.f2ed6db1.css',
+           'beta-hive-story-submission',
+            $is_local ? 'http://localhost:3000/static/css/main.css' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-story-submission/build/static/css/main.f2ed6db1.css',
             array(),
             null
         );
@@ -28,14 +43,14 @@ function enqueue_react_app() {
     if (!wp_script_is('beta-hive-admin-page', 'enqueued')) {
         wp_enqueue_script(
             'beta-hive-admin-page',
-            get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-admin-page/build/static/js/main.fd6ebc7a.js',
+            $is_local ? 'http://localhost:3000/static/js/bundle.js' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-admin-page/build/static/js/main.50186d08.js',
             array(),
             null,
             true
         );
         wp_enqueue_style(
             'beta-hive-admin-page',
-            get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-admin-page/build/static/css/main.f2ed6db1.css',
+            $is_local ? 'http://localhost:3000/static/css/main.css' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-admin-page/build/static/css/main.936eb814.css',
             array(),
             null
         );
@@ -45,14 +60,14 @@ function enqueue_react_app() {
     if (!wp_script_is('beta-hive-enter-the-arena', 'enqueued')) {
         wp_enqueue_script(
             'beta-hive-enter-the-arena',
-            get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-enter-the-arena/build/static/js/main.abcdef12.js',
+            $is_local ? 'http://localhost.3000/static/js/bundle.js' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-enter-the-arena/build/static/js/main.abcdef12.js',
             array(),
             null,
             true
         );
         wp_enqueue_style(
             'beta-hive-enter-the-arena',
-            get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-enter-the-arena/build/static/css/main.abcdef12.css',
+            $is_local ? 'http://localhost:3000/static/css/main.css' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-enter-the-arena/build/static/css/main.abcdef12.css',
             array(),
             null
         );
@@ -555,19 +570,29 @@ function get_prompts_count() {
 // Function to update content warnings
 function update_content_warnings($request) {
     $params = $request->get_json_params();
-    if (isset($params['contentWarnings'])) {
-        update_option('content_warnings', $params['contentWarnings']);
+    if (isset($params['contentWarnings']) && is_array($params['contentWarnings'])) {
+        if (get_option('content_warnings') !== false) {
+            update_option('content_warnings', $params['contentWarnings']);
+            return new WP_REST_Response('Content warnings updated', 200);
+        } else {
+            return new WP_Error('option_not_found', __('Option not found'), array('status' => 404));
+        }
     }
-    return new WP_REST_Response('Content warnings updated', 200);
+    return new WP_Error('invalid_request', __('Invalid request'), array('status' => 400));
 }
 
 // Function to update prompts
 function update_prompts($request) {
     $params = $request->get_json_params();
-    if (isset($params['prompts'])) {
-        update_option('prompts', $params['prompts']);
+    if (isset($params['prompts']) && is_array($params['prompts'])) {
+        if (get_option('prompts') !== false) {
+            update_option('prompts', $params['prompts']);
+            return new WP_REST_Response('Prompts updated', 200);
+        } else {
+            return new WP_Error('option_not_found', __('Option not found'), array('status' => 404));
+        }
     }
-    return new WP_REST_Response('Prompts updated', 200);
+    return new WP_Error('invalid_request', __('Invalid request'), array('status' => 400));
 }
 
 // Function to update min word count
@@ -609,19 +634,29 @@ function update_countdown_date($request) {
 // Function to update all calendar events
 function update_calendar_events($request) {
     $params = $request->get_json_params();
-    if (isset($params['events'])) {
-        update_option('calendar_events', $params['events']);
+    if (isset($params['calendarEvents']) && is_array($params['calendarEvents'])) {
+        if (get_option('calendar_events') !== false) {
+            update_option('calendar_events', $params['calendarEvents']);
+            return new WP_REST_Response('Calendar events updated', 200);
+        } else {
+            return new WP_Error('option_not_found', __('Option not found'), array('status' => 404));
+        }
     }
-    return new WP_REST_Response('Calendar events updated', 200);
+    return new WP_Error('invalid_request', __('Invalid request'), array('status' => 400));
 }
 
 // Function to update all HIVEs
 function update_hives($request) {
     $params = $request->get_json_params();
-    if (isset($params['hives'])) {
-        update_option('hives', $params['hives']);
+    if (isset($params['hives']) && is_array($params['hives'])) {
+        if (get_option('hives') !== false) {
+            update_option('hives', $params['hives']);
+            return new WP_REST_Response('HIVEs updated', 200);
+        } else {
+            return new WP_Error('option_not_found', __('Option not found'), array('status' => 404));
+        }
     }
-    return new WP_REST_Response('HIVEs updated', 200);
+    return new WP_Error('invalid_request', __('Invalid request'), array('status' => 400));
 }
 
 // Function to update battle name
@@ -928,5 +963,4 @@ add_action('rest_api_init', function () {
         'permission_callback' => '__return_true',
     ));
 });
-
 ?>
