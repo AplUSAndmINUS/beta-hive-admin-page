@@ -231,14 +231,10 @@ export const AdminPage: React.FC = () => {
         dispatch(submitNumOfContentWarnings(contentWarningCount));
         break;
       case 'battleName':
-        dispatch(submitBattleName(battleName));
+        dispatch(submitBattleName(battleName)); // Send only battleName
         break;
-      // case 'betaHIVECount':
-      //   dispatch(submitBetaHIVECount(betaHIVECount));
-      //   dispatch(submitBetaHIVEs(betaHIVEs));
-      //   break;
       case 'countdownDate':
-        dispatch(submitCountdownDate(countdownDate.toString()));
+        dispatch(submitCountdownDate(countdownDate.toString())); // Send only countdownDate
         break;
       case 'prompts':
         dispatch(submitPromptsCount(promptsCount));
@@ -257,8 +253,6 @@ export const AdminPage: React.FC = () => {
       default:
         break;
     }
-
-    return false;
   };
 
   const handleCountOptions = (

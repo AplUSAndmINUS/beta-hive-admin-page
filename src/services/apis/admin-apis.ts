@@ -16,18 +16,18 @@ declare const wpApiSettings: { nonce: string };
 const localNonce = process.env.REACT_APP_LOCAL_NONCE || 'a641f8e96b';
 
 // Base URL for the API
-const baseURL = process.env.REACT_APP_STAGING_API_URL || '/wp-json/custom/v1';
-// const baseURL = '/wp-json/custom/v1';
+// const baseURL = process.env.REACT_APP_STAGING_API_URL || '/wp-json/custom/v1';
+const baseURL = '/wp-json/custom/v1';
 
 // Create an axios instance with the nonce token for WP backend access
 // Comment out either the local or production instance depending on the environment
 export const axiosInstance = axios.create({
   baseURL: baseURL,
   headers: {
-    'X-WP-Nonce':
-      typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : localNonce,
     // 'X-WP-Nonce':
-    //   typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : 'a641f8e96b',
+    //   typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : localNonce,
+    'X-WP-Nonce':
+      typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : 'a641f8e96b',
     'Content-Type': 'application/json',
   },
 });

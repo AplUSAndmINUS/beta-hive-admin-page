@@ -408,7 +408,7 @@ const adminSubmissionSlice = createSlice({
       .addDefaultCase((state) => {
         state.isLoading = false;
       });
-  }
+  },
 });
 
 export const {
