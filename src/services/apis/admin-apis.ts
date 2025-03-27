@@ -13,21 +13,21 @@ import { calendarSchema } from 'src/services/models/calendar.types';
 declare const wpApiSettings: { nonce: string };
 
 // Fallback nonce for local development
-// const localNonce = process.env.REACT_APP_LOCAL_NONCE || '48e6d11d60';
+const localNonce = process.env.REACT_APP_LOCAL_NONCE || 'a641f8e96b';
 
 // Base URL for the API
-// const baseURL = process.env.REACT_APP_STAGING_API_URL || '/wp-json/custom/v1';
-const baseURL = '/wp-json/custom/v1';
+const baseURL = process.env.REACT_APP_STAGING_API_URL || '/wp-json/custom/v1';
+// const baseURL = '/wp-json/custom/v1';
 
 // Create an axios instance with the nonce token for WP backend access
 // Comment out either the local or production instance depending on the environment
 export const axiosInstance = axios.create({
   baseURL: baseURL,
   headers: {
-    // 'X-WP-Nonce':
-    //   typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : localNonce,
     'X-WP-Nonce':
-      typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : 'c9a78bd1fa',
+      typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : localNonce,
+    // 'X-WP-Nonce':
+    //   typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : 'a641f8e96b',
     'Content-Type': 'application/json',
   },
 });
@@ -298,6 +298,7 @@ export const updateMinWordCount = async (
     const response = await axiosInstance.put('/update_min_word_count', {
       minWordCount,
     });
+    console.log('response', response);
     return response.data;
   } catch (error) {
     console.error('Error updating min word count:', error);

@@ -31,6 +31,8 @@ import {
 import {
   fetchAdminData,
   submitBattleName,
+  // submitBetaHIVEs,
+  // submitBetaHIVECount,
   submitCalendarEvents,
   submitCalendarEventCount,
   submitContentWarnings,
@@ -79,7 +81,6 @@ export const AdminPage: React.FC = () => {
   }, [dispatch]);
 
   const validateSubmission = (type: string): boolean => {
-    
     switch (type) {
       case 'calendarEvents':
         if (calendarEvents.length < 1) {
@@ -91,7 +92,7 @@ export const AdminPage: React.FC = () => {
         if (calendarEventCount !== calendarEvents.length) {
           dispatch(setCalendarEventCount(calendarEvents.length));
         }
-        
+
         return true;
       case 'contentWarnings':
         if (contentWarnings.length < 1) {
@@ -103,7 +104,7 @@ export const AdminPage: React.FC = () => {
         if (contentWarningCount !== contentWarnings.length) {
           dispatch(setContentWarningCount(contentWarnings.length));
         }
-        
+
         return true;
       case 'prompts':
         if (prompts.length < 1) {
@@ -115,7 +116,7 @@ export const AdminPage: React.FC = () => {
         if (promptsCount !== prompts.length) {
           dispatch(setPromptCount(prompts.length));
         }
-        
+
         return true;
       case 'wordCounts':
         if (!minWordCount || !maxWordCount) {
@@ -131,15 +132,17 @@ export const AdminPage: React.FC = () => {
           setShowModal(true);
           return false;
         }
-        
+
         return true;
       case 'battleName':
         if (battleName.length < 5 || battleName === '') {
-          setAlertMessage('Please add a battle name with at least 5 characters.');
+          setAlertMessage(
+            'Please add a battle name with at least 5 characters.'
+          );
           setShowModal(true);
           return false;
         }
-        
+
         return true;
       case 'minPromptSelections':
         if (minPromptSelections < 1) {
@@ -147,7 +150,7 @@ export const AdminPage: React.FC = () => {
           setShowModal(true);
           return false;
         }
-        
+
         return true;
       case 'numOfLosses':
         if (numOfLosses < 1) {
@@ -155,7 +158,7 @@ export const AdminPage: React.FC = () => {
           setShowModal(true);
           return false;
         }
-        
+
         return true;
       case 'countdownDate':
         if (moment(countdownDate) <= moment()) {
@@ -169,7 +172,7 @@ export const AdminPage: React.FC = () => {
           setShowModal(true);
           return false;
         }
-        
+
         return true;
       default:
         break;
@@ -228,8 +231,12 @@ export const AdminPage: React.FC = () => {
         dispatch(submitNumOfContentWarnings(contentWarningCount));
         break;
       case 'battleName':
-        dispatch(submitBattleName(betaHIVEs));
+        dispatch(submitBattleName(battleName));
         break;
+      // case 'betaHIVECount':
+      //   dispatch(submitBetaHIVECount(betaHIVECount));
+      //   dispatch(submitBetaHIVEs(betaHIVEs));
+      //   break;
       case 'countdownDate':
         dispatch(submitCountdownDate(countdownDate.toString()));
         break;
@@ -507,11 +514,7 @@ export const AdminPage: React.FC = () => {
                 label='What is the minimum word count for stories?'
                 isRequired
                 onChange={(e) =>
-                  dispatch(
-                    parseInt(e.target.value) <= 9
-                      ? setMinWordCount(250)
-                      : setMinWordCount(parseInt(e.target.value))
-                  )
+                  dispatch(setMinWordCount(parseInt(e.target.value)))
                 }
                 type='number'
               />
@@ -568,6 +571,33 @@ export const AdminPage: React.FC = () => {
             <ButtonsRow
               handleClear={() => handleReset('minPromptSelections')}
               handleSubmit={() => handleSubmit('minPromptSelections')}
+            />
+          </Accordion>
+        </div>
+        <div className='row'>
+          <Accordion
+            accordionTerms='Battle name'
+            collapseNumber='collapseThree'
+          >
+            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+              <InputType
+                name='battleName'
+                value={battleName}
+                isDisabled={false}
+                label='What is the name of the battle?'
+                isRequired
+                onChange={(e) => dispatch(setBattleName(e.target.value))}
+                type='text'
+              />
+            </div>
+            <SaveSpinner
+              isLoading={false}
+              isSaved={false}
+              savedText='Changes saved!'
+            />
+            <ButtonsRow
+              handleClear={() => handleReset('battleName')}
+              handleSubmit={() => handleSubmit('battleName')}
             />
           </Accordion>
         </div>

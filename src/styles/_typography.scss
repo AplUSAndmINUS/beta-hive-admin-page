@@ -1,9 +1,10 @@
 // font families
 $font-family: 'Inter', 'Inter Display', -apple-system, BlinkMacSystemFont,
-  'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  'Roboto', 'Helvetica Neue', 'Arial', sans-serif !important;
 $font-family-heading: 'Cardo', 'Times New Roman', serif;
 $font-family-body-text: 'Inter', 'Inter Display', -apple-system,
   BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+$font-family-monospace: 'Fira Code', 'Courier New', monospace !important;
 
 // font-sizes
 $font-size-one-quarter: 0.25rem;
@@ -40,3 +41,14 @@ $drop-shadow-text-light: 1px 2px 3px rgba(0, 0, 0, 0.3);
 $drop-shadow-text: 1px 2px 3px rgba(0, 0, 0, 0.5);
 $drop-shadow-text-big: 2px 4px 4px rgba(0, 0, 0, 0.5);
 $drop-shadow-card: 0px 3px 3px 0px rgba(0, 0, 0, 0.5);
+
+p,
+input,
+button,
+select {
+  font-family: $font-family;
+}
+
+textarea {
+  font-family: $font-family-monospace;
+}
