@@ -40,7 +40,7 @@ export const getAllGameContent =
       return response.data;
     } catch (error) {
       console.error('Error fetching game content:', error);
-      return null;
+    return null;
     }
   };
 

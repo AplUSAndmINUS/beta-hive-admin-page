@@ -1,4 +1,20 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import {
+  setBattleName,
+  setBetaHIVECount,
+  setBetaHIVEs,
+  setCalendarEventCount,
+  setCalendarEvents,
+  setContentWarningCount,
+  setContentWarnings,
+  setCountdownDate,
+  setMaxWordCount,
+  setMinPromptSelections,
+  setMinWordCount,
+  setNumOfLosses,
+  setPromptCount,
+  setPrompts,
+} from 'src/stores/reducers/admin-submission';
 
 import {
   getAllGameContent,
@@ -20,21 +36,39 @@ import { calendarSchema } from 'src/services/models/calendar.types';
 import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
 
-export const fetchAdminData = createAsyncThunk<
-  gameSettingsSchema,
-  void,
-  { rejectValue: string }
->('admin/fetchAdminData', async (_, { rejectWithValue }) => {
-  try {
-    const response = await getAllGameContent();
-    if (!response) {
-      throw new Error('No admin data received');
+export const fetchAdminData = createAsyncThunk<gameSettingsSchema, void>(
+  'adminSubmission/fetchAdminData',
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const data = await getAllGameContent(); // Fetch data from WordPress API
+
+      if (!data) {
+        return rejectWithValue('No data received');
+      }
+
+      // Dispatch actions to update the Redux store with fetched data
+      dispatch(setBattleName(data.battleName || ''));
+      dispatch(setBetaHIVECount(data.betaHIVECount || 0));
+      dispatch(setBetaHIVEs(data.hives || []));
+      dispatch(setCalendarEventCount(data.calendarEventCount || 0));
+      dispatch(setCalendarEvents(data.calendarEvents || []));
+      dispatch(setContentWarningCount(data.contentWarningCount || 0));
+      dispatch(setContentWarnings(data.contentWarnings || []));
+      dispatch(setCountdownDate(data.countdownDate || ''));
+      dispatch(setMinPromptSelections(data.minPromptSelections || 0));
+      dispatch(setNumOfLosses(data.numOfLosses || 0));
+      dispatch(setPromptCount(data.promptsCount || 0));
+      dispatch(setPrompts(data.prompts || []));
+      dispatch(setMinWordCount(data.minWordCount || 0));
+      dispatch(setMaxWordCount(data.maxWordCount || 0));
+
+      return data; // Return the fetched data for any additional handling
+    } catch (error) {
+      console.error('Failed to fetch admin data:', error);
+      return rejectWithValue((error as Error).message);
     }
-    return response;
-  } catch (error) {
-    return rejectWithValue((error as Error).message);
   }
-});
+);
 
 export const submitCalendarEvents = createAsyncThunk(
   'admin/submitCalendarEvents',

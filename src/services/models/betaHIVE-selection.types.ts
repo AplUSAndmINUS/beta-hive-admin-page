@@ -11,6 +11,8 @@ export interface betaHIVESchema {
 
 export interface gameSettingsSchema {
   contentWarnings: contentWarningsSchema[];
+  contentWarningCount: number;
+  countdownDate: string;
   prompts: promptsSchema[];
   hives: betaHIVESchema[];
   calendarEvents: calendarSchema[];
@@ -23,5 +25,5 @@ export interface gameSettingsSchema {
   battleName: string;
   betaHIVECount: number;
   calendarEventCount: number;
-  promptCount: number;
+  promptsCount: number;
 }
