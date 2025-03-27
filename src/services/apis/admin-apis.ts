@@ -13,7 +13,7 @@ import { calendarSchema } from 'src/services/models/calendar.types';
 declare const wpApiSettings: { nonce: string };
 
 // Fallback nonce for local development
-const localNonce = process.env.REACT_APP_LOCAL_NONCE || 'a641f8e96b';
+// const localNonce = process.env.REACT_APP_LOCAL_NONCE || 'a641f8e96b';
 
 // Base URL for the API
 // const baseURL = process.env.REACT_APP_STAGING_API_URL || '/wp-json/custom/v1';
@@ -95,7 +95,7 @@ export const getCalendarEventCount = async (): Promise<number | null> => {
 // Function to get prompts count
 export const getPromptsCount = async (): Promise<number | null> => {
   const data = await getAllGameContent();
-  return data ? data.promptCount : null;
+  return data ? data.promptsCount : null;
 };
 
 // Function to get countdown date

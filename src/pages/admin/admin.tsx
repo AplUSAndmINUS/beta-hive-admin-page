@@ -4,7 +4,7 @@ import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../../stores/store';
 import {
   setBetaHIVECount,
-  setBetaHIVEs,
+  // setBetaHIVEs,
   setBattleName,
   setCalendarEventCount,
   setCalendarEvents,
@@ -24,10 +24,10 @@ import InputType from '../../components/form-elements/input/input-type';
 import Modal from '../../components/modal/modal';
 import SaveSpinner from '../../components/draft-save-spinner/draft-save-spinner';
 
-import {
-  betaHIVESchema,
-  gameSettingsSchema,
-} from 'src/services/models/betaHIVE-selection.types';
+// import {
+//   betaHIVESchema,
+//   gameSettingsSchema,
+// } from 'src/services/models/betaHIVE-selection.types';
 import {
   fetchAdminData,
   submitBattleName,
@@ -52,8 +52,8 @@ import { promptsSchema } from 'src/services/models/prompt-selection.types';
 export const AdminPage: React.FC = () => {
   const {
     battleName,
-    betaHIVECount,
-    betaHIVEs,
+    // betaHIVECount,
+    // betaHIVEs,
     calendarEventCount,
     calendarEvents,
     contentWarningCount,
