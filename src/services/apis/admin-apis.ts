@@ -17,9 +17,9 @@ declare const wpApiSettings: { nonce: string };
 
 // Base URL for the API
 // const baseURL = process.env.REACT_APP_STAGING_API_URL || '/wp-json/custom/v1';
-// const baseURL = '/wp-json/custom/v1';
-const baseURL =
-  'https://staging-203c-battlehivefictioncom.wpcomstaging.com/wp-json/custom/v1';
+const baseURL = '/wp-json/custom/v1';
+// const baseURL =
+// 'https://staging-203c-battlehivefictioncom.wpcomstaging.com/wp-json/custom/v1';
 
 // Create an axios instance with the nonce token for WP backend access
 // Comment out either the local or production instance depending on the environment
@@ -28,19 +28,45 @@ export const axiosInstance = axios.create({
   headers: {
     // 'X-WP-Nonce':
     //   typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : localNonce,
-    'X-WP-Nonce':
-      typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : 'a641f8e96b',
+    // 'X-WP-Nonce':
+    //   typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : 'a641f8e96b',
     'Content-Type': 'application/json',
   },
 });
 
+axiosInstance.interceptors.request.use((config) => {
+  if (typeof wpApiSettings !== 'undefined' && wpApiSettings.nonce) {
+    config.headers['X-WP-Nonce'] = wpApiSettings.nonce; // Dynamically set the nonce
+  } else {
+    console.warn('wpApiSettings.nonce is not available');
+  }
+  return config;
+});
+
 console.log('Request headers:', axiosInstance.defaults.headers);
+
+export const waitForNonce = async (): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const checkNonce = () => {
+      if (typeof wpApiSettings !== 'undefined' && wpApiSettings.nonce) {
+        resolve(wpApiSettings.nonce);
+      } else {
+        setTimeout(checkNonce, 100); // Retry after 100ms
+      }
+    };
+    checkNonce();
+  });
+};
 
 // Function to get all game content to update the Redux store w/ wp_options table
 export const getAllGameContent =
   async (): Promise<gameSettingsSchema | null> => {
     try {
+      console.log('Fetching game content...');
+      const nonce = await waitForNonce();
+      console.log('Nonce:', nonce);
       const response = await axiosInstance.get('/game_content');
+      console.log('Response:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching game content:', error);

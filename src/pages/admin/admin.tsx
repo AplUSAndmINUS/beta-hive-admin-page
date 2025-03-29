@@ -23,6 +23,7 @@ import ButtonsRow from '../../components/form-elements/buttons/buttons-row';
 import InputType from '../../components/form-elements/input/input-type';
 import Modal from '../../components/modal/modal';
 import SaveSpinner from '../../components/draft-save-spinner/draft-save-spinner';
+import { waitForNonce } from 'src/services/apis/admin-apis';
 
 // import {
 //   betaHIVESchema,
@@ -77,7 +78,17 @@ export const AdminPage: React.FC = () => {
   const [showModal, setShowModal] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    dispatch(fetchAdminData());
+    const initialize = async () => {
+      const nonce = await waitForNonce();
+      if (nonce) {
+        console.log('Nonce fetched:', nonce);
+        dispatch(fetchAdminData());
+      } else {
+        console.error('Failed to fetch nonce');
+      }
+    }
+    
+    initialize();
   }, [dispatch]);
 
   React.useEffect(() => {
