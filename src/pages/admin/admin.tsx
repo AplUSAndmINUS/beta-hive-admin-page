@@ -225,9 +225,12 @@ export const AdminPage: React.FC = () => {
   };
 
   const handleSubmit = (type: string) => {
-    if (!validateSubmission(type)) return;
-
-    console.log(`Submitting ${type} with current data...`);
+    if (!validateSubmission(type)) {
+      console.log('Validation failed for', type);
+      return;
+    } else {
+      console.log(`Submitting ${type} with current data...`);
+    }
 
     switch (type) {
       // case 'calendarEvents':
@@ -259,6 +262,7 @@ export const AdminPage: React.FC = () => {
         dispatch(submitNumOfLosses(numOfLosses));
         break;
       default:
+        console.error('Unknown type:', type);
         break;
     }
   };
@@ -267,7 +271,7 @@ export const AdminPage: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     inputType: string
   ) => {
-    let value = parseInt(e.target.value);
+    let value = parseInt(e.target.value, 10); // Ensure the value is parsed as an integer
     if (value < 1) {
       value = 1;
     }
@@ -524,14 +528,11 @@ export const AdminPage: React.FC = () => {
           true, // isSaved
           [minWordCount, maxWordCount], // Values for min and max word counts
           (e, index) => {
+            const value = parseInt(e.target.value, 10); // Parse as integer
             if (index === 0) {
-              dispatch(setMinWordCount(parseInt(e.target.value)));
+              dispatch(setMinWordCount(value));
             } else {
-              dispatch(
-                parseInt(e.target.value) > 10000
-                  ? setMaxWordCount(1000)
-                  : setMaxWordCount(parseInt(e.target.value))
-              );
+              dispatch(setMaxWordCount(value));
             }
           },
           () => handleReset('wordCounts'),

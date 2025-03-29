@@ -17,7 +17,9 @@ declare const wpApiSettings: { nonce: string };
 
 // Base URL for the API
 // const baseURL = process.env.REACT_APP_STAGING_API_URL || '/wp-json/custom/v1';
-const baseURL = '/wp-json/custom/v1';
+// const baseURL = '/wp-json/custom/v1';
+const baseURL =
+  'https://staging-203c-battlehivefictioncom.wpcomstaging.com/wp-json/custom/v1';
 
 // Create an axios instance with the nonce token for WP backend access
 // Comment out either the local or production instance depending on the environment
@@ -32,6 +34,8 @@ export const axiosInstance = axios.create({
   },
 });
 
+console.log('Request headers:', axiosInstance.defaults.headers);
+
 // Function to get all game content to update the Redux store w/ wp_options table
 export const getAllGameContent =
   async (): Promise<gameSettingsSchema | null> => {
@@ -40,7 +44,7 @@ export const getAllGameContent =
       return response.data;
     } catch (error) {
       console.error('Error fetching game content:', error);
-    return null;
+      return null;
     }
   };
 
@@ -143,7 +147,7 @@ export const updateCalendarEvents = async (
   updatedEvents: calendarSchema[]
 ): Promise<calendarSchema[] | null> => {
   try {
-    const response = await axiosInstance.put(
+    const response = await axiosInstance.post(
       '/update_calendar_events',
       updatedEvents
     );
@@ -163,7 +167,7 @@ export const updateCalendarEventCount = async (
   eventCount: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/update_calendar_event_count', {
+    const response = await axiosInstance.post('/update_calendar_event_count', {
       eventCount,
     });
     return response.data;
@@ -182,7 +186,7 @@ export const updatePrompts = async (
   updatedPrompts: promptsSchema[]
 ): Promise<promptsSchema[] | null> => {
   try {
-    const response = await axiosInstance.put('/prompts', updatedPrompts);
+    const response = await axiosInstance.post('/prompts', updatedPrompts);
     return response.data;
   } catch (error) {
     console.error('Error updating prompts:', error);
@@ -199,7 +203,7 @@ export const updatePromptsCount = async (
   promptsCount: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/update_prompts_count', {
+    const response = await axiosInstance.post('/update_prompts_count', {
       promptsCount,
     });
     return response.data;
@@ -218,7 +222,7 @@ export const updateContentWarnings = async (
   updatedWarnings: contentWarningsSchema[]
 ): Promise<contentWarningsSchema[] | null> => {
   try {
-    const response = await axiosInstance.put(
+    const response = await axiosInstance.post(
       '/update_content_warnings',
       updatedWarnings
     );
@@ -238,7 +242,7 @@ export const updateNumOfContentWarnings = async (
   numOfContentWarnings: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/update_content_warning_count', {
+    const response = await axiosInstance.post('/update_content_warning_count', {
       numOfContentWarnings,
     });
     return response.data;
@@ -257,7 +261,7 @@ export const updateNumOfLosses = async (
   numOfLosses: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/update_num_of_losses', {
+    const response = await axiosInstance.post('/update_num_of_losses', {
       numOfLosses,
     });
     return response.data;
@@ -276,7 +280,7 @@ export const updateCountdownDate = async (
   countdownDate: string
 ): Promise<string | null> => {
   try {
-    const response = await axiosInstance.put('/update_countdown_date', {
+    const response = await axiosInstance.post('/update_countdown_date', {
       countdownDate,
     });
     return response.data;
@@ -295,7 +299,11 @@ export const updateMinWordCount = async (
   minWordCount: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/update_min_word_count', {
+    console.log('Sending request to update min word count:', {
+      url: `${axiosInstance.defaults.baseURL}/update_min_word_count`,
+      payload: { minWordCount },
+    });
+    const response = await axiosInstance.post('/update_min_word_count', {
       minWordCount,
     });
     console.log('response', response);
@@ -315,7 +323,11 @@ export const updateMaxWordCount = async (
   maxWordCount: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/update_max_word_count', {
+    console.log('Sending request to update min word count:', {
+      url: `${axiosInstance.defaults.baseURL}/update_max_word_count`,
+      payload: { maxWordCount },
+    });
+    const response = await axiosInstance.post('/update_max_word_count', {
       maxWordCount,
     });
     return response.data;
@@ -334,7 +346,7 @@ export const updateBetaHIVECount = async (
   betaHIVECount: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/update_beta_hive_count', {
+    const response = await axiosInstance.post('/update_beta_hive_count', {
       betaHIVECount,
     });
     return response.data;
@@ -353,7 +365,7 @@ export const updateBattleName = async (
   battleName: string
 ): Promise<string | null> => {
   try {
-    const response = await axiosInstance.put('/update_battle_name', {
+    const response = await axiosInstance.post('/update_battle_name', {
       battleName,
     });
     return response.data;
@@ -372,7 +384,10 @@ export const updateBetaHIVES = async (
   updatedBetaHIVES: betaHIVESchema[]
 ): Promise<betaHIVESchema[] | null> => {
   try {
-    const response = await axiosInstance.put('/update_hives', updatedBetaHIVES);
+    const response = await axiosInstance.post(
+      '/update_hives',
+      updatedBetaHIVES
+    );
     return response.data;
   } catch (error) {
     console.error('Error updating beta hives:', error);
@@ -389,7 +404,7 @@ export const updateMinPromptSelections = async (
   minPromptSelections: number
 ): Promise<number | null> => {
   try {
-    const response = await axiosInstance.put('/update_min_prompt_selections', {
+    const response = await axiosInstance.post('/update_min_prompt_selections', {
       minPromptSelections,
     });
     return response.data;
