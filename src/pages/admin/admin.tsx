@@ -355,7 +355,8 @@ export const AdminPage: React.FC = () => {
       index: number,
       inputType: string
     ) => void,
-    handleReset: () => void
+    handleReset: () => void,
+    type: string // Add type parameter
   ) => {
     return (
       <div className='row'>
@@ -368,10 +369,10 @@ export const AdminPage: React.FC = () => {
               label={`How many ${title.toLowerCase()} would you like?`}
               isRequired
               onChange={(e) => handleCountOptions(e, inputType)}
-              type='number'
-              pattern='[0-9]*'
-              min='1'
-              max={max}
+              type={type} // Use the dynamic type
+              pattern={type === 'number' ? '[0-9]*' : undefined}
+              min={type === 'number' ? '1' : undefined}
+              max={type === 'number' ? max : undefined}
             />
           </div>
           {generateInputFields(
@@ -379,7 +380,8 @@ export const AdminPage: React.FC = () => {
             labelPrefix,
             values,
             handleChange,
-            inputType
+            inputType,
+            type // Pass the type to generateInputFields
           )}
           <SaveSpinner
             isLoading={isLoading}
@@ -404,7 +406,8 @@ export const AdminPage: React.FC = () => {
       index: number,
       inputType: string
     ) => void,
-    inputType: string
+    inputType: string,
+    type: string // Add type parameter
   ) => {
     return Array.from({ length: Math.ceil(count / 2) }).map((_, rowIndex) => (
       <div
@@ -439,6 +442,7 @@ export const AdminPage: React.FC = () => {
                 isCalendar={inputType === 'calendarEvents'}
                 isPrompts={inputType === 'prompts'}
                 isImageUpload={labelPrefix === 'HIVE'}
+                type={type} // Use the dynamic type
               />
             );
           }
@@ -468,6 +472,7 @@ export const AdminPage: React.FC = () => {
         </p>
       </div>
       <form>
+        {/* Countdown date not needed 
         <div className='row'>
           <Accordion
             accordionTerms='Countdown date'
@@ -494,136 +499,80 @@ export const AdminPage: React.FC = () => {
               handleSubmit={() => handleSubmit('countdownDate')}
             />
           </Accordion>
-        </div>
-        <div className='row'>
-          <Accordion
-            accordionTerms='Min / Max word counts'
-            collapseNumber='collapseTwo'
-          >
-            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
-              <InputType
-                name='minWordCount'
-                value={minWordCount}
-                isDisabled={false}
-                label='What is the minimum word count for stories?'
-                isRequired
-                onChange={(e) =>
-                  dispatch(setMinWordCount(parseInt(e.target.value)))
-                }
-                type='number'
-              />
-              <InputType
-                name='maxWordCount'
-                value={maxWordCount}
-                isDisabled={false}
-                label='What is the maximum word count for stories?'
-                isRequired
-                onChange={(e) =>
-                  dispatch(
-                    parseInt(e.target.value) > 10000
-                      ? setMaxWordCount(1000)
-                      : setMaxWordCount(parseInt(e.target.value))
-                  )
-                }
-                type='number'
-              />
-            </div>
-            <SaveSpinner
-              isLoading={false}
-              isSaved={false}
-              savedText='Changes saved!'
-            />
-            <ButtonsRow
-              handleClear={() => handleReset('wordCounts')}
-              handleSubmit={() => handleSubmit('wordCounts')}
-            />
-          </Accordion>
-        </div>
-        <div className='row'>
-          <Accordion
-            accordionTerms='Minimum prompt selections'
-            collapseNumber='collapseThree'
-          >
-            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
-              <InputType
-                name='minPromptSelections'
-                value={minPromptSelections}
-                isDisabled={false}
-                label='How many prompts at minimum must be selected?'
-                isRequired
-                onChange={(e) =>
-                  dispatch(setMinPromptSelections(parseInt(e.target.value)))
-                }
-                type='number'
-              />
-            </div>
-            <SaveSpinner
-              isLoading={false}
-              isSaved={false}
-              savedText='Changes saved!'
-            />
-            <ButtonsRow
-              handleClear={() => handleReset('minPromptSelections')}
-              handleSubmit={() => handleSubmit('minPromptSelections')}
-            />
-          </Accordion>
-        </div>
-        <div className='row'>
-          <Accordion
-            accordionTerms='Battle name'
-            collapseNumber='collapseThree'
-          >
-            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
-              <InputType
-                name='battleName'
-                value={battleName}
-                isDisabled={false}
-                label='What is the name of the battle?'
-                isRequired
-                onChange={(e) => dispatch(setBattleName(e.target.value))}
-                type='text'
-              />
-            </div>
-            <SaveSpinner
-              isLoading={false}
-              isSaved={false}
-              savedText='Changes saved!'
-            />
-            <ButtonsRow
-              handleClear={() => handleReset('battleName')}
-              handleSubmit={() => handleSubmit('battleName')}
-            />
-          </Accordion>
-        </div>
-        <div className='row'>
-          <Accordion
-            accordionTerms='Story losses count'
-            collapseNumber='collapseThree'
-          >
-            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
-              <InputType
-                name='numOfLosses'
-                value={numOfLosses}
-                isDisabled={false}
-                label='How many losses until the story is taken out of the battle?'
-                isRequired
-                onChange={(e) =>
-                  dispatch(setNumOfLosses(parseInt(e.target.value)))
-                }
-                type='number'
-              />
-            </div>
-            <SaveSpinner
-              isLoading={false}
-              isSaved={false}
-              savedText='Changes saved!'
-            />
-            <ButtonsRow
-              handleClear={() => handleReset('numOfLosses')}
-              handleSubmit={() => handleSubmit('numOfLosses')}
-            />
-          </Accordion>
-        </div>
+        </div> */}
+        {generateAccordion(
+          'Min / Max word counts',
+          'collapseTwo',
+          2, // Number of inputs (min and max word counts)
+          handleCountOptions,
+          'wordCounts',
+          'Word Count',
+          '10000', // Max value for word counts
+          false, // isLoading
+          true, // isSaved
+          [minWordCount, maxWordCount], // Values for min and max word counts
+          (e, index) => {
+            if (index === 0) {
+              dispatch(setMinWordCount(parseInt(e.target.value)));
+            } else {
+              dispatch(
+                parseInt(e.target.value) > 10000
+                  ? setMaxWordCount(1000)
+                  : setMaxWordCount(parseInt(e.target.value))
+              );
+            }
+          },
+          () => handleReset('wordCounts'),
+          'number' // Input type
+        )}
+
+        {generateAccordion(
+          'Minimum prompt selections',
+          'collapseThree',
+          1, // Single input for minimum prompt selections
+          handleCountOptions,
+          'minPromptSelections',
+          'Prompt Selection',
+          '10', // Max value for minimum prompt selections
+          false, // isLoading
+          true, // isSaved
+          [minPromptSelections], // Value for minimum prompt selections
+          (e) => dispatch(setMinPromptSelections(parseInt(e.target.value))),
+          () => handleReset('minPromptSelections'),
+          'number' // Input type
+        )}
+
+        {generateAccordion(
+          'Battle name',
+          'collapseThree',
+          1, // Single input for battle name
+          handleCountOptions,
+          'battleName',
+          'Battle Name',
+          '', // No max value for text input
+          false, // isLoading
+          true, // isSaved
+          [battleName], // Value for battle name
+          (e) => dispatch(setBattleName(e.target.value)),
+          () => handleReset('battleName'),
+          'text' // Input type
+        )}
+
+        {generateAccordion(
+          'Story losses count',
+          'collapseThree',
+          1, // Single input for story losses count
+          handleCountOptions,
+          'numOfLosses',
+          'Losses Count',
+          '10', // Max value for story losses count
+          false, // isLoading
+          true, // isSaved
+          [numOfLosses], // Value for story losses count
+          (e) => dispatch(setNumOfLosses(parseInt(e.target.value))),
+          () => handleReset('numOfLosses'),
+          'number' // Input type
+        )}
         {generateAccordion(
           'Calendar events',
           'collapseFour',
@@ -636,8 +585,10 @@ export const AdminPage: React.FC = () => {
           !isCalendarEventsLoading && !error,
           calendarEvents,
           handleChange,
-          () => handleReset('calendarEvents')
+          () => handleReset('calendarEvents'),
+          'date' // Pass the type
         )}
+
         {generateAccordion(
           'Prompts',
           'collapseSix',
@@ -650,8 +601,10 @@ export const AdminPage: React.FC = () => {
           !isPromptsLoading && !error,
           prompts,
           handleChange,
-          () => handleReset('prompts')
+          () => handleReset('prompts'),
+          'text' // Pass the type
         )}
+
         {generateAccordion(
           'Content warnings',
           'collapseSeven',
@@ -664,7 +617,8 @@ export const AdminPage: React.FC = () => {
           !isContentWarningCountLoading && !error,
           contentWarnings,
           handleChange,
-          () => handleReset('contentWarnings')
+          () => handleReset('contentWarnings'),
+          'text' // Pass the type
         )}
 
         {showModal && (

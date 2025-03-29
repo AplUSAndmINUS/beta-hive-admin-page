@@ -65,8 +65,7 @@ export const InputType: React.FC<InputTypeProps> = ({
                   value={value || ''}
                   onChange={onChange}
                   type={type}
-                  min={min}
-                  max={max}
+                  {...(type === 'number' && { min, max, pattern })}
                   pattern={pattern}
                   placeholder={placeholder}
                   required={isRequired}
