@@ -356,32 +356,35 @@ export const AdminPage: React.FC = () => {
       inputType: string
     ) => void,
     handleReset: () => void,
-    type: string // Add type parameter
+    type: string,
+    showCountInput: boolean = true // New parameter with default value
   ) => {
     return (
       <div className='row'>
         <Accordion accordionTerms={title} collapseNumber={collapseNumber}>
-          <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
-            <InputType
-              name='input'
-              value={value}
-              isDisabled={false}
-              label={`How many ${title.toLowerCase()} would you like?`}
-              isRequired
-              onChange={(e) => handleCountOptions(e, inputType)}
-              type={type} // Use the dynamic type
-              pattern={type === 'number' ? '[0-9]*' : undefined}
-              min={type === 'number' ? '1' : undefined}
-              max={type === 'number' ? max : undefined}
-            />
-          </div>
+          {showCountInput && ( // Conditionally render the "How many..." input
+            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+              <InputType
+                name='input'
+                value={value}
+                isDisabled={false}
+                label={`How many ${title.toLowerCase()} would you like?`}
+                isRequired
+                onChange={(e) => handleCountOptions(e, inputType)}
+                type={type}
+                pattern={type === 'number' ? '[0-9]*' : undefined}
+                min={type === 'number' ? '1' : undefined}
+                max={type === 'number' ? max : undefined}
+              />
+            </div>
+          )}
           {generateInputFields(
             value,
             labelPrefix,
             values,
             handleChange,
             inputType,
-            type // Pass the type to generateInputFields
+            type
           )}
           <SaveSpinner
             isLoading={isLoading}
@@ -523,7 +526,8 @@ export const AdminPage: React.FC = () => {
             }
           },
           () => handleReset('wordCounts'),
-          'number' // Input type
+          'number', // Input type
+          false // Do not show "How many..." input
         )}
 
         {generateAccordion(
@@ -532,14 +536,15 @@ export const AdminPage: React.FC = () => {
           1, // Single input for minimum prompt selections
           handleCountOptions,
           'minPromptSelections',
-          'Prompt Selection',
+          'Prompt Selections',
           '10', // Max value for minimum prompt selections
           false, // isLoading
           true, // isSaved
           [minPromptSelections], // Value for minimum prompt selections
           (e) => dispatch(setMinPromptSelections(parseInt(e.target.value))),
           () => handleReset('minPromptSelections'),
-          'number' // Input type
+          'number', // Input type
+          false // Do not show "How many..." input
         )}
 
         {generateAccordion(
@@ -555,7 +560,8 @@ export const AdminPage: React.FC = () => {
           [battleName], // Value for battle name
           (e) => dispatch(setBattleName(e.target.value)),
           () => handleReset('battleName'),
-          'text' // Input type
+          'text', // Input type
+          false // Do not show "How many..." input
         )}
 
         {generateAccordion(
@@ -571,8 +577,11 @@ export const AdminPage: React.FC = () => {
           [numOfLosses], // Value for story losses count
           (e) => dispatch(setNumOfLosses(parseInt(e.target.value))),
           () => handleReset('numOfLosses'),
-          'number' // Input type
+          'number', // Input type
+          false // Do not show "How many..." input
         )}
+
+        {/* Calendar Events not needed
         {generateAccordion(
           'Calendar events',
           'collapseFour',
@@ -587,7 +596,7 @@ export const AdminPage: React.FC = () => {
           handleChange,
           () => handleReset('calendarEvents'),
           'date' // Pass the type
-        )}
+        )} */}
 
         {generateAccordion(
           'Prompts',
@@ -608,7 +617,7 @@ export const AdminPage: React.FC = () => {
         {generateAccordion(
           'Content warnings',
           'collapseSeven',
-          contentWarningCount,
+          contentWarningCount || 4,
           handleCountOptions,
           'contentWarnings',
           'CW',
