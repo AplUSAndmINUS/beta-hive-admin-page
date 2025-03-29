@@ -30,13 +30,13 @@ import SaveSpinner from '../../components/draft-save-spinner/draft-save-spinner'
 // } from 'src/services/models/betaHIVE-selection.types';
 import {
   fetchAdminData,
-  submitBattleName,
   // submitBetaHIVEs,
   // submitBetaHIVECount,
-  submitCalendarEvents,
-  submitCalendarEventCount,
+  // submitCalendarEvents,
+  // submitCalendarEventCount,
+  // submitCountdownDate,
+  submitBattleName,
   submitContentWarnings,
-  submitCountdownDate,
   submitMaxWordCount,
   submitMinPromptSelections,
   submitMinWordCount,
@@ -65,7 +65,7 @@ export const AdminPage: React.FC = () => {
     prompts,
     minWordCount,
     maxWordCount,
-    isCalendarEventsLoading,
+    // isCalendarEventsLoading,
     isContentWarningCountLoading,
     isPromptsLoading,
     error,
@@ -79,6 +79,12 @@ export const AdminPage: React.FC = () => {
   React.useEffect(() => {
     dispatch(fetchAdminData());
   }, [dispatch]);
+
+  React.useEffect(() => {
+    if (adminData) {
+      console.log('Admin data fetched:', adminData);
+    }
+  }, [adminData]);
 
   const validateSubmission = (type: string): boolean => {
     switch (type) {
@@ -222,10 +228,10 @@ export const AdminPage: React.FC = () => {
     if (!validateSubmission(type)) return;
 
     switch (type) {
-      case 'calendarEvents':
-        dispatch(submitCalendarEvents(calendarEvents));
-        dispatch(submitCalendarEventCount(calendarEventCount));
-        break;
+      // case 'calendarEvents':
+      //   dispatch(submitCalendarEvents(calendarEvents));
+      //   dispatch(submitCalendarEventCount(calendarEventCount));
+      //   break;
       case 'contentWarnings':
         dispatch(submitContentWarnings(contentWarnings));
         dispatch(submitNumOfContentWarnings(contentWarningCount));
@@ -233,9 +239,9 @@ export const AdminPage: React.FC = () => {
       case 'battleName':
         dispatch(submitBattleName(battleName)); // Send only battleName
         break;
-      case 'countdownDate':
-        dispatch(submitCountdownDate(countdownDate.toString())); // Send only countdownDate
-        break;
+      // case 'countdownDate':
+      //   dispatch(submitCountdownDate(countdownDate.toString())); // Send only countdownDate
+      //   break;
       case 'prompts':
         dispatch(submitPromptsCount(promptsCount));
         dispatch(submitPrompts(prompts));
