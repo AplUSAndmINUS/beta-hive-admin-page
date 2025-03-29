@@ -227,10 +227,15 @@ export const AdminPage: React.FC = () => {
   const handleSubmit = (type: string) => {
     if (!validateSubmission(type)) return;
 
+    console.log(`Submitting ${type} with current data...`);
+
     switch (type) {
       // case 'calendarEvents':
       //   dispatch(submitCalendarEvents(calendarEvents));
       //   dispatch(submitCalendarEventCount(calendarEventCount));
+      //   break;
+      // case 'countdownDate':
+      //   dispatch(submitCountdownDate(countdownDate.toString())); // Send only countdownDate
       //   break;
       case 'contentWarnings':
         dispatch(submitContentWarnings(contentWarnings));
@@ -239,9 +244,6 @@ export const AdminPage: React.FC = () => {
       case 'battleName':
         dispatch(submitBattleName(battleName)); // Send only battleName
         break;
-      // case 'countdownDate':
-      //   dispatch(submitCountdownDate(countdownDate.toString())); // Send only countdownDate
-      //   break;
       case 'prompts':
         dispatch(submitPromptsCount(promptsCount));
         dispatch(submitPrompts(prompts));
@@ -480,7 +482,8 @@ export const AdminPage: React.FC = () => {
           out the form.
         </p>
       </div>
-      <form>
+      <form onSubmit={(e) => e.preventDefault()}>
+        {/* Beta HIVE count not needed
         {/* Countdown date not needed 
         <div className='row'>
           <Accordion

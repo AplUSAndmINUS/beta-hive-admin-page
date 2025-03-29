@@ -74,9 +74,12 @@ export const submitCalendarEvents = createAsyncThunk(
   'admin/submitCalendarEvents',
   async (calendarEvents: calendarSchema[], { rejectWithValue }) => {
     try {
+      console.log('Submitting calendar events to API:', calendarEvents);
       const response = await updateCalendarEvents(calendarEvents);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting calendar events:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -86,9 +89,15 @@ export const submitCalendarEventCount = createAsyncThunk(
   'admin/submitCalendarEventCount',
   async (calendarEventCount: number, { rejectWithValue }) => {
     try {
+      console.log(
+        'Submitting calendar event count to API:',
+        calendarEventCount
+      );
       const response = await updateCalendarEventCount(calendarEventCount);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting calendar event count:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -98,9 +107,12 @@ export const submitBattleName = createAsyncThunk(
   'admin/submitBattleName',
   async (battleName: string, { rejectWithValue }) => {
     try {
+      console.log('Submitting battle name to API:', battleName);
       const response = await updateBattleName(battleName);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting battle name:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -110,9 +122,12 @@ export const submitContentWarnings = createAsyncThunk(
   'admin/submitContentWarnings',
   async (contentWarnings: contentWarningsSchema[], { rejectWithValue }) => {
     try {
+      console.log('Submitting content warnings to API:', contentWarnings);
       const response = await updateContentWarnings(contentWarnings);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting content warnings:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -122,9 +137,12 @@ export const submitCountdownDate = createAsyncThunk(
   'admin/submitCountdownDate',
   async (countdownDate: string, { rejectWithValue }) => {
     try {
+      console.log('Submitting countdown date to API:', countdownDate);
       const response = await updateCountdownDate(countdownDate);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting countdown date:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -134,9 +152,12 @@ export const submitPrompts = createAsyncThunk(
   'admin/submitPrompts',
   async (prompts: promptsSchema[], { rejectWithValue }) => {
     try {
+      console.log('Submitting prompts to API:', prompts);
       const response = await updatePrompts(prompts);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting prompts:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -146,9 +167,12 @@ export const submitPromptsCount = createAsyncThunk(
   'admin/submitPromptsCount',
   async (promptsCount: number, { rejectWithValue }) => {
     try {
+      console.log('Submitting prompts count to API:', promptsCount);
       const response = await updatePromptsCount(promptsCount);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting prompts count:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -158,9 +182,12 @@ export const submitMaxWordCount = createAsyncThunk(
   'admin/submitMaxWordCount',
   async (maxWordCount: number, { rejectWithValue }) => {
     try {
+      console.log('Submitting max word count to API:', maxWordCount);
       const response = await updateMaxWordCount(maxWordCount);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting max word count:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -170,9 +197,15 @@ export const submitMinPromptSelections = createAsyncThunk(
   'admin/submitMinPromptSelections',
   async (minPromptSelections: number, { rejectWithValue }) => {
     try {
+      console.log(
+        'Submitting min prompt selections to API:',
+        minPromptSelections
+      );
       const response = await updateMinPromptSelections(minPromptSelections);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting min prompt selections:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -182,9 +215,12 @@ export const submitMinWordCount = createAsyncThunk(
   'admin/submitMinWordCount',
   async (minWordCount: number, { rejectWithValue }) => {
     try {
+      console.log('Submitting min word count to API:', minWordCount);
       const response = await updateMinWordCount(minWordCount);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting min word count:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -194,9 +230,12 @@ export const submitNumOfLosses = createAsyncThunk(
   'admin/submitNumOfLosses',
   async (numOfLosses: number, { rejectWithValue }) => {
     try {
+      console.log('Submitting number of losses to API:', numOfLosses);
       const response = await updateNumOfLosses(numOfLosses);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting number of losses:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -206,9 +245,15 @@ export const submitNumOfContentWarnings = createAsyncThunk(
   'admin/submitNumOfContentWarnings',
   async (numOfContentWarnings: number, { rejectWithValue }) => {
     try {
+      console.log(
+        'Submitting number of content warnings to API:',
+        numOfContentWarnings
+      );
       const response = await updateNumOfContentWarnings(numOfContentWarnings);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting number of content warnings:', error);
       return rejectWithValue((error as Error).message);
     }
   }
@@ -218,9 +263,15 @@ export const submitNumOfCalendarEvents = createAsyncThunk(
   'admin/submitNumOfCalendarEvents',
   async (calendarEventCount: number, { rejectWithValue }) => {
     try {
+      console.log(
+        'Submitting number of calendar events to API:',
+        calendarEventCount
+      );
       const response = await updateCalendarEventCount(calendarEventCount);
+      console.log('API response:', response);
       return response;
     } catch (error) {
+      console.error('Error submitting number of calendar events:', error);
       return rejectWithValue((error as Error).message);
     }
   }
