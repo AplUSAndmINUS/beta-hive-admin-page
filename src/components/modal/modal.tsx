@@ -76,8 +76,17 @@ export const Modal: React.FC<ModalProps> = ({
             {alertMessage && (
               <div className='modal-header'>
                 <h4 className='modal-title' id='exampleModalLabel'>
-                  <i className='fas fa-exclamation-triangle text-warning' />
-                  &nbsp; Just to confirm
+                  {isConfirmation ? (
+                    <>
+                      <i className='fas fa-exclamation-triangle text-warning' />
+                      &nbsp; Just to confirm
+                    </>
+                  ) : (
+                    <>
+                      <i className='fas fa-times-circle text-danger' />
+                      &nbsp; There was an error
+                    </>
+                  )}
                 </h4>
                 <button
                   type='button'

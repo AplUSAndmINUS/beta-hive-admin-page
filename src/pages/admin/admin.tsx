@@ -2,6 +2,7 @@ import React from 'react';
 import { ErrorBoundary } from '../../components/error-boundary/error-boundary';
 import { SuccessToast } from '../../components/success-toast/success-toast';
 import { useAdminFormValidation } from '../../utils/hooks/useAdminFormValidation';
+import { ThunkResponse } from '../../stores/middleware/admin-thunks';
 
 import { useAppDispatch, useAppSelector } from '../../stores/store';
 import {
@@ -9,7 +10,7 @@ import {
   // setBetaHIVEs,
   setBattleName,
   setCalendarEventCount,
-  setCalendarEvents,
+  // setCalendarEvents,
   setContentWarningCount,
   setContentWarnings,
   setCountdownDate,
@@ -52,13 +53,24 @@ import { calendarSchema } from 'src/services/models/calendar.types';
 import { contentWarningsSchema } from 'src/services/models/content-warnings.types';
 import { promptsSchema } from 'src/services/models/prompt-selection.types';
 
+interface LocalValues {
+  battleName: string;
+  minWordCount: number;
+  maxWordCount: number;
+  minPromptSelections: number;
+  numOfLosses: number;
+  prompts: promptsSchema[];
+  contentWarnings: contentWarningsSchema[];
+  calendarEvents?: calendarSchema[];
+}
+
 export const AdminPage: React.FC = () => {
   const {
     battleName,
     // betaHIVECount,
     // betaHIVEs,
     // calendarEventCount,
-    calendarEvents,
+    // calendarEvents,
     contentWarningCount,
     contentWarnings,
     // countdownDate,
@@ -90,6 +102,38 @@ export const AdminPage: React.FC = () => {
   const [showSuccessToast, setShowSuccessToast] = React.useState(false);
   const [successMessage, setSuccessMessage] = React.useState('');
 
+  // Add local state for form values
+  const [localValues, setLocalValues] = React.useState<LocalValues>({
+    battleName,
+    minWordCount,
+    maxWordCount,
+    minPromptSelections,
+    numOfLosses,
+    prompts,
+    contentWarnings,
+  });
+
+  // Update local state when Redux state changes (e.g., after API success)
+  React.useEffect(() => {
+    setLocalValues({
+      battleName,
+      minWordCount,
+      maxWordCount,
+      minPromptSelections,
+      numOfLosses,
+      prompts,
+      contentWarnings,
+    });
+  }, [
+    battleName,
+    minWordCount,
+    maxWordCount,
+    minPromptSelections,
+    numOfLosses,
+    prompts,
+    contentWarnings,
+  ]);
+
   React.useEffect(() => {
     const initialize = async () => {
       const nonce = await waitForNonce();
@@ -119,10 +163,10 @@ export const AdminPage: React.FC = () => {
       case 'battleName':
         dispatch(setBattleName(adminData?.battleName));
         break;
-      case 'calendarEvents':
-        dispatch(setCalendarEventCount(adminData?.calendarEventCount || 4));
-        dispatch(setCalendarEvents(adminData?.calendarEvents || []));
-        break;
+      // case 'calendarEvents':
+      //   dispatch(setCalendarEventCount(adminData?.calendarEventCount || 4));
+      //   dispatch(setCalendarEvents(adminData?.calendarEvents || []));
+      //   break;
       case 'contentWarnings':
         dispatch(setContentWarningCount(adminData?.contentWarningCount || 4));
         dispatch(setContentWarnings(adminData?.contentWarnings || []));
@@ -155,20 +199,23 @@ export const AdminPage: React.FC = () => {
     try {
       // Validate all fields before submission
       const values = {
-        battleName,
-        minWordCount,
-        maxWordCount,
-        minPromptSelections,
-        numOfLosses,
-        prompts,
-        contentWarnings,
+        battleName: localValues.battleName,
+        minWordCount: localValues.minWordCount,
+        maxWordCount: localValues.maxWordCount,
+        minPromptSelections: localValues.minPromptSelections,
+        numOfLosses: localValues.numOfLosses,
+        prompts: localValues.prompts,
+        contentWarnings: localValues.contentWarnings,
       };
 
       const isValid = validateAll(values);
 
       // Additional validation for word counts
       if (type === 'wordCounts') {
-        const wordCountError = validateWordCounts(minWordCount, maxWordCount);
+        const wordCountError = validateWordCounts(
+          localValues.minWordCount,
+          localValues.maxWordCount
+        );
         if (wordCountError) {
           setAlertMessage(wordCountError);
           setShowModal(true);
@@ -183,31 +230,75 @@ export const AdminPage: React.FC = () => {
       }
 
       // Proceed with submission
+      let result;
       switch (type) {
         case 'contentWarnings':
-          await dispatch(submitContentWarnings(contentWarnings));
-          await dispatch(submitNumOfContentWarnings(contentWarningCount));
+          result = await Promise.all([
+            dispatch(submitContentWarnings(localValues.contentWarnings)),
+            dispatch(submitNumOfContentWarnings(contentWarningCount)),
+          ]);
           break;
         case 'battleName':
-          await dispatch(submitBattleName(battleName));
+          result = await dispatch(submitBattleName(localValues.battleName));
           break;
         case 'prompts':
-          await dispatch(submitPromptsCount(promptsCount));
-          await dispatch(submitPrompts(prompts));
+          result = await Promise.all([
+            dispatch(submitPromptsCount(promptsCount)),
+            dispatch(submitPrompts(localValues.prompts)),
+          ]);
           break;
         case 'wordCounts':
-          await dispatch(submitMinWordCount(minWordCount));
-          await dispatch(submitMaxWordCount(maxWordCount));
+          result = await Promise.all([
+            dispatch(submitMinWordCount(localValues.minWordCount)),
+            dispatch(submitMaxWordCount(localValues.maxWordCount)),
+          ]);
           break;
         case 'minPromptSelections':
-          await dispatch(submitMinPromptSelections(minPromptSelections));
+          result = await dispatch(
+            submitMinPromptSelections(localValues.minPromptSelections)
+          );
           break;
         case 'numOfLosses':
-          await dispatch(submitNumOfLosses(numOfLosses));
+          result = await dispatch(submitNumOfLosses(localValues.numOfLosses));
           break;
         default:
           console.error('Unknown type:', type);
-          break;
+          return;
+      }
+
+      const results = Array.isArray(result)
+        ? result
+        : result
+          ? [result]
+          : (() => {
+              console.error(
+                'The result is not valid (null, undefined, or invalid type).'
+              );
+              return [];
+            })();
+
+      // Simplified error handling
+      if (results.length === 0) {
+        setAlertMessage('No results returned from the operation.');
+        setShowModal(true);
+        return;
+      }
+
+      // Check each result for errors
+      for (const action of results) {
+        if (action.type?.includes('rejected')) {
+          setAlertMessage(
+            (action.payload as ThunkResponse<any>)?.error || 'An error occurred'
+          );
+          setShowModal(true);
+          return;
+        }
+        const payload = action.payload as ThunkResponse<any>;
+        if (payload && !payload.success) {
+          setAlertMessage(payload.error || 'An error occurred');
+          setShowModal(true);
+          return;
+        }
       }
 
       // Show success toast
@@ -272,36 +363,80 @@ export const AdminPage: React.FC = () => {
     // Validate the field in real-time
     validate(name, value);
 
+    // Update local state instead of Redux
     switch (inputType) {
       case 'calendarEvents':
-        dispatch(
-          setCalendarEvents(
-            calendarEvents.map((item: calendarSchema, i: number) =>
+        setLocalValues((prev) => ({
+          ...prev,
+          calendarEvents:
+            prev.calendarEvents?.map((item: calendarSchema, i: number) =>
               i === index ? { ...item, name: value } : item
-            )
-          )
-        );
+            ) || [],
+        }));
         break;
       case 'contentWarnings':
-        dispatch(
-          setContentWarnings(
-            contentWarnings.map((item: contentWarningsSchema, i: number) =>
+        setLocalValues((prev) => ({
+          ...prev,
+          contentWarnings: prev.contentWarnings.map(
+            (item: contentWarningsSchema, i: number) =>
               i === index ? { ...item, name: value } : item
-            )
-          )
-        );
+          ),
+        }));
         break;
       case 'prompts':
-        dispatch(
-          setPrompts(
-            prompts.map((item: promptsSchema, i: number) =>
-              i === index ? { ...item, name: value } : item
-            )
-          )
-        );
+        setLocalValues((prev) => ({
+          ...prev,
+          prompts: prev.prompts.map((item: promptsSchema, i: number) =>
+            i === index ? { ...item, name: value } : item
+          ),
+        }));
+        break;
+      case 'battleName':
+        setLocalValues((prev) => ({ ...prev, battleName: value }));
+        break;
+      case 'minWordCount':
+        setLocalValues((prev) => ({ ...prev, minWordCount: parseInt(value) }));
+        break;
+      case 'maxWordCount':
+        setLocalValues((prev) => ({ ...prev, maxWordCount: parseInt(value) }));
+        break;
+      case 'minPromptSelections':
+        setLocalValues((prev) => ({
+          ...prev,
+          minPromptSelections: parseInt(value),
+        }));
+        break;
+      case 'numOfLosses':
+        setLocalValues((prev) => ({ ...prev, numOfLosses: parseInt(value) }));
         break;
       default:
         break;
+    }
+  };
+
+  // Track if there are pending changes by comparing local values with Redux state
+  const getHasPendingChanges = (inputType: string) => {
+    switch (inputType) {
+      case 'battleName':
+        return localValues.battleName !== battleName;
+      case 'wordCounts':
+        return (
+          localValues.minWordCount !== minWordCount ||
+          localValues.maxWordCount !== maxWordCount
+        );
+      case 'minPromptSelections':
+        return localValues.minPromptSelections !== minPromptSelections;
+      case 'numOfLosses':
+        return localValues.numOfLosses !== numOfLosses;
+      case 'prompts':
+        return JSON.stringify(localValues.prompts) !== JSON.stringify(prompts);
+      case 'contentWarnings':
+        return (
+          JSON.stringify(localValues.contentWarnings) !==
+          JSON.stringify(contentWarnings)
+        );
+      default:
+        return false;
     }
   };
 
@@ -326,12 +461,12 @@ export const AdminPage: React.FC = () => {
     ) => void,
     handleReset: () => void,
     type: string,
-    showCountInput: boolean = true // New parameter with default value
+    showCountInput: boolean = true
   ) => {
     return (
       <div className='row'>
         <Accordion accordionTerms={title} collapseNumber={collapseNumber}>
-          {showCountInput && ( // Conditionally render the "How many..." input
+          {showCountInput && (
             <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
               <InputType
                 name='input'
@@ -359,10 +494,13 @@ export const AdminPage: React.FC = () => {
             isLoading={isLoading}
             isSaved={isSaved}
             savedText='Changes saved!'
+            hasPendingChanges={getHasPendingChanges(inputType)}
           />
           <ButtonsRow
             handleClear={handleReset}
             handleSubmit={() => handleSubmit(inputType)}
+            isLoading={isLoading}
+            isDisabled={isLoading}
           />
         </Accordion>
       </div>
@@ -486,13 +624,13 @@ export const AdminPage: React.FC = () => {
               '10000', // Max value for word counts
               false, // isLoading
               true, // isSaved
-              [minWordCount, maxWordCount], // Values for min and max word counts
+              [localValues.minWordCount, localValues.maxWordCount], // Values for min and max word counts
               (e, index) => {
                 const value = parseInt(e.target.value, 10); // Parse as integer
                 if (index === 0) {
-                  dispatch(setMinWordCount(value));
+                  setLocalValues((prev) => ({ ...prev, minWordCount: value }));
                 } else {
-                  dispatch(setMaxWordCount(value));
+                  setLocalValues((prev) => ({ ...prev, maxWordCount: value }));
                 }
               },
               () => handleReset('wordCounts'),
@@ -510,8 +648,12 @@ export const AdminPage: React.FC = () => {
               '10', // Max value for minimum prompt selections
               false, // isLoading
               true, // isSaved
-              [minPromptSelections], // Value for minimum prompt selections
-              (e) => dispatch(setMinPromptSelections(parseInt(e.target.value))),
+              [localValues.minPromptSelections], // Value for minimum prompt selections
+              (e) =>
+                setLocalValues((prev) => ({
+                  ...prev,
+                  minPromptSelections: parseInt(e.target.value),
+                })),
               () => handleReset('minPromptSelections'),
               'number', // Input type
               false // Do not show "How many..." input
@@ -527,8 +669,12 @@ export const AdminPage: React.FC = () => {
               '', // No max value for text input
               false, // isLoading
               true, // isSaved
-              [battleName], // Value for battle name
-              (e) => dispatch(setBattleName(e.target.value)),
+              [localValues.battleName], // Value for battle name
+              (e) =>
+                setLocalValues((prev) => ({
+                  ...prev,
+                  battleName: e.target.value,
+                })),
               () => handleReset('battleName'),
               'text', // Input type
               false // Do not show "How many..." input
@@ -544,8 +690,12 @@ export const AdminPage: React.FC = () => {
               '10', // Max value for story losses count
               false, // isLoading
               true, // isSaved
-              [numOfLosses], // Value for story losses count
-              (e) => dispatch(setNumOfLosses(parseInt(e.target.value))),
+              [localValues.numOfLosses], // Value for story losses count
+              (e) =>
+                setLocalValues((prev) => ({
+                  ...prev,
+                  numOfLosses: parseInt(e.target.value),
+                })),
               () => handleReset('numOfLosses'),
               'number', // Input type
               false // Do not show "How many..." input
@@ -578,7 +728,7 @@ export const AdminPage: React.FC = () => {
               '255',
               isPromptsLoading,
               !isPromptsLoading && !error,
-              prompts,
+              localValues.prompts,
               handleChange,
               () => handleReset('prompts'),
               'text' // Pass the type
@@ -594,7 +744,7 @@ export const AdminPage: React.FC = () => {
               '255',
               isContentWarningCountLoading,
               !isContentWarningCountLoading && !error,
-              contentWarnings,
+              localValues.contentWarnings,
               handleChange,
               () => handleReset('contentWarnings'),
               'text' // Pass the type

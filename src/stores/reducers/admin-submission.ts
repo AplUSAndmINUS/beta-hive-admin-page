@@ -163,7 +163,7 @@ const adminSubmissionSlice = createSlice({
         state.isAdminDataLoading = false;
         state.isAdminDataSuccess = true;
         state.isAdminDataError = false;
-        state.adminData = action.payload;
+        state.adminData = action.payload.data;
         state.isAdminDataFetched = true;
       })
       .addCase(fetchAdminData.rejected, (state) => {

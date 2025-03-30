@@ -7,6 +7,7 @@ interface SaveSpinnerProps {
   isPageLoading?: boolean;
   isSaved: boolean;
   savedText?: string;
+  hasPendingChanges?: boolean;
 }
 
 export const SaveSpinner: React.FC<SaveSpinnerProps> = ({
@@ -16,6 +17,7 @@ export const SaveSpinner: React.FC<SaveSpinnerProps> = ({
   isPageLoading,
   isSaved,
   savedText,
+  hasPendingChanges,
 }) => {
   return (
     <div className='d-flex justify-content-flex-end ms-3'>
@@ -25,7 +27,7 @@ export const SaveSpinner: React.FC<SaveSpinnerProps> = ({
             className='spinner-border text-primary mt-4 mb-2 me-2'
             role='status'
           />
-          <p className='mt-4 me-3 fw-bold'>Please wait...</p>
+          <p className='mt-4 me-3 fw-bold'>Loading...</p>
         </div>
       )}
       {!isPageLoading && isLoading && (
@@ -34,14 +36,23 @@ export const SaveSpinner: React.FC<SaveSpinnerProps> = ({
             className='spinner-border text-primary mt-4 mb-2 me-2'
             role='status'
           />
-          <p className='mt-4 me-3'>{innerText || 'Saving your draft...'}</p>
+          <p className='mt-4 me-3'>{innerText || 'Saving changes...'}</p>
         </div>
-      )}
-      {!isPageLoading && !isLoading && !error && isSaved && (
-        <p className='mt-4 me-3 fw-bold'>{savedText || 'Draft saved!'}</p>
       )}
       {!isPageLoading && !isLoading && error && (
         <p className='mt-4 me-3 text-danger'>{error}</p>
+      )}
+      {!isPageLoading &&
+        !isLoading &&
+        !error &&
+        isSaved &&
+        !hasPendingChanges && (
+          <p className='mt-4 me-3 fw-bold text-success'>
+            {savedText || 'Changes saved!'}
+          </p>
+        )}
+      {!isPageLoading && !isLoading && !error && hasPendingChanges && (
+        <p className='mt-4 me-3 text-muted'>Changes pending...</p>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ButtonsRow } from 'src/components/form-elements/buttons/buttons-row';
+import ButtonsRow from 'src/components/form-elements/buttons/buttons-row';
 
 interface FormSectionProps {
   title: string;
