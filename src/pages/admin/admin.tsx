@@ -1,5 +1,7 @@
 import React from 'react';
-import moment from 'moment';
+import { ErrorBoundary } from '../../components/error-boundary/error-boundary';
+import { SuccessToast } from '../../components/success-toast/success-toast';
+import { useAdminFormValidation } from '../../utils/hooks/useAdminFormValidation';
 
 import { useAppDispatch, useAppSelector } from '../../stores/store';
 import {
@@ -55,11 +57,11 @@ export const AdminPage: React.FC = () => {
     battleName,
     // betaHIVECount,
     // betaHIVEs,
-    calendarEventCount,
+    // calendarEventCount,
     calendarEvents,
     contentWarningCount,
     contentWarnings,
-    countdownDate,
+    // countdownDate,
     minPromptSelections,
     numOfLosses,
     promptsCount,
@@ -76,6 +78,17 @@ export const AdminPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const [alertMessage, setAlertMessage] = React.useState<string>('');
   const [showModal, setShowModal] = React.useState<boolean>(false);
+  const {
+    errors,
+    validate,
+    validateAll,
+    touchedFields,
+    setTouchedFields,
+    validateWordCounts,
+  } = useAdminFormValidation();
+
+  const [showSuccessToast, setShowSuccessToast] = React.useState(false);
+  const [successMessage, setSuccessMessage] = React.useState('');
 
   React.useEffect(() => {
     const initialize = async () => {
@@ -86,8 +99,8 @@ export const AdminPage: React.FC = () => {
       } else {
         console.error('Failed to fetch nonce');
       }
-    }
-    
+    };
+
     initialize();
   }, [dispatch]);
 
@@ -97,105 +110,8 @@ export const AdminPage: React.FC = () => {
     }
   }, [adminData]);
 
-  const validateSubmission = (type: string): boolean => {
-    switch (type) {
-      case 'calendarEvents':
-        if (calendarEvents.length < 1) {
-          setAlertMessage('Please add at least one calendar event.');
-          setShowModal(true);
-          return false;
-        }
-
-        if (calendarEventCount !== calendarEvents.length) {
-          dispatch(setCalendarEventCount(calendarEvents.length));
-        }
-
-        return true;
-      case 'contentWarnings':
-        if (contentWarnings.length < 1) {
-          setAlertMessage('Please add at least one content warning.');
-          setShowModal(true);
-          return false;
-        }
-
-        if (contentWarningCount !== contentWarnings.length) {
-          dispatch(setContentWarningCount(contentWarnings.length));
-        }
-
-        return true;
-      case 'prompts':
-        if (prompts.length < 1) {
-          setAlertMessage('Please add at least one prompt.');
-          setShowModal(true);
-          return false;
-        }
-
-        if (promptsCount !== prompts.length) {
-          dispatch(setPromptCount(prompts.length));
-        }
-
-        return true;
-      case 'wordCounts':
-        if (!minWordCount || !maxWordCount) {
-          setAlertMessage('Please add a min and max word count.');
-          setShowModal(true);
-          return false;
-        }
-
-        if (minWordCount >= maxWordCount) {
-          setAlertMessage(
-            'Minimum word count must be less than maximum word count.'
-          );
-          setShowModal(true);
-          return false;
-        }
-
-        return true;
-      case 'battleName':
-        if (battleName.length < 5 || battleName === '') {
-          setAlertMessage(
-            'Please add a battle name with at least 5 characters.'
-          );
-          setShowModal(true);
-          return false;
-        }
-
-        return true;
-      case 'minPromptSelections':
-        if (minPromptSelections < 1) {
-          setAlertMessage('Please add a minimum prompt selection.');
-          setShowModal(true);
-          return false;
-        }
-
-        return true;
-      case 'numOfLosses':
-        if (numOfLosses < 1) {
-          setAlertMessage('Please add a number of losses.');
-          setShowModal(true);
-          return false;
-        }
-
-        return true;
-      case 'countdownDate':
-        if (moment(countdownDate) <= moment()) {
-          setAlertMessage('Countdown date must be in the future.');
-          setShowModal(true);
-          return false;
-        }
-
-        if (!countdownDate) {
-          setAlertMessage('Please add a countdown date.');
-          setShowModal(true);
-          return false;
-        }
-
-        return true;
-      default:
-        break;
-    }
-
-    return false;
+  const handleBlur = (fieldName: string) => {
+    setTouchedFields(new Set(Array.from(touchedFields).concat(fieldName)));
   };
 
   const handleReset = (type: string) => {
@@ -235,46 +151,72 @@ export const AdminPage: React.FC = () => {
     }
   };
 
-  const handleSubmit = (type: string) => {
-    if (!validateSubmission(type)) {
-      console.log('Validation failed for', type);
-      return;
-    } else {
-      console.log(`Submitting ${type} with current data...`);
-    }
+  const handleSubmit = async (type: string) => {
+    try {
+      // Validate all fields before submission
+      const values = {
+        battleName,
+        minWordCount,
+        maxWordCount,
+        minPromptSelections,
+        numOfLosses,
+        prompts,
+        contentWarnings,
+      };
 
-    switch (type) {
-      // case 'calendarEvents':
-      //   dispatch(submitCalendarEvents(calendarEvents));
-      //   dispatch(submitCalendarEventCount(calendarEventCount));
-      //   break;
-      // case 'countdownDate':
-      //   dispatch(submitCountdownDate(countdownDate.toString())); // Send only countdownDate
-      //   break;
-      case 'contentWarnings':
-        dispatch(submitContentWarnings(contentWarnings));
-        dispatch(submitNumOfContentWarnings(contentWarningCount));
-        break;
-      case 'battleName':
-        dispatch(submitBattleName(battleName)); // Send only battleName
-        break;
-      case 'prompts':
-        dispatch(submitPromptsCount(promptsCount));
-        dispatch(submitPrompts(prompts));
-        break;
-      case 'wordCounts':
-        dispatch(submitMinWordCount(minWordCount));
-        dispatch(submitMaxWordCount(maxWordCount));
-        break;
-      case 'minPromptSelections':
-        dispatch(submitMinPromptSelections(minPromptSelections));
-        break;
-      case 'numOfLosses':
-        dispatch(submitNumOfLosses(numOfLosses));
-        break;
-      default:
-        console.error('Unknown type:', type);
-        break;
+      const isValid = validateAll(values);
+
+      // Additional validation for word counts
+      if (type === 'wordCounts') {
+        const wordCountError = validateWordCounts(minWordCount, maxWordCount);
+        if (wordCountError) {
+          setAlertMessage(wordCountError);
+          setShowModal(true);
+          return;
+        }
+      }
+
+      if (!isValid) {
+        setAlertMessage('Please fix the validation errors before submitting.');
+        setShowModal(true);
+        return;
+      }
+
+      // Proceed with submission
+      switch (type) {
+        case 'contentWarnings':
+          await dispatch(submitContentWarnings(contentWarnings));
+          await dispatch(submitNumOfContentWarnings(contentWarningCount));
+          break;
+        case 'battleName':
+          await dispatch(submitBattleName(battleName));
+          break;
+        case 'prompts':
+          await dispatch(submitPromptsCount(promptsCount));
+          await dispatch(submitPrompts(prompts));
+          break;
+        case 'wordCounts':
+          await dispatch(submitMinWordCount(minWordCount));
+          await dispatch(submitMaxWordCount(maxWordCount));
+          break;
+        case 'minPromptSelections':
+          await dispatch(submitMinPromptSelections(minPromptSelections));
+          break;
+        case 'numOfLosses':
+          await dispatch(submitNumOfLosses(numOfLosses));
+          break;
+        default:
+          console.error('Unknown type:', type);
+          break;
+      }
+
+      // Show success toast
+      setSuccessMessage(`${type} updated successfully!`);
+      setShowSuccessToast(true);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setAlertMessage('An error occurred while submitting the form.');
+      setShowModal(true);
     }
   };
 
@@ -325,7 +267,11 @@ export const AdminPage: React.FC = () => {
     index: number,
     inputType: string
   ) => {
-    const { value } = e.target;
+    const { value, name } = e.target;
+
+    // Validate the field in real-time
+    validate(name, value);
+
     switch (inputType) {
       case 'calendarEvents':
         dispatch(
@@ -433,7 +379,7 @@ export const AdminPage: React.FC = () => {
       inputType: string
     ) => void,
     inputType: string,
-    type: string // Add type parameter
+    type: string
   ) => {
     return Array.from({ length: Math.ceil(count / 2) }).map((_, rowIndex) => (
       <div
@@ -461,6 +407,7 @@ export const AdminPage: React.FC = () => {
                     : ''
                 }
                 onChange={(e) => handleChange(e, index, inputType)}
+                onBlur={() => handleBlur(`${labelPrefix}${index + 1}`)}
                 isDisabled={false}
                 isRequired
                 label={`${labelPrefix} ${index + 1}`}
@@ -468,7 +415,9 @@ export const AdminPage: React.FC = () => {
                 isCalendar={inputType === 'calendarEvents'}
                 isPrompts={inputType === 'prompts'}
                 isImageUpload={labelPrefix === 'HIVE'}
-                type={type} // Use the dynamic type
+                type={type}
+                error={errors[`${labelPrefix}${index + 1}`]}
+                isTouched={touchedFields.has(`${labelPrefix}${index + 1}`)}
               />
             );
           }
@@ -478,187 +427,194 @@ export const AdminPage: React.FC = () => {
     ));
   };
 
-  return isLoading ? (
-    <>
-      <SaveSpinner
-        isPageLoading={isLoading}
-        isLoading={false}
-        isSaved={false}
-      />
-    </>
-  ) : (
-    <div className='container-fluid'>
-      <div className='row'>
-        <h1 className='bd-title pb-2 mt-4 mb-4'>HIVE Admin</h1>
-        <p>
-          Fill out all the required fields marked with a red asterisk in each of
-          the sections. <br />
-          You may close each accordion once completed to help you as you fill
-          out the form.
-        </p>
-      </div>
-      <form onSubmit={(e) => e.preventDefault()}>
-        {/* Beta HIVE count not needed
-        {/* Countdown date not needed 
-        <div className='row'>
-          <Accordion
-            accordionTerms='Countdown date'
-            collapseNumber='collapseOne'
-          >
-            <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
-              <InputType
-                name='countdownDate'
-                value={moment(countdownDate).format('YYYY-MM-DD')}
-                isDisabled={false}
-                label='Countdown date'
-                isRequired
-                onChange={(e) => dispatch(setCountdownDate(e.target.value))}
-                type='date'
-              />
-            </div>
-            <SaveSpinner
-              isLoading={false}
-              isSaved={false}
-              savedText='Changes saved!'
+  return (
+    <ErrorBoundary>
+      {isLoading ? (
+        <SaveSpinner
+          isPageLoading={isLoading}
+          isLoading={false}
+          isSaved={false}
+        />
+      ) : (
+        <div className='container-fluid'>
+          <div className='row'>
+            <h1 className='bd-title pb-2 mt-4 mb-4'>HIVE Admin</h1>
+            <p>
+              Fill out all the required fields marked with a red asterisk in
+              each of the sections. <br />
+              You may close each accordion once completed to help you as you
+              fill out the form.
+            </p>
+          </div>
+          <form onSubmit={(e) => e.preventDefault()}>
+            {/* Beta HIVE count not needed
+            {/* Countdown date not needed 
+            <div className='row'>
+              <Accordion
+                accordionTerms='Countdown date'
+                collapseNumber='collapseOne'
+              >
+                <div className='d-flex flex-row flex-wrap justify-content-start mb-4'>
+                  <InputType
+                    name='countdownDate'
+                    value={moment(countdownDate).format('YYYY-MM-DD')}
+                    isDisabled={false}
+                    label='Countdown date'
+                    isRequired
+                    onChange={(e) => dispatch(setCountdownDate(e.target.value))}
+                    type='date'
+                  />
+                </div>
+                <SaveSpinner
+                  isLoading={false}
+                  isSaved={false}
+                  savedText='Changes saved!'
+                />
+                <ButtonsRow
+                  handleClear={() => handleReset('countdownDate')}
+                  handleSubmit={() => handleSubmit('countdownDate')}
+                />
+              </Accordion>
+            </div> */}
+            {generateAccordion(
+              'Min / Max word counts',
+              'collapseTwo',
+              2, // Number of inputs (min and max word counts)
+              handleCountOptions,
+              'wordCounts',
+              'Word Count',
+              '10000', // Max value for word counts
+              false, // isLoading
+              true, // isSaved
+              [minWordCount, maxWordCount], // Values for min and max word counts
+              (e, index) => {
+                const value = parseInt(e.target.value, 10); // Parse as integer
+                if (index === 0) {
+                  dispatch(setMinWordCount(value));
+                } else {
+                  dispatch(setMaxWordCount(value));
+                }
+              },
+              () => handleReset('wordCounts'),
+              'number', // Input type
+              false // Do not show "How many..." input
+            )}
+
+            {generateAccordion(
+              'Minimum prompt selections',
+              'collapseThree',
+              1, // Single input for minimum prompt selections
+              handleCountOptions,
+              'minPromptSelections',
+              'Prompt Selections',
+              '10', // Max value for minimum prompt selections
+              false, // isLoading
+              true, // isSaved
+              [minPromptSelections], // Value for minimum prompt selections
+              (e) => dispatch(setMinPromptSelections(parseInt(e.target.value))),
+              () => handleReset('minPromptSelections'),
+              'number', // Input type
+              false // Do not show "How many..." input
+            )}
+
+            {generateAccordion(
+              'Battle name',
+              'collapseThree',
+              1, // Single input for battle name
+              handleCountOptions,
+              'battleName',
+              'Battle Name',
+              '', // No max value for text input
+              false, // isLoading
+              true, // isSaved
+              [battleName], // Value for battle name
+              (e) => dispatch(setBattleName(e.target.value)),
+              () => handleReset('battleName'),
+              'text', // Input type
+              false // Do not show "How many..." input
+            )}
+
+            {generateAccordion(
+              'Story losses count',
+              'collapseThree',
+              1, // Single input for story losses count
+              handleCountOptions,
+              'numOfLosses',
+              'Losses Count',
+              '10', // Max value for story losses count
+              false, // isLoading
+              true, // isSaved
+              [numOfLosses], // Value for story losses count
+              (e) => dispatch(setNumOfLosses(parseInt(e.target.value))),
+              () => handleReset('numOfLosses'),
+              'number', // Input type
+              false // Do not show "How many..." input
+            )}
+
+            {/* Calendar Events not needed
+            {generateAccordion(
+              'Calendar events',
+              'collapseFour',
+              calendarEventCount,
+              handleCountOptions,
+              'calendarEvents',
+              'Event',
+              '4',
+              isCalendarEventsLoading,
+              !isCalendarEventsLoading && !error,
+              calendarEvents,
+              handleChange,
+              () => handleReset('calendarEvents'),
+              'date' // Pass the type
+            )} */}
+
+            {generateAccordion(
+              'Prompts',
+              'collapseSix',
+              promptsCount,
+              handleCountOptions,
+              'prompts',
+              'Prompt',
+              '255',
+              isPromptsLoading,
+              !isPromptsLoading && !error,
+              prompts,
+              handleChange,
+              () => handleReset('prompts'),
+              'text' // Pass the type
+            )}
+
+            {generateAccordion(
+              'Content warnings',
+              'collapseSeven',
+              contentWarningCount || 4,
+              handleCountOptions,
+              'contentWarnings',
+              'CW',
+              '255',
+              isContentWarningCountLoading,
+              !isContentWarningCountLoading && !error,
+              contentWarnings,
+              handleChange,
+              () => handleReset('contentWarnings'),
+              'text' // Pass the type
+            )}
+          </form>
+          {showModal && (
+            <Modal
+              alertMessage={alertMessage}
+              onDismiss={() => setShowModal(false)}
             />
-            <ButtonsRow
-              handleClear={() => handleReset('countdownDate')}
-              handleSubmit={() => handleSubmit('countdownDate')}
+          )}
+          {showSuccessToast && (
+            <SuccessToast
+              message={successMessage}
+              onDismiss={() => setShowSuccessToast(false)}
             />
-          </Accordion>
-        </div> */}
-        {generateAccordion(
-          'Min / Max word counts',
-          'collapseTwo',
-          2, // Number of inputs (min and max word counts)
-          handleCountOptions,
-          'wordCounts',
-          'Word Count',
-          '10000', // Max value for word counts
-          false, // isLoading
-          true, // isSaved
-          [minWordCount, maxWordCount], // Values for min and max word counts
-          (e, index) => {
-            const value = parseInt(e.target.value, 10); // Parse as integer
-            if (index === 0) {
-              dispatch(setMinWordCount(value));
-            } else {
-              dispatch(setMaxWordCount(value));
-            }
-          },
-          () => handleReset('wordCounts'),
-          'number', // Input type
-          false // Do not show "How many..." input
-        )}
-
-        {generateAccordion(
-          'Minimum prompt selections',
-          'collapseThree',
-          1, // Single input for minimum prompt selections
-          handleCountOptions,
-          'minPromptSelections',
-          'Prompt Selections',
-          '10', // Max value for minimum prompt selections
-          false, // isLoading
-          true, // isSaved
-          [minPromptSelections], // Value for minimum prompt selections
-          (e) => dispatch(setMinPromptSelections(parseInt(e.target.value))),
-          () => handleReset('minPromptSelections'),
-          'number', // Input type
-          false // Do not show "How many..." input
-        )}
-
-        {generateAccordion(
-          'Battle name',
-          'collapseThree',
-          1, // Single input for battle name
-          handleCountOptions,
-          'battleName',
-          'Battle Name',
-          '', // No max value for text input
-          false, // isLoading
-          true, // isSaved
-          [battleName], // Value for battle name
-          (e) => dispatch(setBattleName(e.target.value)),
-          () => handleReset('battleName'),
-          'text', // Input type
-          false // Do not show "How many..." input
-        )}
-
-        {generateAccordion(
-          'Story losses count',
-          'collapseThree',
-          1, // Single input for story losses count
-          handleCountOptions,
-          'numOfLosses',
-          'Losses Count',
-          '10', // Max value for story losses count
-          false, // isLoading
-          true, // isSaved
-          [numOfLosses], // Value for story losses count
-          (e) => dispatch(setNumOfLosses(parseInt(e.target.value))),
-          () => handleReset('numOfLosses'),
-          'number', // Input type
-          false // Do not show "How many..." input
-        )}
-
-        {/* Calendar Events not needed
-        {generateAccordion(
-          'Calendar events',
-          'collapseFour',
-          calendarEventCount,
-          handleCountOptions,
-          'calendarEvents',
-          'Event',
-          '4',
-          isCalendarEventsLoading,
-          !isCalendarEventsLoading && !error,
-          calendarEvents,
-          handleChange,
-          () => handleReset('calendarEvents'),
-          'date' // Pass the type
-        )} */}
-
-        {generateAccordion(
-          'Prompts',
-          'collapseSix',
-          promptsCount,
-          handleCountOptions,
-          'prompts',
-          'Prompt',
-          '255',
-          isPromptsLoading,
-          !isPromptsLoading && !error,
-          prompts,
-          handleChange,
-          () => handleReset('prompts'),
-          'text' // Pass the type
-        )}
-
-        {generateAccordion(
-          'Content warnings',
-          'collapseSeven',
-          contentWarningCount || 4,
-          handleCountOptions,
-          'contentWarnings',
-          'CW',
-          '255',
-          isContentWarningCountLoading,
-          !isContentWarningCountLoading && !error,
-          contentWarnings,
-          handleChange,
-          () => handleReset('contentWarnings'),
-          'text' // Pass the type
-        )}
-
-        {showModal && (
-          <Modal
-            alertMessage={alertMessage}
-            onDismiss={() => setShowModal(false)}
-          />
-        )}
-      </form>
-    </div>
+          )}
+        </div>
+      )}
+    </ErrorBoundary>
   );
 };
 
