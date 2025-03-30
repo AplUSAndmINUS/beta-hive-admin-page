@@ -70,6 +70,12 @@ export const fetchAdminData = createAsyncThunk<gameSettingsSchema, void>(
   }
 );
 
+// Utility function for consistent error handling
+const handleThunkError = (error: unknown, rejectWithValue: Function) => {
+  console.error('Thunk error:', error);
+  return rejectWithValue((error as Error).message);
+};
+
 export const submitCalendarEvents = createAsyncThunk(
   'admin/submitCalendarEvents',
   async (calendarEvents: calendarSchema[], { rejectWithValue }) => {
@@ -79,8 +85,7 @@ export const submitCalendarEvents = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting calendar events:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -97,8 +102,7 @@ export const submitCalendarEventCount = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting calendar event count:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -112,8 +116,7 @@ export const submitBattleName = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting battle name:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -127,8 +130,7 @@ export const submitContentWarnings = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting content warnings:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -142,8 +144,7 @@ export const submitCountdownDate = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting countdown date:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -157,8 +158,7 @@ export const submitPrompts = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting prompts:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -172,8 +172,7 @@ export const submitPromptsCount = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting prompts count:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -187,8 +186,7 @@ export const submitMaxWordCount = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting max word count:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -205,8 +203,7 @@ export const submitMinPromptSelections = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting min prompt selections:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -220,8 +217,7 @@ export const submitMinWordCount = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting min word count:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -235,8 +231,7 @@ export const submitNumOfLosses = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting number of losses:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -253,8 +248,7 @@ export const submitNumOfContentWarnings = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting number of content warnings:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );
@@ -271,8 +265,7 @@ export const submitNumOfCalendarEvents = createAsyncThunk(
       console.log('API response:', response);
       return response;
     } catch (error) {
-      console.error('Error submitting number of calendar events:', error);
-      return rejectWithValue((error as Error).message);
+      return handleThunkError(error, rejectWithValue);
     }
   }
 );

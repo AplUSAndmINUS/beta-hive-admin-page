@@ -23,17 +23,15 @@ const baseURL = '/wp-json/custom/v1';
 
 // Create an axios instance with the nonce token for WP backend access
 // Comment out either the local or production instance depending on the environment
+// Create an axios instance with the nonce token for WP backend access
 export const axiosInstance = axios.create({
   baseURL: baseURL,
   headers: {
-    // 'X-WP-Nonce':
-    //   typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : localNonce,
-    // 'X-WP-Nonce':
-    //   typeof wpApiSettings !== 'undefined' ? wpApiSettings.nonce : 'a641f8e96b',
     'Content-Type': 'application/json',
   },
 });
 
+// Ensure the `X-WP-Nonce` header is dynamically set for every request
 axiosInstance.interceptors.request.use((config) => {
   if (typeof wpApiSettings !== 'undefined' && wpApiSettings.nonce) {
     config.headers['X-WP-Nonce'] = wpApiSettings.nonce; // Dynamically set the nonce
@@ -43,10 +41,12 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+// Log the default headers for debugging
 console.log('Request headers:', axiosInstance.defaults.headers);
 
+// Function to wait for the nonce to be available
 export const waitForNonce = async (): Promise<string> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const checkNonce = () => {
       if (typeof wpApiSettings !== 'undefined' && wpApiSettings.nonce) {
         resolve(wpApiSettings.nonce);
