@@ -371,6 +371,23 @@ export const AdminPage: React.FC = () => {
         }));
         dispatch(setPrompts(trimmedPrompts));
       }
+
+      // Update Redux state to reflect saved changes
+      switch (type) {
+        case 'battleName':
+          dispatch(setBattleName(localValues.battleName));
+          break;
+        case 'wordCounts':
+          dispatch(setMinWordCount(localValues.minWordCount));
+          dispatch(setMaxWordCount(localValues.maxWordCount));
+          break;
+        case 'minPromptSelections':
+          dispatch(setMinPromptSelections(localValues.minPromptSelections));
+          break;
+        case 'numOfLosses':
+          dispatch(setNumOfLosses(localValues.numOfLosses));
+          break;
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
       setAlertMessage('An error occurred while submitting the form.');
@@ -703,6 +720,27 @@ export const AdminPage: React.FC = () => {
         />
       ) : (
         <div className='container-fluid'>
+          {(showSuccessToast || showModal) && (
+            <div
+              className='position-fixed top-0 end-0 p-3'
+              style={{ zIndex: 1050 }}
+            >
+              {showSuccessToast && (
+                <SuccessToast
+                  message={successMessage}
+                  type='success'
+                  onDismiss={() => setShowSuccessToast(false)}
+                />
+              )}
+              {showModal && (
+                <SuccessToast
+                  message={alertMessage}
+                  type='error'
+                  onDismiss={() => setShowModal(false)}
+                />
+              )}
+            </div>
+          )}
           <div className='row'>
             <h1 className='bd-title pb-2 mt-4 mb-4'>HIVE Admin</h1>
             <p>
@@ -878,18 +916,6 @@ export const AdminPage: React.FC = () => {
               'text' // Pass the type
             )}
           </form>
-          {showModal && (
-            <Modal
-              alertMessage={alertMessage}
-              onDismiss={() => setShowModal(false)}
-            />
-          )}
-          {showSuccessToast && (
-            <SuccessToast
-              message={successMessage}
-              onDismiss={() => setShowSuccessToast(false)}
-            />
-          )}
         </div>
       )}
     </ErrorBoundary>

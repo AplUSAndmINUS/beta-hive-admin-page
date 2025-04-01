@@ -1,13 +1,15 @@
 import React from 'react';
 
-interface SuccessToastProps {
+interface ToastProps {
   message: string;
+  type: 'success' | 'error';
   duration?: number;
   onDismiss: () => void;
 }
 
-export const SuccessToast: React.FC<SuccessToastProps> = ({
+export const SuccessToast: React.FC<ToastProps> = ({
   message,
+  type = 'success',
   duration = 3000,
   onDismiss,
 }) => {
@@ -17,8 +19,24 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
   }, [duration, onDismiss]);
 
   return (
-    <div className='success-toast'>
-      <span>{message}</span>
+    <div
+      className='toast show shadow-sm'
+      role='alert'
+      aria-live='assertive'
+      aria-atomic='true'
+    >
+      <div className={`toast-header bg-${type} text-white`}>
+        <strong className='me-auto'>
+          {type === 'success' ? 'Success' : 'Error'}
+        </strong>
+        <button
+          type='button'
+          className='btn-close btn-close-white'
+          onClick={onDismiss}
+          aria-label='Close'
+        />
+      </div>
+      <div className='toast-body'>{message}</div>
     </div>
   );
 };
