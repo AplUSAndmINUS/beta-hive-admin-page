@@ -43,8 +43,14 @@ export const useAdminFormValidation = () => {
     },
   };
 
-  const { errors, validate, validateAll, touchedFields, setTouchedFields } =
-    useFormValidation(validationRules);
+  const {
+    errors,
+    validate,
+    validateAll,
+    touchedFields,
+    setTouchedFields,
+    setErrors,
+  } = useFormValidation(validationRules);
 
   const validateWordCounts = (min: number, max: number) => {
     if (min >= max) {
@@ -60,5 +66,6 @@ export const useAdminFormValidation = () => {
     touchedFields,
     setTouchedFields,
     validateWordCounts,
+    setErrors,
   };
 };

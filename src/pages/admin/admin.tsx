@@ -97,6 +97,7 @@ export const AdminPage: React.FC = () => {
     touchedFields,
     setTouchedFields,
     validateWordCounts,
+    setErrors,
   } = useAdminFormValidation();
 
   const [showSuccessToast, setShowSuccessToast] = React.useState(false);
@@ -158,41 +159,78 @@ export const AdminPage: React.FC = () => {
     setTouchedFields(new Set(Array.from(touchedFields).concat(fieldName)));
   };
 
-  const handleReset = (type: string) => {
-    switch (type) {
+  const handleReset = (resetType: string) => {
+    // Reset all form values to their initial state
+    switch (resetType) {
       case 'battleName':
-        dispatch(setBattleName(adminData?.battleName));
+        setLocalValues((prev) => ({
+          ...prev,
+          battleName: adminData?.battleName || '',
+        }));
         break;
-      // case 'calendarEvents':
-      //   dispatch(setCalendarEventCount(adminData?.calendarEventCount || 4));
-      //   dispatch(setCalendarEvents(adminData?.calendarEvents || []));
-      //   break;
       case 'contentWarnings':
-        dispatch(setContentWarningCount(adminData?.contentWarningCount || 0));
-        dispatch(setContentWarnings(adminData?.contentWarnings || []));
+        // First set the count, then the array
+        const warningCount = adminData?.contentWarningCount || 0;
+        dispatch(setContentWarningCount(warningCount));
+        setLocalValues((prev) => ({
+          ...prev,
+          contentWarnings:
+            adminData?.contentWarnings?.slice(0, warningCount) || [],
+        }));
         break;
       case 'prompts':
-        dispatch(setPromptCount(adminData?.promptsCount || 10));
-        dispatch(setPrompts(adminData?.prompts || []));
+        // First set the count, then the array
+        const promptCount = adminData?.promptsCount || 0;
+        dispatch(setPromptCount(promptCount));
+        setLocalValues((prev) => ({
+          ...prev,
+          prompts: adminData?.prompts?.slice(0, promptCount) || [],
+        }));
         break;
-      case 'wordCounts':
-        dispatch(setMinWordCount(adminData?.minWordCount || 250));
-        dispatch(setMaxWordCount(adminData?.maxWordCount || 1000));
-        break;
-      case 'minPromptSelections':
-        dispatch(setMinPromptSelections(adminData?.minPromptSelections || 2));
-        break;
-      case 'numOfLosses':
-        dispatch(setNumOfLosses(adminData?.numOfLosses || 3));
+      case 'calendarEvents':
+        dispatch(setCalendarEventCount(adminData?.calendarEventCount || 0));
+        setLocalValues((prev) => ({
+          ...prev,
+          calendarEvents: adminData?.calendarEvents || [],
+        }));
         break;
       case 'countdownDate':
-        dispatch(
-          setCountdownDate(adminData?.countdownDate || '2025-04-14T00:00:00')
-        );
+        setLocalValues((prev) => ({
+          ...prev,
+          countdownDate: adminData?.countdownDate || '',
+        }));
+        break;
+      case 'minPromptSelections':
+        setLocalValues((prev) => ({
+          ...prev,
+          minPromptSelections: adminData?.minPromptSelections || 0,
+        }));
+        break;
+      case 'numOfLosses':
+        setLocalValues((prev) => ({
+          ...prev,
+          numOfLosses: adminData?.numOfLosses || 0,
+        }));
+        break;
+      case 'minWordCount':
+        setLocalValues((prev) => ({
+          ...prev,
+          minWordCount: adminData?.minWordCount || 0,
+        }));
+        break;
+      case 'maxWordCount':
+        setLocalValues((prev) => ({
+          ...prev,
+          maxWordCount: adminData?.maxWordCount || 0,
+        }));
         break;
       default:
         break;
     }
+    // Clear all errors
+    setErrors({});
+    // Clear all touched fields
+    setTouchedFields(new Set());
   };
 
   const handleSubmit = async (type: string) => {
@@ -245,6 +283,8 @@ export const AdminPage: React.FC = () => {
           break;
         case 'battleName':
           result = await dispatch(submitBattleName(localValues.battleName));
+          // Update Redux state after successful submission
+          dispatch(setBattleName(localValues.battleName));
           break;
         case 'prompts':
           // Trim the array to match the count if needed

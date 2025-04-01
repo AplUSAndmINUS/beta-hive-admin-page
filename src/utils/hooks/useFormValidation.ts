@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 interface ValidationRules {
   [key: string]: (value: any) => string | undefined;
 }
 
 export const useFormValidation = (rules: ValidationRules) => {
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
+  const [touchedFields, setTouchedFields] = React.useState<Set<string>>(
+    new Set()
+  );
 
   const validate = (fieldName: string, value: any) => {
     const validationRule = rules[fieldName];
@@ -37,5 +39,12 @@ export const useFormValidation = (rules: ValidationRules) => {
     return isValid;
   };
 
-  return { errors, validate, validateAll, touchedFields, setTouchedFields };
+  return {
+    errors,
+    validate,
+    validateAll,
+    touchedFields,
+    setTouchedFields,
+    setErrors,
+  };
 };

@@ -246,19 +246,14 @@ export const updateContentWarnings = async (
   updatedWarnings: contentWarningsSchema[]
 ): Promise<contentWarningsSchema[] | null> => {
   try {
-    const response = await axiosInstance.post(
-      '/update_content_warnings',
-      updatedWarnings
-    );
+    const response = await axiosInstance.post('/update_content_warnings', {
+      contentWarnings: updatedWarnings,
+    });
     return response.data;
   } catch (error) {
     console.error('Error updating content warnings:', error);
     return null;
   }
-
-  // Local API Testing to update content warnings
-  // CONTENT_WARNINGS = updatedWarnings;
-  // return CONTENT_WARNINGS;
 };
 
 // Function to update number of content warnings
