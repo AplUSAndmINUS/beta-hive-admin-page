@@ -172,7 +172,7 @@ export const AdminPage: React.FC = () => {
         dispatch(setContentWarnings(adminData?.contentWarnings || []));
         break;
       case 'prompts':
-        dispatch(setPromptCount(adminData?.promptCount || 10));
+        dispatch(setPromptCount(adminData?.promptsCount || 10));
         dispatch(setPrompts(adminData?.prompts || []));
         break;
       case 'wordCounts':
@@ -311,6 +311,19 @@ export const AdminPage: React.FC = () => {
       // Show success toast
       setSuccessMessage(`${type} updated successfully!`);
       setShowSuccessToast(true);
+
+      // Update local state to match the trimmed arrays
+      if (type === 'contentWarnings') {
+        setLocalValues((prev) => ({
+          ...prev,
+          contentWarnings: prev.contentWarnings.slice(0, contentWarningCount),
+        }));
+      } else if (type === 'prompts') {
+        setLocalValues((prev) => ({
+          ...prev,
+          prompts: prev.prompts.slice(0, promptsCount),
+        }));
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
       setAlertMessage('An error occurred while submitting the form.');
@@ -336,7 +349,7 @@ export const AdminPage: React.FC = () => {
         // Handle both increasing and decreasing count
         if (value !== localValues.contentWarnings.length) {
           if (value > localValues.contentWarnings.length) {
-            // Add new warnings
+            // Add new warnings while preserving existing ones
             const newWarnings = Array.from(
               { length: value - localValues.contentWarnings.length },
               (_, i) => ({
@@ -350,7 +363,7 @@ export const AdminPage: React.FC = () => {
               contentWarnings: [...prev.contentWarnings, ...newWarnings],
             }));
           } else {
-            // Remove excess warnings
+            // Remove excess warnings while preserving existing ones
             setLocalValues((prev) => ({
               ...prev,
               contentWarnings: prev.contentWarnings.slice(0, value),
@@ -363,7 +376,7 @@ export const AdminPage: React.FC = () => {
         // Handle both increasing and decreasing count
         if (value !== localValues.prompts.length) {
           if (value > localValues.prompts.length) {
-            // Add new prompts
+            // Add new prompts while preserving existing ones
             const newPrompts = Array.from(
               { length: value - localValues.prompts.length },
               (_, i) => ({
@@ -377,7 +390,7 @@ export const AdminPage: React.FC = () => {
               prompts: [...prev.prompts, ...newPrompts],
             }));
           } else {
-            // Remove excess prompts
+            // Remove excess prompts while preserving existing ones
             setLocalValues((prev) => ({
               ...prev,
               prompts: prev.prompts.slice(0, value),
@@ -434,7 +447,12 @@ export const AdminPage: React.FC = () => {
           ...prev,
           contentWarnings: prev.contentWarnings.map(
             (item: contentWarningsSchema, i: number) =>
-              i === index ? { ...item, name: value } : item
+              i === index
+                ? {
+                    ...item,
+                    [name.endsWith('2') ? 'description' : 'name']: value,
+                  }
+                : item
           ),
         }));
         break;
@@ -445,7 +463,7 @@ export const AdminPage: React.FC = () => {
             i === index
               ? {
                   ...item,
-                  [name.includes('Desc') ? 'description' : 'name']: value,
+                  [name.endsWith('2') ? 'description' : 'name']: value,
                 }
               : item
           ),
@@ -600,7 +618,9 @@ export const AdminPage: React.FC = () => {
                 }
                 value={value || ''}
                 valueDesc={
-                  inputType === 'prompts' || inputType === 'calendarEvents'
+                  inputType === 'prompts' ||
+                  inputType === 'calendarEvents' ||
+                  inputType === 'contentWarnings'
                     ? values[index]?.description
                     : ''
                 }

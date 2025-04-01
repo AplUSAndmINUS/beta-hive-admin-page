@@ -1,5 +1,4 @@
 import { useFormValidation } from './useFormValidation';
-import { gameSettingsSchema } from 'src/services/models/betaHIVE-selection.types';
 
 export const useAdminFormValidation = () => {
   const validationRules = {
