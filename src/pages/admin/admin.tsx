@@ -314,15 +314,22 @@ export const AdminPage: React.FC = () => {
 
       // Update local state to match the trimmed arrays
       if (type === 'contentWarnings') {
+        const trimmedWarnings = localValues.contentWarnings.slice(
+          0,
+          contentWarningCount
+        );
         setLocalValues((prev) => ({
           ...prev,
-          contentWarnings: prev.contentWarnings.slice(0, contentWarningCount),
+          contentWarnings: trimmedWarnings,
         }));
+        dispatch(setContentWarnings(trimmedWarnings));
       } else if (type === 'prompts') {
+        const trimmedPrompts = localValues.prompts.slice(0, promptsCount);
         setLocalValues((prev) => ({
           ...prev,
-          prompts: prev.prompts.slice(0, promptsCount),
+          prompts: trimmedPrompts,
         }));
+        dispatch(setPrompts(trimmedPrompts));
       }
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -609,10 +616,11 @@ export const AdminPage: React.FC = () => {
               typeof values[index] === 'object'
                 ? values[index]?.name
                 : values[index];
+            const inputName = `${labelPrefix}${index + 1}`;
             return (
               <InputType
-                key={`${labelPrefix}${index + 1}`}
-                name={`${labelPrefix}${index + 1}`}
+                key={inputName}
+                name={inputName}
                 calendarDate={
                   inputType === 'calendarEvents' ? values[index]?.date : ''
                 }
@@ -625,7 +633,7 @@ export const AdminPage: React.FC = () => {
                     : ''
                 }
                 onChange={(e) => handleChange(e, index, inputType)}
-                onBlur={() => handleBlur(`${labelPrefix}${index + 1}`)}
+                onBlur={() => handleBlur(inputName)}
                 isDisabled={false}
                 isRequired
                 label={`${labelPrefix} ${index + 1}`}
@@ -634,8 +642,8 @@ export const AdminPage: React.FC = () => {
                 isPrompts={inputType === 'prompts'}
                 isImageUpload={labelPrefix === 'HIVE'}
                 type={type}
-                error={errors[`${labelPrefix}${index + 1}`]}
-                isTouched={touchedFields.has(`${labelPrefix}${index + 1}`)}
+                error={errors[inputName]}
+                isTouched={touchedFields.has(inputName)}
               />
             );
           }
