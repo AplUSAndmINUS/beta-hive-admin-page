@@ -262,7 +262,7 @@ export const updateNumOfContentWarnings = async (
 ): Promise<number | null> => {
   try {
     const response = await axiosInstance.post('/update_content_warning_count', {
-      numOfContentWarnings,
+      contentWarningCount: numOfContentWarnings,
     });
     return response.data;
   } catch (error) {
