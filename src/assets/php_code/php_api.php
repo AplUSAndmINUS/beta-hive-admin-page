@@ -597,8 +597,8 @@ function update_prompts($request) {
 // Function to update min word count
 function update_min_word_count($request) {
     $params = $request->get_json_params();
-    if (isset($params['min'])) {
-        update_option('min_word_count', $params['min']);
+    if (isset($params['minWordCount'])) {
+        update_option('min_word_count', $params['minWordCount']);
     }
     return new WP_REST_Response('Min word count updated', 200);
 }
@@ -606,8 +606,8 @@ function update_min_word_count($request) {
 // Function to update max word count
 function update_max_word_count($request) {
     $params = $request->get_json_params();
-    if (isset($params['max'])) {
-        update_option('max_word_count', $params['max']);
+    if (isset($params['maxWordCount'])) {
+        update_option('max_word_count', $params['maxWordCount']);
     }
     return new WP_REST_Response('Max word count updated', 200);
 }
@@ -615,8 +615,8 @@ function update_max_word_count($request) {
 // Function to update minimum prompt selections
 function update_min_prompt_selections($request) {
     $params = $request->get_json_params();
-    if (isset($params['min'])) {
-        update_option('min_prompt_selections', $params['min']);
+    if (isset($params['minPromptSelections'])) {
+        update_option('min_prompt_selections', $params['minPromptSelections']);
     }
     return new WP_REST_Response('Minimum prompt selections updated', 200);
 }
@@ -624,8 +624,8 @@ function update_min_prompt_selections($request) {
 // Function to update countdown date
 function update_countdown_date($request) {
     $params = $request->get_json_params();
-    if (isset($params['date'])) {
-        update_option('countdown_date', $params['date']);
+    if (isset($params['countdownDate'])) {
+        update_option('countdown_date', $params['countdownDate']);
     }
     return new WP_REST_Response('Countdown date updated', 200);
 }

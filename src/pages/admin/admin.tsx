@@ -84,7 +84,7 @@ export const AdminPage: React.FC = () => {
     isContentWarningCountLoading,
     isPromptsLoading,
     error,
-    isLoading,
+    isAdminDataLoading,
     adminData,
   } = useAppSelector((state: any) => state.adminSubmission);
   const dispatch = useAppDispatch();
@@ -695,9 +695,9 @@ export const AdminPage: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      {isLoading ? (
+      {isAdminDataLoading ? (
         <SaveSpinner
-          isPageLoading={isLoading}
+          isPageLoading={isAdminDataLoading}
           isLoading={false}
           isSaved={false}
         />

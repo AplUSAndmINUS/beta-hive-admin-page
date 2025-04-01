@@ -163,6 +163,37 @@ const adminSubmissionSlice = createSlice({
         state.isAdminDataError = false;
         state.adminData = action.payload.data;
         state.isAdminDataFetched = true;
+
+        // Update all state values with fetched data
+        if (action.payload.data) {
+          state.battleName = action.payload.data.battleName || state.battleName;
+          state.betaHIVECount =
+            action.payload.data.betaHIVECount || state.betaHIVECount;
+          state.betaHIVEs = action.payload.data.hives || state.betaHIVEs;
+          state.calendarEventCount =
+            action.payload.data.calendarEventCount || state.calendarEventCount;
+          state.calendarEvents =
+            action.payload.data.calendarEvents || state.calendarEvents;
+          state.contentWarningCount =
+            action.payload.data.contentWarningCount ||
+            state.contentWarningCount;
+          state.contentWarnings =
+            action.payload.data.contentWarnings || state.contentWarnings;
+          state.countdownDate =
+            action.payload.data.countdownDate || state.countdownDate;
+          state.minPromptSelections =
+            action.payload.data.minPromptSelections ||
+            state.minPromptSelections;
+          state.numOfLosses =
+            action.payload.data.numOfLosses || state.numOfLosses;
+          state.promptsCount =
+            action.payload.data.promptsCount || state.promptsCount;
+          state.prompts = action.payload.data.prompts || state.prompts;
+          state.minWordCount =
+            action.payload.data.minWordCount || state.minWordCount;
+          state.maxWordCount =
+            action.payload.data.maxWordCount || state.maxWordCount;
+        }
       })
       .addCase(fetchAdminData.rejected, (state) => {
         state.isAdminDataLoading = false;
