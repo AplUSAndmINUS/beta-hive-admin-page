@@ -111,9 +111,15 @@ export const getNumOfLosses = async (): Promise<number | null> => {
 };
 
 // Function to get content warnings count
-export const getContentWarningsCount = async (): Promise<number | null> => {
-  const data = await getAllGameContent();
-  return data ? data.contentWarningsCount : null;
+export const getContentWarningCount = async (): Promise<number | null> => {
+  try {
+    const response = await axiosInstance.get('/get_content_warning_count');
+    const data = response.data;
+    return data ? data.contentWarningCount : null;
+  } catch (error) {
+    console.error('Error getting content warning count:', error);
+    return null;
+  }
 };
 
 // Function to get calendar event count

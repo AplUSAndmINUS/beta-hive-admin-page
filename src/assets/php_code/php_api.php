@@ -1,4 +1,3 @@
-
 <?php
 /**
  * HIVE-functions
@@ -455,7 +454,7 @@ function get_all_game_content() {
     $max_word_count = get_max_word_count();
     $min_prompt_selections = get_min_prompt_selections();
     $num_of_losses = get_num_of_losses();
-    $content_warnings_count = get_content_warning_count();
+    $content_warning_count = get_content_warning_count();
     $battle_name = get_battle_name();
     $beta_hive_count = get_beta_hive_count();
     $calendar_event_count = get_calendar_event_count();
@@ -473,7 +472,7 @@ function get_all_game_content() {
         'maxWordCount' => (int) $max_word_count,
         'minPromptSelections' => (int) $min_prompt_selections,
         'numOfLosses' => (int) $num_of_losses,
-        'contentWarningsCount' => (int) $content_warnings_count,
+        'contentWarningCount' => (int) $content_warning_count,
         'battleName' => $battle_name,
         'betaHIVECount' => (int) $beta_hive_count,
         'calendarEventCount' => (int) $calendar_event_count,

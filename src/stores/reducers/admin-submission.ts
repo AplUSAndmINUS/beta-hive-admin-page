@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import moment from 'moment';
+import { ThunkResponse } from 'src/stores/middleware/admin-thunks';
 
 import { BETAHIVE_SELECTIONS } from 'src/services/constants/betaHIVE-constants';
 import {
@@ -15,18 +16,15 @@ import { gameSettingsSchema } from 'src/services/models/betaHIVE-selection.types
 import {
   fetchAdminData,
   submitBattleName,
-  submitCalendarEventCount,
-  submitCalendarEvents,
   submitContentWarnings,
-  submitCountdownDate,
   submitMaxWordCount,
   submitMinPromptSelections,
   submitMinWordCount,
-  submitNumOfCalendarEvents,
-  submitNumOfContentWarnings,
+  submitContentWarningCount,
   submitNumOfLosses,
   submitPrompts,
   submitPromptsCount,
+  submitCalendarEventCount,
 } from 'src/stores/middleware/admin-thunks';
 
 interface AdminSubmissionState {
@@ -189,24 +187,6 @@ const adminSubmissionSlice = createSlice({
         state.isError = true;
         state.error = action.payload as string;
       })
-      .addCase(submitCalendarEvents.pending, (state) => {
-        state.isCalendarEventsLoading = true;
-        state.isSuccess = false;
-        state.isError = false;
-        state.error = null;
-      })
-      .addCase(submitCalendarEvents.fulfilled, (state) => {
-        state.isCalendarEventsLoading = false;
-        state.isSuccess = true;
-        state.isError = false;
-        state.error = null;
-      })
-      .addCase(submitCalendarEvents.rejected, (state, action) => {
-        state.isCalendarEventsLoading = false;
-        state.isSuccess = false;
-        state.isError = true;
-        state.error = action.payload as string;
-      })
       .addCase(submitCalendarEventCount.pending, (state) => {
         state.isCalendarEventCountLoading = true;
         state.isSuccess = false;
@@ -223,31 +203,15 @@ const adminSubmissionSlice = createSlice({
         state.isCalendarEventCountLoading = false;
         state.isSuccess = false;
         state.isError = true;
-        state.error = action.payload as string;
+        state.error =
+          (action.payload as ThunkResponse<number>)?.error ||
+          'Failed to update calendar event count';
       })
       .addCase(submitContentWarnings.pending, (state) => {
         state.isContentWarningCountLoading = true;
         state.isSuccess = false;
         state.isError = false;
         state.error = null;
-      })
-      .addCase(submitCountdownDate.pending, (state) => {
-        state.isCountdownDateLoading = true;
-        state.isSuccess = false;
-        state.isError = false;
-        state.error = null;
-      })
-      .addCase(submitCountdownDate.fulfilled, (state) => {
-        state.isCountdownDateLoading = false;
-        state.isSuccess = true;
-        state.isError = false;
-        state.error = null;
-      })
-      .addCase(submitCountdownDate.rejected, (state, action) => {
-        state.isCountdownDateLoading = false;
-        state.isSuccess = false;
-        state.isError = true;
-        state.error = action.payload as string;
       })
       .addCase(submitContentWarnings.fulfilled, (state) => {
         state.isContentWarningCountLoading = false;
@@ -260,6 +224,26 @@ const adminSubmissionSlice = createSlice({
         state.isSuccess = false;
         state.isError = true;
         state.error = action.payload as string;
+      })
+      .addCase(submitContentWarningCount.pending, (state) => {
+        state.isContentWarningCountLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitContentWarningCount.fulfilled, (state) => {
+        state.isContentWarningCountLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(submitContentWarningCount.rejected, (state, action) => {
+        state.isContentWarningCountLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error =
+          (action.payload as ThunkResponse<number>)?.error ||
+          'Failed to update content warning count';
       })
       .addCase(submitMaxWordCount.pending, (state) => {
         state.isMaxWordCountLoading = true;
@@ -311,42 +295,6 @@ const adminSubmissionSlice = createSlice({
       })
       .addCase(submitMinWordCount.rejected, (state, action) => {
         state.isMinWordCountLoading = false;
-        state.isSuccess = false;
-        state.isError = true;
-        state.error = action.payload as string;
-      })
-      .addCase(submitNumOfCalendarEvents.pending, (state) => {
-        state.isCalendarEventCountLoading = true;
-        state.isSuccess = false;
-        state.isError = false;
-        state.error = null;
-      })
-      .addCase(submitNumOfCalendarEvents.fulfilled, (state) => {
-        state.isCalendarEventCountLoading = false;
-        state.isSuccess = true;
-        state.isError = false;
-        state.error = null;
-      })
-      .addCase(submitNumOfCalendarEvents.rejected, (state, action) => {
-        state.isCalendarEventCountLoading = false;
-        state.isSuccess = false;
-        state.isError = true;
-        state.error = action.payload as string;
-      })
-      .addCase(submitNumOfContentWarnings.pending, (state) => {
-        state.isContentWarningCountLoading = true;
-        state.isSuccess = false;
-        state.isError = false;
-        state.error = null;
-      })
-      .addCase(submitNumOfContentWarnings.fulfilled, (state) => {
-        state.isContentWarningCountLoading = false;
-        state.isSuccess = true;
-        state.isError = false;
-        state.error = null;
-      })
-      .addCase(submitNumOfContentWarnings.rejected, (state, action) => {
-        state.isContentWarningCountLoading = false;
         state.isSuccess = false;
         state.isError = true;
         state.error = action.payload as string;

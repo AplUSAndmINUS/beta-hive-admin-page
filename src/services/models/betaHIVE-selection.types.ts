@@ -1,6 +1,6 @@
-import { contentWarningsSchema } from "./content-warnings.types";
-import { promptsSchema } from "./prompt-selection.types";
-import { calendarSchema } from "./calendar.types";
+import { contentWarningsSchema } from './content-warnings.types';
+import { promptsSchema } from './prompt-selection.types';
+import { calendarSchema } from './calendar.types';
 
 export interface betaHIVESchema {
   id: string;
@@ -21,7 +21,6 @@ export interface gameSettingsSchema {
   maxWordCount: number;
   minPromptSelections: number;
   numOfLosses: number;
-  contentWarningsCount: number;
   battleName: string;
   betaHIVECount: number;
   calendarEventCount: number;
