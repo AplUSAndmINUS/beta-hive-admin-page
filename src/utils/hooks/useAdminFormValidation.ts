@@ -31,8 +31,8 @@ export const useAdminFormValidation = () => {
     prompts: (value: any[]) => {
       if (!value || value.length === 0)
         return 'At least one prompt is required';
-      if (value.some((prompt) => !prompt.name))
-        return 'All prompts must have a name';
+      if (value.some((prompt) => !prompt.name || !prompt.description))
+        return 'All prompts must have both a name and description';
       return undefined;
     },
     contentWarnings: (value: any[]) => {

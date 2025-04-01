@@ -168,7 +168,7 @@ export const AdminPage: React.FC = () => {
       //   dispatch(setCalendarEvents(adminData?.calendarEvents || []));
       //   break;
       case 'contentWarnings':
-        dispatch(setContentWarningCount(adminData?.contentWarningCount || 4));
+        dispatch(setContentWarningCount(adminData?.contentWarningCount || 0));
         dispatch(setContentWarnings(adminData?.contentWarnings || []));
         break;
       case 'prompts':
@@ -233,8 +233,13 @@ export const AdminPage: React.FC = () => {
       let result;
       switch (type) {
         case 'contentWarnings':
+          // Trim the array to match the count if needed
+          const trimmedWarnings = localValues.contentWarnings.slice(
+            0,
+            contentWarningCount
+          );
           result = await Promise.all([
-            dispatch(submitContentWarnings(localValues.contentWarnings)),
+            dispatch(submitContentWarnings(trimmedWarnings)),
             dispatch(submitNumOfContentWarnings(contentWarningCount)),
           ]);
           break;
@@ -242,9 +247,11 @@ export const AdminPage: React.FC = () => {
           result = await dispatch(submitBattleName(localValues.battleName));
           break;
         case 'prompts':
+          // Trim the array to match the count if needed
+          const trimmedPrompts = localValues.prompts.slice(0, promptsCount);
           result = await Promise.all([
             dispatch(submitPromptsCount(promptsCount)),
-            dispatch(submitPrompts(localValues.prompts)),
+            dispatch(submitPrompts(trimmedPrompts)),
           ]);
           break;
         case 'wordCounts':
@@ -326,9 +333,57 @@ export const AdminPage: React.FC = () => {
         break;
       case 'contentWarnings':
         dispatch(setContentWarningCount(value));
+        // Handle both increasing and decreasing count
+        if (value !== localValues.contentWarnings.length) {
+          if (value > localValues.contentWarnings.length) {
+            // Add new warnings
+            const newWarnings = Array.from(
+              { length: value - localValues.contentWarnings.length },
+              (_, i) => ({
+                id: String(localValues.contentWarnings.length + i + 1),
+                name: '',
+                description: '',
+              })
+            );
+            setLocalValues((prev) => ({
+              ...prev,
+              contentWarnings: [...prev.contentWarnings, ...newWarnings],
+            }));
+          } else {
+            // Remove excess warnings
+            setLocalValues((prev) => ({
+              ...prev,
+              contentWarnings: prev.contentWarnings.slice(0, value),
+            }));
+          }
+        }
         break;
       case 'prompts':
         dispatch(setPromptCount(value));
+        // Handle both increasing and decreasing count
+        if (value !== localValues.prompts.length) {
+          if (value > localValues.prompts.length) {
+            // Add new prompts
+            const newPrompts = Array.from(
+              { length: value - localValues.prompts.length },
+              (_, i) => ({
+                id: String(localValues.prompts.length + i + 1),
+                name: '',
+                description: '',
+              })
+            );
+            setLocalValues((prev) => ({
+              ...prev,
+              prompts: [...prev.prompts, ...newPrompts],
+            }));
+          } else {
+            // Remove excess prompts
+            setLocalValues((prev) => ({
+              ...prev,
+              prompts: prev.prompts.slice(0, value),
+            }));
+          }
+        }
         break;
       case 'minWordCount':
         dispatch(setMinWordCount(value));
@@ -387,7 +442,12 @@ export const AdminPage: React.FC = () => {
         setLocalValues((prev) => ({
           ...prev,
           prompts: prev.prompts.map((item: promptsSchema, i: number) =>
-            i === index ? { ...item, name: value } : item
+            i === index
+              ? {
+                  ...item,
+                  [name.includes('Desc') ? 'description' : 'name']: value,
+                }
+              : item
           ),
         }));
         break;
@@ -737,7 +797,7 @@ export const AdminPage: React.FC = () => {
             {generateAccordion(
               'Content warnings',
               'collapseSeven',
-              contentWarningCount || 4,
+              contentWarningCount,
               handleCountOptions,
               'contentWarnings',
               'CW',

@@ -212,16 +212,14 @@ export const updatePrompts = async (
   updatedPrompts: promptsSchema[]
 ): Promise<promptsSchema[] | null> => {
   try {
-    const response = await axiosInstance.post('/prompts', updatedPrompts);
+    const response = await axiosInstance.post('/update_prompts', {
+      prompts: updatedPrompts,
+    });
     return response.data;
   } catch (error) {
     console.error('Error updating prompts:', error);
     return null;
   }
-
-  // Local API Testing to update all prompts
-  // PROMPT_SELECTIONS = updatedPrompts;
-  // return PROMPT_SELECTIONS;
 };
 
 // Function to update prompts count
