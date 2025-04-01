@@ -176,14 +176,8 @@ export const submitContentWarnings = createUpdateThunk<contentWarningsSchema[]>(
   'adminSubmission/setContentWarnings'
 );
 
-export const submitNumOfCalendarEvents = createUpdateThunk<number>(
-  'submitNumOfCalendarEvents',
-  updateCalendarEventCount,
-  'adminSubmission/setCalendarEventCount'
-);
-
-export const submitNumOfContentWarnings = createUpdateThunk<number>(
-  'submitNumOfContentWarnings',
+export const submitContentWarningCount = createUpdateThunk<number>(
+  'submitContentWarningCount',
   updateNumOfContentWarnings,
   'adminSubmission/setContentWarningCount'
 );

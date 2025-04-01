@@ -44,7 +44,7 @@ import {
   submitMaxWordCount,
   submitMinPromptSelections,
   submitMinWordCount,
-  submitNumOfContentWarnings,
+  submitContentWarningCount,
   submitNumOfLosses,
   submitPrompts,
   submitPromptsCount,
@@ -278,7 +278,7 @@ export const AdminPage: React.FC = () => {
           );
           result = await Promise.all([
             dispatch(submitContentWarnings(trimmedWarnings)),
-            dispatch(submitNumOfContentWarnings(contentWarningCount)),
+            dispatch(submitContentWarningCount(contentWarningCount)),
           ]);
           break;
         case 'battleName':
