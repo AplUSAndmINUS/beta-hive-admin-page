@@ -25,7 +25,7 @@ export const SuccessToast: React.FC<ToastProps> = ({
       aria-live='assertive'
       aria-atomic='true'
     >
-      <div className={`toast-header bg-${type} text-white`}>
+      <div className={`toast-header bg-${type} text-white mt-4`}>
         <strong className='me-auto'>
           {type === 'success' ? 'Success' : 'Error'}
         </strong>
