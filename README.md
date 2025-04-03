@@ -1,46 +1,168 @@
-# Getting Started with Create React App
+# Beta Hive Admin Page
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a WordPress admin interface for managing Beta Hive settings and content. It provides a user-friendly way to configure various aspects of the Beta Hive system, including prompts, content warnings, and other settings.
 
-## Available Scripts
+## Project Structure
 
-In the project directory, you can run:
+```
+src/
+├── assets/
+│   └── php_code/          # WordPress PHP API endpoints
+├── components/            # Reusable UI components
+├── pages/                # Main page components
+├── services/
+│   ├── apis/             # API service calls
+│   └── constants/        # Constant definitions
+├── stores/               # Redux store configuration
+└── utils/                # Utility functions and hooks
+```
 
-### `yarn start`
+## Data Flow
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 1. WordPress Backend (PHP)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- Located in `src/assets/php_code/php_api.php`
+- Provides REST API endpoints for:
+  - Admin data management
+  - Content warnings
+  - Prompts
+  - Settings
+- Uses WordPress options API to store data
+- Handles authentication and data validation
 
-### `yarn test`
+### 2. API Services
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Located in `src/services/apis/`
+- `admin-apis.ts`: Handles all admin-related API calls
+- Uses Axios instance with WordPress nonce for authentication
+- Key functions:
+  - `getAdminData()`: Fetches all admin settings
+  - `updateContentWarnings()`: Updates content warnings
+  - `updatePrompts()`: Updates prompts
+  - `updateAdminData()`: Updates general settings
 
-### `yarn build`
+### 3. Redux Store
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Located in `src/stores/`
+- Uses Redux Toolkit for state management
+- Key slices:
+  - `admin-submission.ts`: Manages form state and submissions
+  - `admin-settings.ts`: Manages admin settings state
+- Thunks handle async operations and API calls
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 4. Frontend Components
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Main admin page: `src/pages/admin/admin.tsx`
+- Form components: `src/components/form-elements/`
+- Uses React Hook Form for form management
+- Implements real-time validation and error handling
 
-### `yarn eject`
+## Key Features
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Form Management
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Dynamic form generation based on schema
+- Real-time validation
+- Reset functionality with value preservation
+- Error handling and display
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Data Synchronization
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- Automatic data fetching on page load
+- Real-time updates to WordPress
+- State persistence through Redux
+- Optimistic updates for better UX
 
-## Learn More
+### Security
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- WordPress nonce validation
+- Role-based access control
+- Data sanitization on both frontend and backend
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Development
+
+### Setup
+
+1. Install dependencies:
+
+   ```bash
+   yarn install
+   ```
+
+2. Configure WordPress:
+
+   - Ensure PHP API endpoints are properly set up
+   - Configure WordPress nonce in `src/services/apis/axios-instance.ts`
+
+3. Start development server:
+
+   ```bash
+   yarn start
+   ```
+
+4. Build for production:
+
+   ```bash
+   yarn build
+   ```
+
+5. Run tests:
+   ```bash
+   yarn test
+   ```
+
+### Deployment
+
+1. Build the project:
+
+   ```bash
+   yarn build
+   ```
+
+2. Deploy to WordPress (ReactPress):
+
+   - Access the target environment via SSH
+   - Navigate to `/htdocs/wp-content/reactpress/apps/beta-hive-admin-page`
+   - Delete the existing build folder
+   - Copy the new build folder to the same location
+   - Update the PHP file in the WordPress Snippets plugin to match the new JS and CSS files
+   - Verify the ReactPress app is running correctly
+
+3. Post-Deployment Checks:
+   - Ensure PHP API endpoints are properly configured in WordPress
+   - Verify WordPress nonce configuration in production
+   - Test all form functionality
+   - Verify data persistence
+
+### Key Files
+
+- `src/pages/admin/admin.tsx`: Main admin interface
+- `src/services/constants/admin-constants.tsx`: Form schemas and constants
+- `src/assets/php_code/php_api.php`: WordPress API endpoints
+- `src/stores/reducers/admin-submission.ts`: Redux state management
+
+## Data Flow Example
+
+1. **Initial Load**:
+
+   ```
+   WordPress -> API Call -> Redux Store -> Admin Page
+   ```
+
+2. **Form Update**:
+
+   ```
+   User Input -> Form State -> API Call -> WordPress -> Redux Store
+   ```
+
+3. **Reset Operation**:
+   ```
+   Reset Button -> Local State -> Preserve Values -> Update Form
+   ```
+
+## Notes
+
+- All form data is validated before submission
+- Content warnings and prompts are managed separately
+- The system preserves user input during resets
+- Error handling is implemented at all levels
