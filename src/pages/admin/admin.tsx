@@ -528,7 +528,7 @@ export const AdminPage: React.FC = () => {
               i === index
                 ? {
                     ...item,
-                    [name.endsWith('2') ? 'description' : 'name']: value,
+                    name: value,
                   }
                 : item
           ),
@@ -722,6 +722,25 @@ export const AdminPage: React.FC = () => {
         })}
       </div>
     ));
+  };
+
+  const handleContentWarningCountChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newCount = parseInt(e.target.value);
+    if (!isNaN(newCount) && newCount >= 0) {
+      dispatch(setContentWarningCount(newCount));
+      setLocalValues((prev) => ({
+        ...prev,
+        contentWarnings: Array.from({ length: newCount }, (_, i) => {
+          const existingWarning = prev.contentWarnings?.[i];
+          return {
+            id: String(i + 1),
+            name: existingWarning?.name || '',
+          } as contentWarningsSchema;
+        }),
+      }));
+    }
   };
 
   return (
@@ -918,7 +937,7 @@ export const AdminPage: React.FC = () => {
               'Content warnings',
               'collapseSeven',
               contentWarningCount,
-              handleCountOptions,
+              handleContentWarningCountChange,
               'contentWarnings',
               'CW',
               '255',

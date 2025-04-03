@@ -19,7 +19,8 @@ export const CALENDAR_EVENTS: calendarSchema[] = [
   {
     name: 'Story Submission',
     date: '2025-04-12',
-    description: "This is the final day where you cannot edit your story. Ensure it's done by this date!",
+    description:
+      "This is the final day where you cannot edit your story. Ensure it's done by this date!",
   },
   {
     name: 'The battleHIVE!',
