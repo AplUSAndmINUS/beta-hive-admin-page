@@ -160,77 +160,82 @@ export const AdminPage: React.FC = () => {
   };
 
   const handleReset = (resetType: string) => {
+    // Helper function to handle fields with name and description
+    const resetNameAndDescription = <
+      T extends { id: string; name: string; description?: string },
+    >(
+      count: number,
+      adminDataArray: T[] | undefined,
+      prevArray: T[],
+      hasDescription: boolean = false
+    ) => {
+      return (
+        adminDataArray?.slice(0, count) ||
+        Array.from({ length: count }, (_, i) => {
+          const existingItem = prevArray?.[i];
+          return {
+            id: String(i + 1),
+            name: existingItem?.name || '',
+            ...(hasDescription && {
+              description: existingItem?.description || '',
+            }),
+          } as T;
+        })
+      );
+    };
+
     // Reset all form values to their initial state
     switch (resetType) {
       case 'battleName':
         setLocalValues((prev) => ({
           ...prev,
-          battleName: adminData?.battleName || '',
+          battleName: adminData?.battleName || prev.battleName || '',
         }));
         break;
       case 'contentWarnings':
-        // First set the count, then the array
-        const warningCount = adminData?.contentWarningCount || 0;
-        dispatch(setContentWarningCount(warningCount));
         setLocalValues((prev) => ({
           ...prev,
-          contentWarnings:
-            adminData?.contentWarnings?.slice(0, warningCount) || [],
+          contentWarnings: resetNameAndDescription(
+            contentWarningCount,
+            adminData?.contentWarnings,
+            prev.contentWarnings
+          ),
         }));
         break;
       case 'prompts':
-        // Keep the current promptCount and only reset the prompts array
-        const currentPromptCount = promptsCount;
         setLocalValues((prev) => ({
           ...prev,
-          prompts:
-            adminData?.prompts?.slice(0, currentPromptCount) ||
-            Array.from({ length: currentPromptCount }, (_, i) => {
-              // Check if we have existing values for this index
-              const existingPrompt = prev.prompts?.[i];
-              return {
-                id: String(i + 1),
-                name: existingPrompt?.name || '',
-                description: existingPrompt?.description || '',
-              };
-            }),
-        }));
-        break;
-      case 'calendarEvents':
-        dispatch(setCalendarEventCount(adminData?.calendarEventCount || 0));
-        setLocalValues((prev) => ({
-          ...prev,
-          calendarEvents: adminData?.calendarEvents || [],
-        }));
-        break;
-      case 'countdownDate':
-        setLocalValues((prev) => ({
-          ...prev,
-          countdownDate: adminData?.countdownDate || '',
+          prompts: resetNameAndDescription(
+            promptsCount,
+            adminData?.prompts,
+            prev.prompts,
+            true
+          ),
         }));
         break;
       case 'minPromptSelections':
         setLocalValues((prev) => ({
           ...prev,
-          minPromptSelections: adminData?.minPromptSelections || 0,
+          minPromptSelections:
+            adminData?.minPromptSelections || prev.minPromptSelections || 0,
         }));
         break;
       case 'numOfLosses':
         setLocalValues((prev) => ({
           ...prev,
-          numOfLosses: adminData?.numOfLosses || 0,
+          numOfLosses: adminData?.numOfLosses || prev.numOfLosses || 0,
         }));
         break;
       case 'minWordCount':
         setLocalValues((prev) => ({
           ...prev,
-          minWordCount: adminData?.minWordCount || 0,
+          minWordCount: adminData?.minWordCount || prev.minWordCount || 0,
         }));
         break;
       case 'maxWordCount':
         setLocalValues((prev) => ({
           ...prev,
-          maxWordCount: adminData?.maxWordCount || 0,
+          maxWordCount: adminData?.maxWordCount || prev.maxWordCount || 0,
         }));
         break;
       default:
