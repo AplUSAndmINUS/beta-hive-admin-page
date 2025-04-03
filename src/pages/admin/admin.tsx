@@ -277,7 +277,6 @@ export const AdminPage: React.FC = () => {
 
   const handleSubmit = async (type: string) => {
     try {
-      // Validate all fields before submission
       const values = {
         battleName: localValues.battleName,
         minWordCount: localValues.minWordCount,
@@ -294,7 +293,8 @@ export const AdminPage: React.FC = () => {
         localValues,
       });
 
-      const isValid = validateAll(values);
+      // Pass the section type to validateAll
+      const isValid = validateAll(values, type);
       console.log('Validation result:', {
         isValid,
         errors,

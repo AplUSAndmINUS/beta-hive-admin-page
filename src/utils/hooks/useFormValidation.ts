@@ -25,14 +25,23 @@ export const useFormValidation = (rules: ValidationRules) => {
     return true;
   };
 
-  const validateAll = (values: Record<string, any>) => {
+  const validateAll = (values: Record<string, any>, section?: string) => {
     const newErrors: Record<string, string> = {};
     let isValid = true;
 
-    console.log('Starting validateAll with values:', values);
-    console.log('Available validation rules:', Object.keys(rules));
+    console.log('Starting validateAll with:', {
+      section,
+      values,
+      availableRules: Object.keys(rules),
+    });
 
-    Object.keys(rules).forEach((fieldName) => {
+    // Determine which fields to validate based on section
+    const fieldsToValidate = section
+      ? getFieldsForSection(section)
+      : Object.keys(rules);
+    console.log('Fields to validate:', fieldsToValidate);
+
+    fieldsToValidate.forEach((fieldName) => {
       console.log(`Validating ${fieldName}:`, {
         value: values[fieldName],
         fieldExists: fieldName in values,
@@ -56,6 +65,26 @@ export const useFormValidation = (rules: ValidationRules) => {
 
     setErrors(newErrors);
     return isValid;
+  };
+
+  // Helper function to determine which fields to validate
+  const getFieldsForSection = (section: string): string[] => {
+    switch (section) {
+      case 'wordCounts':
+        return ['minWordCount', 'maxWordCount'];
+      case 'battleName':
+        return ['battleName'];
+      case 'prompts':
+        return ['prompts'];
+      case 'contentWarnings':
+        return ['contentWarnings'];
+      case 'minPromptSelections':
+        return ['minPromptSelections'];
+      case 'numOfLosses':
+        return ['numOfLosses'];
+      default:
+        return Object.keys(rules);
+    }
   };
 
   return {
