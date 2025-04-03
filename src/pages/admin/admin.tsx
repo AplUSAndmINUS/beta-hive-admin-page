@@ -116,14 +116,24 @@ export const AdminPage: React.FC = () => {
 
   // Update local state when Redux state changes (e.g., after API success)
   React.useEffect(() => {
-    setLocalValues({
-      battleName,
+    console.log('Setting local values from Redux:', {
       minWordCount,
       maxWordCount,
+      battleName,
       minPromptSelections,
       numOfLosses,
       prompts,
       contentWarnings,
+    });
+    setLocalValues({
+      battleName: battleName || 'Battle of the HIVEs',
+      minWordCount: typeof minWordCount === 'number' ? minWordCount : 250,
+      maxWordCount: typeof maxWordCount === 'number' ? maxWordCount : 1000,
+      minPromptSelections:
+        typeof minPromptSelections === 'number' ? minPromptSelections : 2,
+      numOfLosses: typeof numOfLosses === 'number' ? numOfLosses : 3,
+      prompts: Array.isArray(prompts) ? prompts : [],
+      contentWarnings: Array.isArray(contentWarnings) ? contentWarnings : [],
     });
   }, [
     battleName,
@@ -151,7 +161,19 @@ export const AdminPage: React.FC = () => {
 
   React.useEffect(() => {
     if (adminData) {
-      console.log('Admin data fetched:', adminData);
+      console.log('Admin data loaded:', {
+        adminData,
+        localValues,
+        reduxState: {
+          battleName,
+          minWordCount,
+          maxWordCount,
+          minPromptSelections,
+          numOfLosses,
+          prompts,
+          contentWarnings,
+        },
+      });
     }
   }, [adminData]);
 
@@ -260,7 +282,18 @@ export const AdminPage: React.FC = () => {
         contentWarnings: localValues.contentWarnings,
       };
 
+      console.log('Attempting submission:', {
+        type,
+        values,
+        localValues,
+      });
+
       const isValid = validateAll(values);
+      console.log('Validation result:', {
+        isValid,
+        errors,
+        touchedFields: Array.from(touchedFields),
+      });
 
       // Additional validation for word counts
       if (type === 'wordCounts') {
@@ -268,6 +301,11 @@ export const AdminPage: React.FC = () => {
           localValues.minWordCount,
           localValues.maxWordCount
         );
+        console.log('Word count validation:', {
+          minWordCount: localValues.minWordCount,
+          maxWordCount: localValues.maxWordCount,
+          error: wordCountError,
+        });
         if (wordCountError) {
           setAlertMessage(wordCountError);
           setShowModal(true);
@@ -276,6 +314,7 @@ export const AdminPage: React.FC = () => {
       }
 
       if (!isValid) {
+        console.log('Validation failed:', errors);
         setAlertMessage('Please fix the validation errors before submitting.');
         setShowModal(true);
         return;
@@ -403,7 +442,7 @@ export const AdminPage: React.FC = () => {
           break;
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Error in handleSubmit:', error);
       setAlertMessage('An error occurred while submitting the form.');
       setShowModal(true);
     }
@@ -505,6 +544,13 @@ export const AdminPage: React.FC = () => {
     inputType: string
   ) => {
     const { value, name } = e.target;
+    console.log('Input change:', {
+      name,
+      value,
+      inputType,
+      index,
+      previousValue: localValues[inputType as keyof LocalValues],
+    });
 
     // Validate the field in real-time
     validate(name, value);
@@ -551,9 +597,17 @@ export const AdminPage: React.FC = () => {
         setLocalValues((prev) => ({ ...prev, battleName: value }));
         break;
       case 'minWordCount':
+        console.log('Setting minWordCount:', {
+          value,
+          parsed: parseInt(value),
+        });
         setLocalValues((prev) => ({ ...prev, minWordCount: parseInt(value) }));
         break;
       case 'maxWordCount':
+        console.log('Setting maxWordCount:', {
+          value,
+          parsed: parseInt(value),
+        });
         setLocalValues((prev) => ({ ...prev, maxWordCount: parseInt(value) }));
         break;
       case 'minPromptSelections':
@@ -741,6 +795,18 @@ export const AdminPage: React.FC = () => {
         }),
       }));
     }
+  };
+
+  const validationRules = {
+    battleName: (value: string) => {
+      const result = !value
+        ? 'Battle name is required'
+        : value.length < 5
+          ? 'Battle name must be at least 5 characters'
+          : undefined;
+      console.log('Validating battle name:', value, result);
+      return result;
+    },
   };
 
   return (
