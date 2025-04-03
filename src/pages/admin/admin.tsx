@@ -527,7 +527,7 @@ export const AdminPage: React.FC = () => {
             i === index
               ? {
                   ...item,
-                  [name.endsWith('2') ? 'description' : 'name']: value,
+                  [name.endsWith('_desc') ? 'description' : 'name']: value,
                 }
               : item
           ),

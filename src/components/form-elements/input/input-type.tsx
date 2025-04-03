@@ -111,7 +111,7 @@ export const InputType: React.FC<InputTypeProps> = ({
             )}
             {(isPrompts || isCalendar) && (
               <label
-                htmlFor={`${name}2`}
+                htmlFor={`${name}_desc`}
                 className='d-flex flex-column align-items-start'
               >
                 <span>Description</span>
@@ -121,8 +121,8 @@ export const InputType: React.FC<InputTypeProps> = ({
                   value={valueDesc || ''}
                   onChange={onChange}
                   required={false}
-                  name={`${name}2`}
-                  id={`${name}2`}
+                  name={`${name}_desc`}
+                  id={`${name}_desc`}
                   style={{
                     marginRight: '1rem',
                   }}
