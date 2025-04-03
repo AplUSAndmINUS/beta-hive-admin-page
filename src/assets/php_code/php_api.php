@@ -32,17 +32,17 @@ function enqueue_react_app() {
 	$is_local = defined('WP_ENV') && WP_ENV == 'local';
 
     // Enqueue story-submission app
-    if (!wp_script_is('beta-hive-story-submission', 'enqueued')) {
+    if (!wp_script_is('beta-hive-new-story-submission', 'enqueued')) {
         wp_enqueue_script(
-            'beta-hive-story-submission',
-            $is_local ? 'http://localhost:3000/static/js/bundle.js' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-story-submission/build/static/js/main.3f655f80.js',
+            'beta-hive-new-story-submission',
+            $is_local ? 'http://localhost:3000/static/js/bundle.js' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-new-story-submission/build/static/js/main.27a33abe.js',
             array(),
             null,
             true
         );
         wp_enqueue_style(
-           'beta-hive-story-submission',
-            $is_local ? 'http://localhost:3000/static/css/main.css' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-story-submission/build/static/css/main.f2ed6db1.css',
+           'beta-hive-new-story-submission',
+            $is_local ? 'http://localhost:3000/static/css/main.css' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-new-story-submission/build/static/css/main.8a3978ba.css',
             array(),
             null
         );
@@ -52,14 +52,14 @@ function enqueue_react_app() {
     if (!wp_script_is('beta-hive-admin-page', 'enqueued')) {
         wp_enqueue_script(
             'beta-hive-admin-page',
-            $is_local ? 'http://localhost:3000/static/js/bundle.js' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-admin-page/build/static/js/main.50186d08.js',
+            $is_local ? 'http://localhost:3000/static/js/bundle.js' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-admin-page/build/static/js/main.6ffe15b6.js',
             array(),
             null,
             true
         );
         wp_enqueue_style(
             'beta-hive-admin-page',
-            $is_local ? 'http://localhost:3000/static/css/main.css' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-admin-page/build/static/css/main.936eb814.css',
+            $is_local ? 'http://localhost:3000/static/css/main.css' : get_template_directory_uri() . '/htdocs/wp-content/reactpress/apps/beta-hive-admin-page/build/static/css/main.a457d2e3.css',
             array(),
             null
         );
@@ -86,8 +86,8 @@ function enqueue_react_app() {
 // Function to generate and pass nonce to the front-end
 function pass_nonce_to_react_app() {
     // Generate a nonce and pass it to the front-end for story-submission
-    if (wp_script_is('beta-hive-story-submission', 'enqueued')) {
-        wp_localize_script('beta-hive-story-submission', 'wpApiSettings', array(
+    if (wp_script_is('beta-hive-new-story-submission', 'enqueued')) {
+        wp_localize_script('beta-hive-new-story-submission', 'wpApiSettings', array(
             'nonce' => wp_create_nonce('wp_rest')
         ));
     }
@@ -114,91 +114,315 @@ add_action('wp_enqueue_scripts', 'pass_nonce_to_react_app');
 /**** START STORY APIs and Functions *****/
 // Callback function to get all stories
 function get_all_stories($request) {
+    // Verify nonce
+    if (!wp_verify_nonce($request->get_header('X-WP-Nonce'), 'wp_rest')) {
+        return new WP_Error('rest_forbidden', __('Nonce verification failed'), array('status' => 403));
+    }
+
+    // Get pagination parameters with defaults
+    $page = max(1, intval($request->get_param('page') ?: 1));
+    $per_page = min(100, max(1, intval($request->get_param('per_page') ?: 100))); // Default to 100, max 100
+    $offset = ($page - 1) * $per_page;
+
+    // Get filter parameters
+    $battle_name = $request->get_param('battleName');
+    $hive = $request->get_param('hive');
+    $content_warnings = $request->get_param('contentWarnings');
+    $is_content_sensitive = $request->get_param('isContentSensitive');
+    $wins = $request->get_param('wins');
+    $losses = $request->get_param('losses');
+    $is_shared = $request->get_param('isShared');
+
     $args = array(
         'post_type' => 'story',
-        'posts_per_page' => -1
+        'posts_per_page' => $per_page,
+        'offset' => $offset,
+        'orderby' => 'date',
+        'order' => 'DESC',
+        'no_found_rows' => false // Enable found rows for pagination
     );
 
+    // Add tag filtering if parameters are provided
+    $tax_query = array();
+    if ($battle_name) {
+        $tax_query[] = array(
+            'taxonomy' => 'post_tag',
+            'field' => 'name',
+            'terms' => sanitize_text_field($battle_name)
+        );
+    }
+    if ($hive) {
+        $tax_query[] = array(
+            'taxonomy' => 'post_tag',
+            'field' => 'name',
+            'terms' => sanitize_text_field($hive)
+        );
+    }
+    if ($content_warnings) {
+        $tax_query[] = array(
+            'taxonomy' => 'post_tag',
+            'field' => 'name',
+            'terms' => array_map('sanitize_text_field', (array)$content_warnings),
+            'operator' => 'AND'
+        );
+    }
+    if (!empty($tax_query)) {
+        $args['tax_query'] = $tax_query;
+    }
+
     $query = new WP_Query($args);
+    
+    if (is_wp_error($query)) {
+        return new WP_Error('query_error', __('Error fetching stories'), array('status' => 500));
+    }
+
     $stories = array();
+    $total_posts = $query->found_posts;
+    $total_pages = ceil($total_posts / $per_page);
 
     if ($query->have_posts()) {
         while ($query->have_posts()) {
             $query->the_post();
+            $post_id = get_the_ID();
+            
+            // Get all tags for this post
+            $tags = wp_get_post_terms($post_id, 'post_tag', array('fields' => 'names'));
+            
+            // Get meta fields
+            $story_wins = get_post_meta($post_id, 'wins', true) ?: 0;
+            $story_losses = get_post_meta($post_id, 'losses', true) ?: 0;
+            $is_content_sensitive = get_post_meta($post_id, 'isContentSensitive', true) ?: false;
+
+            // Apply win/loss filters if specified
+            if (isset($wins) && $story_wins != $wins) continue;
+            if (isset($losses) && $story_losses != $losses) continue;
+
             $story = array(
-                'id' => get_the_ID(),
+                'id' => $post_id,
                 'title' => get_the_title(),
                 'story' => get_the_content(),
-                'author' => get_post_meta(get_the_ID(), 'author', true),
-                'HIVE' => get_post_meta(get_the_ID(), 'HIVE', true),
-                'prompts' => get_post_meta(get_the_ID(), 'prompts', true),
-                'isContentSensitive' => get_post_meta(get_the_ID(), 'isContentSensitive', true),
-                'contentWarnings' => get_post_meta(get_the_ID(), 'contentWarnings', true),
-                'battleName' => get_post_meta(get_the_ID(), 'battleName', true),
-                'wordCount' => get_post_meta(get_the_ID(), 'wordCount', true),
-                'status' => get_post_meta(get_the_ID(), 'status', true),
-                'feedback' => get_post_meta(get_the_ID(), 'feedback', true),
-                'wins' => get_post_meta(get_the_ID(), 'wins', true),
-                'losses' => get_post_meta(get_the_ID(), 'losses', true)
+                'author' => get_post_meta($post_id, 'author', true),
+                'HIVE' => get_post_meta($post_id, 'HIVE', true),
+                'prompts' => get_post_meta($post_id, 'prompts', true),
+                'isContentSensitive' => $is_content_sensitive,
+                'contentWarnings' => get_post_meta($post_id, 'contentWarnings', true),
+                'battleName' => get_post_meta($post_id, 'battleName', true),
+                'wordCount' => get_post_meta($post_id, 'wordCount', true),
+                'status' => get_post_meta($post_id, 'status', true),
+                'feedback' => get_post_meta($post_id, 'feedback', true),
+                'wins' => $story_wins,
+                'losses' => $story_losses,
+                'date' => get_the_date('c'),
+                'modified' => get_the_modified_date('c'),
+                'isShared' => $is_shared,
+                'tags' => $tags
             );
             array_push($stories, $story);
         }
     }
 
-    return new WP_REST_Response($stories, 200);
+    // Prepare pagination info
+    $pagination = array(
+        'current_page' => $page,
+        'per_page' => $per_page,
+        'total_posts' => $total_posts,
+        'total_pages' => $total_pages,
+        'has_next_page' => $page < $total_pages,
+        'has_previous_page' => $page > 1,
+        'next_page' => $page < $total_pages ? $page + 1 : null,
+        'previous_page' => $page > 1 ? $page - 1 : null
+    );
+
+    $response = new WP_REST_Response(array(
+        'stories' => $stories,
+        'pagination' => $pagination
+    ), 200);
+
+    // Add pagination headers for backward compatibility
+    $response->header('X-WP-Total', $total_posts);
+    $response->header('X-WP-TotalPages', $total_pages);
+    
+    return $response;
 }
 
 // Callback function to add a new story
 function add_story($request) {
-    $params = $request->get_json_params();
+    // Enable error logging
+    error_log('Starting add_story function');
+    
+    try {
+        // Verify nonce
+        if (!wp_verify_nonce($request->get_header('X-WP-Nonce'), 'wp_rest')) {
+            error_log('Nonce verification failed');
+            return new WP_Error('rest_forbidden', __('Nonce verification failed'), array('status' => 403));
+        }
 
-    $post_data = array(
-        'post_title' => $params['title'],
-        'post_content' => $params['story'],
-        'post_author' => $params['author'],
-        'post_type' => 'story',
-        'post_status' => 'publish',
-    );
+        // Ensure user is logged in
+        if (!is_user_logged_in()) {
+            error_log('User not logged in');
+            return new WP_Error('rest_forbidden', __('You must be logged in to submit a story'), array('status' => 403));
+        }
 
-    $post_id = wp_insert_post($post_data);
+        // Get and validate request parameters
+        $params = $request->get_json_params();
+        if (empty($params)) {
+            error_log('No parameters received');
+            return new WP_Error('invalid_request', __('No parameters received'), array('status' => 400));
+        }
 
-    if (is_wp_error($post_id)) {
-        return new WP_Error('cant_create', __('Cannot create story'), array('status' => 500));
-    }
+        error_log('Received parameters: ' . print_r($params, true));
+        
+        $current_user = wp_get_current_user();
+        error_log('Current user: ' . $current_user->ID);
 
-    // Add custom fields
-    if (isset($params['HIVE'])) {
-        update_post_meta($post_id, 'HIVE', $params['HIVE']);
-    }
-    if (isset($params['prompts'])) {
-        update_post_meta($post_id, 'prompts', $params['prompts']);
-    }
-    if (isset($params['isContentSensitive'])) {
-        update_post_meta($post_id, 'isContentSensitive', $params['isContentSensitive']);
-    }
-    if (isset($params['contentWarnings'])) {
-        update_post_meta($post_id, 'contentWarnings', $params['contentWarnings']);
-    }
-    if (isset($params['battleName'])) {
-        update_post_meta($post_id, 'battleName', $params['battleName']);
-    }
-    if (isset($params['wordCount'])) {
-        update_post_meta($post_id, 'wordCount', $params['wordCount']);
-    }
-    if (isset($params['status'])) {
-        update_post_meta($post_id, 'status', $params['status']);
-    }
-    if (isset($params['feedback'])) {
-        update_post_meta($post_id, 'feedback', $params['feedback']);
-    }
-    if (isset($params['wins'])) {
-        update_post_meta($post_id, 'wins', $params['wins']);
-    }
-    if (isset($params['losses'])) {
-        update_post_meta($post_id, 'losses', $params['losses']);
-    }
+        // Validate required fields with detailed logging
+        $missing_fields = array();
+        if (empty($params['title'])) $missing_fields[] = 'title';
+        if (empty($params['story'])) $missing_fields[] = 'story';
+        if (empty($params['system'])) $missing_fields[] = 'system';
+        if (!empty($params['system'])) {
+            if (empty($params['system']['battleName'])) $missing_fields[] = 'system.battleName';
+            if (empty($params['system']['HIVE'])) $missing_fields[] = 'system.HIVE';
+            if (empty($params['system']['wordCount'])) $missing_fields[] = 'system.wordCount';
+            if (empty($params['system']['characterCount'])) $missing_fields[] = 'system.characterCount';
+        }
+        if (!isset($params['isShared'])) $missing_fields[] = 'isShared';
 
-    return new WP_REST_Response('Story created', 201);
+        if (!empty($missing_fields)) {
+            error_log('Missing required fields: ' . implode(', ', $missing_fields));
+            return new WP_Error('missing_fields', __('Missing required fields: ') . implode(', ', $missing_fields), array('status' => 400));
+        }
+
+        // Prepare post data with proper sanitization
+        $post_data = array(
+            'post_title' => sanitize_text_field($params['title']),
+            'post_content' => wp_kses_post($params['story']),
+            'post_author' => $current_user->ID,
+            'post_type' => 'story',
+            'post_status' => 'publish',
+            'post_date' => current_time('mysql')
+        );
+
+        error_log('Post data prepared: ' . print_r($post_data, true));
+
+        // Insert the post
+        $post_id = wp_insert_post($post_data, true);
+
+        if (is_wp_error($post_id)) {
+            error_log('Error creating post: ' . $post_id->get_error_message());
+            return new WP_Error('cant_create', $post_id->get_error_message(), array('status' => 500));
+        }
+
+        error_log('Post created successfully with ID: ' . $post_id);
+
+        // Add tags
+        $tags = array();
+        
+        // Add battle name as tag
+        if (!empty($params['system']['battleName'])) {
+            $battle_name_tag = sanitize_text_field($params['system']['battleName']);
+            wp_set_post_terms($post_id, $battle_name_tag, 'post_tag', true);
+        }
+        
+        // Add HIVE as tag
+        if (!empty($params['system']['HIVE'])) {
+            $hive_tag = sanitize_text_field($params['system']['HIVE']);
+            wp_set_post_terms($post_id, $hive_tag, 'post_tag', true);
+        }
+
+        // Add content warnings as tags if they exist
+        if (!empty($params['system']['contentWarnings']) && is_array($params['system']['contentWarnings'])) {
+            $content_warnings = array_map('sanitize_text_field', $params['system']['contentWarnings']);
+            wp_set_post_terms($post_id, $content_warnings, 'post_tag', true);
+        }
+
+        // Update custom fields with sanitization
+        $meta_fields = array(
+            'system' => array(
+                'HIVE' => 'sanitize_text_field',
+                'prompts' => 'sanitize_text_field',
+                'contentWarnings' => 'sanitize_text_field',
+                'battleName' => 'sanitize_text_field',
+                'wordCount' => 'absint',
+                'characterCount' => 'absint',
+                'status' => 'sanitize_text_field',
+                'feedback' => 'sanitize_text_field',
+                'wins' => 'absint',
+                'losses' => 'absint',
+                'lastModified' => 'sanitize_text_field',
+                'modifiedBy' => 'sanitize_text_field',
+                'version' => 'absint',
+                'tags' => 'sanitize_text_field',
+                'metadata' => array(
+                    'isUserEditable' => 'rest_sanitize_boolean',
+                    'lastAdminUpdate' => 'sanitize_text_field',
+                    'adminId' => 'sanitize_text_field'
+                )
+            ),
+            'isContentSensitive' => 'rest_sanitize_boolean',
+            'isShared' => 'rest_sanitize_boolean'
+        );
+
+        foreach ($meta_fields as $field => $sanitize_callback) {
+            if (isset($params[$field])) {
+                $value = $params[$field];
+                if (is_array($value)) {
+                    if (isset($value['metadata'])) {
+                        // Handle each metadata field with its specific callback
+                        foreach ($value['metadata'] as $meta_key => $meta_value) {
+                            if (isset($sanitize_callback['metadata'][$meta_key])) {
+                                $value['metadata'][$meta_key] = $sanitize_callback['metadata'][$meta_key]($meta_value);
+                            }
+                        }
+                    } else {
+                        $value = array_map($sanitize_callback, $value);
+                    }
+                } else {
+                    $value = $sanitize_callback($value);
+                }
+                update_post_meta($post_id, $field, $value);
+                error_log("Updated meta field {$field} with value: " . print_r($value, true));
+            }
+        }
+
+        // Return the created story data
+        $story = array(
+            'id' => $post_id,
+            'title' => $post_data['post_title'],
+            'story' => $post_data['post_content'],
+            'author' => $current_user->display_name,
+            'isContentSensitive' => $params['isContentSensitive'] ?? false,
+            'isShared' => $params['isShared'] ?? false,
+            'system' => array(
+                'HIVE' => $params['system']['HIVE'] ?? '',
+                'prompts' => $params['system']['prompts'] ?? array(),
+                'contentWarnings' => $params['system']['contentWarnings'] ?? array(),
+                'battleName' => $params['system']['battleName'] ?? '',
+                'wordCount' => $params['system']['wordCount'] ?? 0,
+                'characterCount' => $params['system']['characterCount'] ?? 0,
+                'status' => $params['system']['status'] ?? 'draft',
+                'feedback' => array(),
+                'wins' => 0,
+                'losses' => 0,
+                'lastModified' => current_time('mysql'),
+                'modifiedBy' => $current_user->display_name,
+                'version' => 1,
+                'tags' => array(),
+                'metadata' => array(
+                    'isUserEditable' => false,
+                    'lastAdminUpdate' => null,
+                    'adminId' => null
+                )
+            )
+        );
+
+        error_log('Story created successfully: ' . print_r($story, true));
+        return new WP_REST_Response($story, 201);
+
+    } catch (Exception $e) {
+        error_log('Exception in add_story: ' . $e->getMessage());
+        return new WP_Error('internal_server_error', $e->getMessage(), array('status' => 500));
+    }
 }
 
 // Callback function to update a story
@@ -211,52 +435,185 @@ function update_story($request) {
         return new WP_Error('rest_forbidden', __('Nonce verification failed'), array('status' => 403));
     }
 
-    $post_data = array(
-        'ID' => $id,
-        'post_title' => $params['title'],
-        'post_content' => $params['story'],
-        'post_author' => $params['author'],
+    // Check if post exists
+    $post = get_post($id);
+    if (!$post || $post->post_type !== 'story') {
+        return new WP_Error('not_found', __('Story not found'), array('status' => 404));
+    }
+
+    // Check if user has permission to edit this post
+    if (!current_user_can('edit_post', $id)) {
+        return new WP_Error('rest_forbidden', __('You do not have permission to edit this story'), array('status' => 403));
+    }
+
+    // Validate required fields
+    if (empty($params['title']) || empty($params['story']) || empty($params['author']) || 
+        empty($params['system']['battleName']) || empty($params['system']['HIVE']) || 
+        empty($params['system']['wordCount']) || empty($params['system']['characterCount'])) {
+        return new WP_Error('missing_fields', __('Missing required fields'), array('status' => 400));
+    }
+
+    // Get existing story data
+    $existing_story = array(
+        'system' => array(
+            'HIVE' => get_post_meta($id, 'system', true)['HIVE'] ?? '',
+            'prompts' => get_post_meta($id, 'system', true)['prompts'] ?? array(),
+            'contentWarnings' => get_post_meta($id, 'system', true)['contentWarnings'] ?? array(),
+            'battleName' => get_post_meta($id, 'system', true)['battleName'] ?? '',
+            'wordCount' => get_post_meta($id, 'system', true)['wordCount'] ?? 0,
+            'characterCount' => get_post_meta($id, 'system', true)['characterCount'] ?? 0,
+            'status' => get_post_meta($id, 'system', true)['status'] ?? 'draft',
+            'feedback' => get_post_meta($id, 'system', true)['feedback'] ?? array(),
+            'wins' => get_post_meta($id, 'system', true)['wins'] ?? 0,
+            'losses' => get_post_meta($id, 'system', true)['losses'] ?? 0,
+            'lastModified' => get_post_meta($id, 'system', true)['lastModified'] ?? '',
+            'modifiedBy' => get_post_meta($id, 'system', true)['modifiedBy'] ?? 'system',
+            'version' => get_post_meta($id, 'system', true)['version'] ?? 1,
+            'tags' => get_post_meta($id, 'system', true)['tags'] ?? array(),
+            'metadata' => get_post_meta($id, 'system', true)['metadata'] ?? array(
+                'isUserEditable' => false,
+                'lastAdminUpdate' => null,
+                'adminId' => null
+            )
+        )
     );
 
+    // Prevent modification of protected system fields
+    $protected_fields = array(
+        'HIVE',
+        'prompts',
+        'battleName',
+        'status',
+        'feedback',
+        'wins',
+        'losses',
+        'version',
+        'tags',
+        'metadata'
+    );
+
+    foreach ($protected_fields as $field) {
+        if (isset($params['system'][$field]) && 
+            $params['system'][$field] !== $existing_story['system'][$field] && 
+            !current_user_can('manage_options')) {
+            return new WP_Error(
+                'rest_forbidden', 
+                __('You do not have permission to modify protected system fields'), 
+                array('status' => 403)
+            );
+        }
+    }
+
+    // Sanitize input
+    $post_data = array(
+        'ID' => $id,
+        'post_title' => sanitize_text_field($params['title']),
+        'post_content' => wp_kses_post($params['story']),
+        'post_author' => absint($params['author']),
+        'post_modified' => current_time('mysql')
+    );
+
+    // Update the post
     $updated_post_id = wp_update_post($post_data, true);
 
     if (is_wp_error($updated_post_id)) {
-        return new WP_Error('cant_update', __('Cannot update story'), array('status' => 500));
+        return new WP_Error('cant_update', $updated_post_id->get_error_message(), array('status' => 500));
     }
 
-    // Update custom fields
-    if (isset($params['HIVE'])) {
-        update_post_meta($id, 'HIVE', $params['HIVE']);
-    }
-    if (isset($params['prompts'])) {
-        update_post_meta($id, 'prompts', $params['prompts']);
-    }
-    if (isset($params['isContentSensitive'])) {
-        update_post_meta($id, 'isContentSensitive', $params['isContentSensitive']);
-    }
-    if (isset($params['contentWarnings'])) {
-        update_post_meta($id, 'contentWarnings', $params['contentWarnings']);
-    }
-    if (isset($params['battleName'])) {
-        update_post_meta($id, 'battleName', $params['battleName']);
-    }
-    if (isset($params['wordCount'])) {
-        update_post_meta($id, 'wordCount', $params['wordCount']);
-    }
-    if (isset($params['status'])) {
-        update_post_meta($id, 'status', $params['status']);
-    }
-    if (isset($params['feedback'])) {
-        update_post_meta($id, 'feedback', $params['feedback']);
-    }
-    if (isset($params['wins'])) {
-        update_post_meta($id, 'wins', $params['wins']);
-    }
-    if (isset($params['losses'])) {
-        update_post_meta($id, 'losses', $params['losses']);
+    // Update tags
+    $tags = array();
+    
+    // Update battle name tag
+    $battle_name_tag = sanitize_text_field($params['system']['battleName']);
+    wp_set_post_terms($id, $battle_name_tag, 'post_tag', true);
+    
+    // Update HIVE tag
+    $hive_tag = sanitize_text_field($params['system']['HIVE']);
+    wp_set_post_terms($id, $hive_tag, 'post_tag', true);
+
+    // Update content warnings tags if they exist
+    if (isset($params['system']['contentWarnings'])) {
+        $content_warnings = is_array($params['system']['contentWarnings']) 
+            ? array_map('sanitize_text_field', $params['system']['contentWarnings'])
+            : array();
+        wp_set_post_terms($id, $content_warnings, 'post_tag', true);
     }
 
-    return new WP_REST_Response('Story updated', 200);
+    // Update custom fields with sanitization
+    $meta_fields = array(
+        'system' => array(
+            'HIVE' => 'sanitize_text_field',
+            'prompts' => 'sanitize_text_field',
+            'contentWarnings' => 'sanitize_text_field',
+            'battleName' => 'sanitize_text_field',
+            'wordCount' => 'absint',
+            'characterCount' => 'absint',
+            'status' => 'sanitize_text_field',
+            'feedback' => 'sanitize_text_field',
+            'wins' => 'absint',
+            'losses' => 'absint',
+            'lastModified' => 'sanitize_text_field',
+            'modifiedBy' => 'sanitize_text_field',
+            'version' => 'absint',
+            'tags' => 'sanitize_text_field',
+            'metadata' => array(
+                'isUserEditable' => 'rest_sanitize_boolean',
+                'lastAdminUpdate' => 'sanitize_text_field',
+                'adminId' => 'sanitize_text_field'
+            )
+        ),
+        'isContentSensitive' => 'rest_sanitize_boolean',
+        'isShared' => 'rest_sanitize_boolean'
+    );
+
+    foreach ($meta_fields as $field => $sanitize_callback) {
+        if (isset($params[$field])) {
+            $value = $params[$field];
+            if (is_array($value)) {
+                if (isset($value['metadata'])) {
+                    $value['metadata'] = array_map($sanitize_callback['metadata'], $value['metadata']);
+                } else {
+                    $value = array_map($sanitize_callback, $value);
+                }
+            } else {
+                $value = $sanitize_callback($value);
+            }
+            update_post_meta($id, $field, $value);
+        }
+    }
+
+    // Return the updated story data
+    $story = array(
+        'id' => $id,
+        'title' => $post_data['post_title'],
+        'story' => $post_data['post_content'],
+        'author' => $post_data['post_author'],
+        'isContentSensitive' => $params['isContentSensitive'] ?? false,
+        'isShared' => $params['isShared'] ?? false,
+        'system' => array(
+            'HIVE' => $params['system']['HIVE'],
+            'prompts' => $params['system']['prompts'] ?? array(),
+            'contentWarnings' => $params['system']['contentWarnings'] ?? array(),
+            'battleName' => $params['system']['battleName'],
+            'wordCount' => $params['system']['wordCount'],
+            'characterCount' => $params['system']['characterCount'],
+            'status' => $params['system']['status'] ?? 'draft',
+            'feedback' => $params['system']['feedback'] ?? array(),
+            'wins' => $params['system']['wins'] ?? 0,
+            'losses' => $params['system']['losses'] ?? 0,
+            'lastModified' => $post_data['post_modified'],
+            'modifiedBy' => $params['system']['modifiedBy'] ?? 'system',
+            'version' => $params['system']['version'] ?? 1,
+            'tags' => $params['system']['tags'] ?? array(),
+            'metadata' => $params['system']['metadata'] ?? array(
+                'isUserEditable' => false,
+                'lastAdminUpdate' => null,
+                'adminId' => null
+            )
+        )
+    );
+
+    return new WP_REST_Response($story, 200);
 }
 
 // Callback function to delete a story
@@ -268,13 +625,28 @@ function delete_story($request) {
         return new WP_Error('rest_forbidden', __('Nonce verification failed'), array('status' => 403));
     }
 
+    // Check if post exists
+    $post = get_post($id);
+    if (!$post || $post->post_type !== 'story') {
+        return new WP_Error('not_found', __('Story not found'), array('status' => 404));
+    }
+
+    // Check if user has permission to delete this post
+    if (!current_user_can('delete_post', $id)) {
+        return new WP_Error('rest_forbidden', __('You do not have permission to delete this story'), array('status' => 403));
+    }
+
+    // Force delete the post
     $deleted = wp_delete_post($id, true);
 
     if (!$deleted) {
-        return new WP_Error('cant_delete', __('Cannot delete story'), array('status' => 500));
+        return new WP_Error('cant_delete', __('Could not delete the story'), array('status' => 500));
     }
 
-    return new WP_REST_Response('Story deleted', 200);
+    return new WP_REST_Response(array(
+        'message' => 'Story deleted successfully',
+        'id' => $id
+    ), 200);
 }
 
 // Callback function to get all feedback
@@ -453,8 +825,13 @@ function initialize_beta_hive_options() {
 }
 add_action('after_setup_theme', 'initialize_beta_hive_options');
 
-// get all game content
-function get_all_game_content() {
+// admin get all game content
+function get_all_game_content($request) {
+    // Verify nonce
+    if (!wp_verify_nonce($request->get_header('X-WP-Nonce'), 'wp_rest')) {
+        return new WP_Error('rest_forbidden', __('Nonce verification failed'), array('status' => 403));
+    }
+
     $content_warnings = get_all_content_warnings();
     $prompts = get_all_prompts();
     $hives = get_all_hives();
@@ -469,8 +846,6 @@ function get_all_game_content() {
     $beta_hive_count = get_beta_hive_count();
     $calendar_event_count = get_calendar_event_count();
     $prompts_count = get_prompts_count();
-
-
 
     $game_content = array(
         'contentWarnings' => $content_warnings,
@@ -495,19 +870,19 @@ function get_all_game_content() {
 // Function to get all content warnings
 function get_all_content_warnings() {
     $content_warnings = get_option('content_warnings', array());
-    return array_unique($content_warnings);
+    return $content_warnings;
 }
 
 // Function to get all prompts
 function get_all_prompts() {
     $prompts = get_option('prompts', array());
-    return array_unique($prompts);
+    return $prompts;
 }
 
 // Function to get all HIVEs
 function get_all_hives() {
     $hives = get_option('hives', array());
-    return array_unique($hives);
+    return $hives;
 }
 
 // Function to get all calendar events
@@ -757,14 +1132,16 @@ add_action('rest_api_init', function () {
     register_rest_route('custom/v1', '/stories', array(
         'methods' => 'GET',
         'callback' => 'get_all_stories',
-        'permission_callback' => '__return_true',
+        'permission_callback' => function () {
+            return is_user_logged_in();
+        },
     ));
 
     register_rest_route('custom/v1', '/stories', array(
         'methods' => 'POST',
         'callback' => 'add_story',
         'permission_callback' => function () {
-            return current_user_can('edit_posts');
+            return is_user_logged_in();
         },
     ));
 
@@ -772,7 +1149,7 @@ add_action('rest_api_init', function () {
         'methods' => 'PUT',
         'callback' => 'update_story',
         'permission_callback' => function () {
-            return current_user_can('edit_posts');
+            return is_user_logged_in();
         },
         'args' => array(
             'id' => array(
@@ -792,7 +1169,7 @@ add_action('rest_api_init', function () {
         'methods' => 'DELETE',
         'callback' => 'delete_story',
         'permission_callback' => function () {
-            return current_user_can('delete_posts');
+            return is_user_logged_in();
         },
         'args' => array(
             'id' => array(
