@@ -12,7 +12,17 @@
 
 // Enable CORS here when working with the local server
 function add_cors_http_header(){
-    header("Access-Control-Allow-Origin: *");
+    $allowed_origins = array(
+        'https://staging-203c-battlehivefictioncom.wpcomstaging.com',
+        'https://battlehivefiction.com',
+        'http://localhost:3000'  // For local development
+    );
+    
+    $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+    
+    if (in_array($origin, $allowed_origins)) {
+        header("Access-Control-Allow-Origin: " . $origin);
+    }
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS, DELETE, PUT");
     header("Access-Control-Allow-Headers: X-WP-Nonce, Content-Type");
 }
