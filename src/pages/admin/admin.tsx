@@ -117,25 +117,31 @@ export const AdminPage: React.FC = () => {
   // Update local state when Redux state changes (e.g., after API success)
   React.useEffect(() => {
     console.log('Setting local values from Redux:', {
-      minWordCount,
-      maxWordCount,
-      battleName,
-      minPromptSelections,
-      numOfLosses,
-      prompts,
-      contentWarnings,
+      adminData, // Log adminData first to see what we get from server
+      reduxState: {
+        minWordCount,
+        maxWordCount,
+        battleName,
+        minPromptSelections,
+        numOfLosses,
+        prompts,
+        contentWarnings,
+      },
     });
+
+    // Prioritize adminData over Redux state over defaults
     setLocalValues({
-      battleName: battleName || 'Battle of the HIVEs',
-      minWordCount: typeof minWordCount === 'number' ? minWordCount : 250,
-      maxWordCount: typeof maxWordCount === 'number' ? maxWordCount : 1000,
+      battleName: adminData?.battleName ?? battleName ?? 'Battle of the HIVEs',
+      minWordCount: adminData?.minWordCount ?? minWordCount ?? 250,
+      maxWordCount: adminData?.maxWordCount ?? maxWordCount ?? 1000,
       minPromptSelections:
-        typeof minPromptSelections === 'number' ? minPromptSelections : 2,
-      numOfLosses: typeof numOfLosses === 'number' ? numOfLosses : 3,
-      prompts: Array.isArray(prompts) ? prompts : [],
-      contentWarnings: Array.isArray(contentWarnings) ? contentWarnings : [],
+        adminData?.minPromptSelections ?? minPromptSelections ?? 2,
+      numOfLosses: adminData?.numOfLosses ?? numOfLosses ?? 3,
+      prompts: adminData?.prompts ?? prompts ?? [],
+      contentWarnings: adminData?.contentWarnings ?? contentWarnings ?? [],
     });
   }, [
+    adminData, // Make adminData the first dependency
     battleName,
     minWordCount,
     maxWordCount,
