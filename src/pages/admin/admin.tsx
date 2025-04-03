@@ -179,12 +179,21 @@ export const AdminPage: React.FC = () => {
         }));
         break;
       case 'prompts':
-        // First set the count, then the array
-        const promptCount = adminData?.promptsCount || 0;
-        dispatch(setPromptCount(promptCount));
+        // Keep the current promptCount and only reset the prompts array
+        const currentPromptCount = promptsCount;
         setLocalValues((prev) => ({
           ...prev,
-          prompts: adminData?.prompts?.slice(0, promptCount) || [],
+          prompts:
+            adminData?.prompts?.slice(0, currentPromptCount) ||
+            Array.from({ length: currentPromptCount }, (_, i) => {
+              // Check if we have existing values for this index
+              const existingPrompt = prev.prompts?.[i];
+              return {
+                id: String(i + 1),
+                name: existingPrompt?.name || '',
+                description: existingPrompt?.description || '',
+              };
+            }),
         }));
         break;
       case 'calendarEvents':
