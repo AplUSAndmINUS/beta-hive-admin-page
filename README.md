@@ -93,6 +93,7 @@ src/
 
    - Ensure PHP API endpoints are properly set up
    - Configure WordPress nonce in `src/services/apis/axios-instance.ts`
+   - Utilize the php_api.php file within src/assets/php_code to configure the WP backend
 
 3. Start development server:
 
